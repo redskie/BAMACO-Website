@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Player Profile - BAMACO</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="container">
+        <div class="nav-brand">
+          <h1>BAMACO</h1>
+          <span class="brand-subtitle">Bataan MaiMai Community</span>
+        </div>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="players.html">Players</a></li>
+          <li><a href="guilds.html">Guilds</a></li>
+          <li><a href="articles.html">Tips & Guides</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="container">
+      <div class="profile-header">
+        <div class="profile-avatar" id="player-avatar"></div>
+        <div class="profile-info">
+          <h2 class="profile-name" id="player-name">Loading...</h2>
+          <p class="profile-role" id="player-role"></p>
+          <div class="profile-stats">
+            <div class="profile-stat">
+              <span class="stat-label">Level</span>
+              <span class="stat-value" id="player-level">0</span>
+            </div>
+            <div class="profile-stat">
+              <span class="stat-label">Rank</span>
+              <span class="stat-value" id="player-rank">-</span>
+            </div>
+            <div class="profile-stat">
+              <span class="stat-label">Joined</span>
+              <span class="stat-value" id="player-joined">-</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-content">
+        <section class="content-section">
+          <h3 class="section-title">About</h3>
+          <div class="card">
+            <p id="player-bio">Loading player information...</p>
+          </div>
+        </section>
+
+        <section class="content-section">
+          <h3 class="section-title">Guild Affiliation</h3>
+          <div class="card" id="player-guild"></div>
+        </section>
+
+        <section class="content-section">
+          <h3 class="section-title">Achievements</h3>
+          <div class="achievements-grid" id="player-achievements"></div>
+        </section>
+
+        <section class="content-section">
+          <h3 class="section-title">Published Guides</h3>
+          <div class="card-grid" id="player-articles"></div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <p>
+          &copy; 2026 BAMACO - Bataan MaiMai Community. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const playerId = new URLSearchParams(window.location.search).get('id');
+        if (playerId) {
+          loadPlayerProfile(playerId);
+        } else {
+          window.location.href = 'players.html';
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Article - BAMACO</title>
+    <link rel="stylesheet" href="../styles.css" />
+
+    <!-- ============================================ -->
+    <!-- EDIT YOUR ARTICLE INFORMATION BELOW -->
+    <!-- ============================================ -->
+    <script>
+      const ARTICLE_INFO = {
+        // Article Details
+        title: 'Basic Body Mechanics',
+        category: 'Techniques', // e.g., Strategy, Guide, News, Tips
+        author: 'TriD', // Use the player's IGN to auto-link to their profile
+        date: 'Jan 6, 2026', // Publication date
+
+        // Article Content (use \n for line breaks in plain text, or use HTML in sections)
+        content: `
+          <h2>What is basic body mechanics?</h2>
+          <p>In the simplest terms, basic body mechanics refer to the fundamental movements and postures that allow you to play rhythm games efficiently and comfortably. Mastering these mechanics helps improve your accuracy, speed, and overall performance.</p>
+          <h2>Key Components of Basic Body Mechanics</h2>
+          <h3>1. Posture</h3>
+          <p>Maintain a relaxed yet alert posture. Stand with your feet shoulder-width apart, knees slightly bent, and keep your upper body upright. This stance provides stability and allows for quick movements.</p>
+          <h3>2. Hand Positioning</h3>
+          <p>Keep your hands relaxed and slightly elevated above the controls. This position minimizes fatigue and allows for faster reaction times.</p>
+          <h3>3. Finger Techniques</h3>
+          <p>Use your fingers to tap the notes rather than your whole hand. This technique increases speed and precision, especially for complex note patterns.</p>
+          <h3>4. Arm Movements</h3>
+          <p>Incorporate smooth arm movements to reach distant notes. Avoid excessive swinging, which can lead to loss of control and accuracy.</p>
+        `,
+      };
+    </script>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="container">
+        <div class="nav-brand">
+          <h1>BAMACO</h1>
+          <span class="brand-subtitle">Bataan MaiMai Community</span>
+        </div>
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../players.html">Players</a></li>
+          <li><a href="../guilds.html">Guilds</a></li>
+          <li><a href="../articles.html">Tips & Guides</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="container">
+      <article class="article-detail">
+        <header class="article-header">
+          <div class="article-category" id="article-category"></div>
+          <h1 class="article-title" id="article-title"></h1>
+          <div class="article-meta">
+            <span class="article-author" id="article-author"></span>
+            <span class="article-date" id="article-date"></span>
+          </div>
+        </header>
+
+        <div class="article-content" id="article-content"></div>
+
+        <div class="article-footer">
+          <a href="../articles.html" class="btn-secondary"
+            >← Back to Articles</a
+          >
+        </div>
+      </article>
+    </main>
+
+    <script src="../navbar.js"></script>
+    <script src="../script.js"></script>
+    <script>
+      // Populate article with ARTICLE_INFO data
+      document.addEventListener('DOMContentLoaded', function () {
+        // Update page title
+        document.title = `${ARTICLE_INFO.title} - BAMACO`;
+
+        // Populate article details
+        document.getElementById('article-category').textContent =
+          ARTICLE_INFO.category;
+        document.getElementById('article-title').textContent =
+          ARTICLE_INFO.title;
+        document.getElementById(
+          'article-author'
+        ).textContent = `By ${ARTICLE_INFO.author}`;
+        document.getElementById('article-date').textContent = ARTICLE_INFO.date;
+        document.getElementById('article-content').innerHTML =
+          ARTICLE_INFO.content;
+      });
+    </script>
+  </body>
+</html>

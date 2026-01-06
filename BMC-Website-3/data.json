@@ -1,0 +1,86 @@
+{
+  "players": [
+    {
+      "id": "hayate",
+      "name": "Sheen Bonifacio",
+      "ign": "Hayate",
+      "maimaiFriendCode": "101835386931150",
+      "nickname": "Hayate",
+      "motto": "Play hard, rank harder!",
+      "age": 20,
+      "rating": 14836,
+      "role": "Community Specialist",
+      "rank": "S+",
+      "joined": "2025",
+      "bio": "A passionate MaiMai player from Bataan with a focus on improving accuracy and technique.",
+      "guildId": "",
+      "achievements": [],
+      "articles": [
+        {
+          "id": "A001",
+          "title": "Accuracy Guide",
+          "excerpt": "As someone who's been playing maimai and other rhythm games for a very long time, accuracy for me has become a very important skill to master especially if you're trying to really get good at the g...",
+          "category": "Guide",
+          "date": "Jan 6, 2026"
+        }
+      ]
+    },
+    {
+      "id": "trid",
+      "name": "Redgelson Sablang",
+      "ign": "TriD",
+      "maimaiFriendCode": "101933304902630",
+      "nickname": "Red",
+      "motto": "Tap until you die",
+      "age": 20,
+      "rating": 13575,
+      "role": "Community OG",
+      "rank": "Unranked",
+      "joined": "2025",
+      "bio": "Hi, I am Red! I developed this BAMACO website as a project to help our community grow and connect. I love playing MaiMai and sharing tips with fellow players. Feel free to reach out to me anytime!",
+      "guildId": "dragon_warriors",
+      "achievements": [
+        {
+          "icon": "🏆",
+          "name": "Community Website Freak",
+          "description": "Ceated the website for BAMACO"
+        },
+        {
+          "icon": "🤝",
+          "name": "Community Helper",
+          "description": "Assisted players in the community"
+        }
+      ],
+      "articles": [
+        {
+          "id": "A002",
+          "title": "Basic Body Mechanics",
+          "excerpt": "In the simplest terms, basic body mechanics refer to the fundamental movements and postures that allow you to play rhythm games efficiently and comfortably. Mastering these mechanics helps improve ...",
+          "category": "Techniques",
+          "date": "Jan 6, 2026"
+        }
+      ]
+    }
+  ],
+  "guilds": [],
+  "articles": [
+    {
+      "id": "A001",
+      "title": "Accuracy Guide",
+      "excerpt": "As someone who's been playing maimai and other rhythm games for a very long time, accuracy for me has become a very important skill to master especially if you're trying to really get good at the g...",
+      "category": "Guide",
+      "authorId": "hayate",
+      "date": "Jan 6, 2026",
+      "content": "<p>As someone who's been playing maimai and other rhythm games for a very long time, accuracy for me has become a very important skill to master especially if you're trying to really get good at the game. A couple of things I did back when I was starting to get a hang of the game was adjusting my speed until I found the speed I was comfortable playing at, which in this case for me was 8.25. Do note that everyone has their own preference in speed so no need to worry about it when you feel like you play a tad bit slower than others. Another thing that helped me improve my accuracy was the judgement display I use. The judgement display I currently use is 3-D which means perfect, great, and good notes would show a text displaying \"Fast\" or \"Late\" depending if I hit the note a bit early or a bit late (again, it's player preference if you do decide to use this type of judgement display because again, everyone prefers something else from others but I do recommend trying this). Knowing your judgement timing mid game helps you adjust your tempo when playing to ensure a higher score count. </p>"
+    },
+    {
+      "id": "A002",
+      "title": "Basic Body Mechanics",
+      "excerpt": "In the simplest terms, basic body mechanics refer to the fundamental movements and postures that allow you to play rhythm games efficiently and comfortably. Mastering these mechanics helps improve ...",
+      "category": "Techniques",
+      "authorId": "trid",
+      "date": "Jan 6, 2026",
+      "content": "<h2>What is basic body mechanics?</h2>\n          <p>In the simplest terms, basic body mechanics refer to the fundamental movements and postures that allow you to play rhythm games efficiently and comfortably. Mastering these mechanics helps improve your accuracy, speed, and overall performance.</p>\n          <h2>Key Components of Basic Body Mechanics</h2>\n          <h3>1. Posture</h3>\n          <p>Maintain a relaxed yet alert posture. Stand with your feet shoulder-width apart, knees slightly bent, and keep your upper body upright. This stance provides stability and allows for quick movements.</p>\n          <h3>2. Hand Positioning</h3>\n          <p>Keep your hands relaxed and slightly elevated above the controls. This position minimizes fatigue and allows for faster reaction times.</p>\n          <h3>3. Finger Techniques</h3>\n          <p>Use your fingers to tap the notes rather than your whole hand. This technique increases speed and precision, especially for complex note patterns.</p>\n          <h3>4. Arm Movements</h3>\n          <p>Incorporate smooth arm movements to reach distant notes. Avoid excessive swinging, which can lead to loss of control and accuracy.</p>"
+    }
+  ]
+}
