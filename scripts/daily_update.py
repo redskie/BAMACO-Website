@@ -14,6 +14,11 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from maimai_api import MaiMaiAPI
 
+# Profiles to skip (friend codes that cannot be queried)
+SKIP_FRIEND_CODES = {
+    '101933304902630',  # TriD - API account owner, cannot query own profile
+}
+
 
 def extract_friend_code_from_html(html_file):
     """Extract friend code from player HTML file"""
@@ -49,8 +54,9 @@ def update_player_html(html_file, api_data):
         
         # Update rating
         if api_data.get('rating'):
+            # Match both numeric ratings and text like "Unrated"
             content = re.sub(
-                r"(rating:\s*['\"]?)(\d+)(['\"]?)",
+                r"(rating:\s*['\"]?)([^,'\"\}]+)(['\"]?)",
                 r"\g<1>" + api_data['rating'] + r"\g<3>",
                 content
             )
@@ -111,16 +117,29 @@ def update_all_players():
     # Collect friend codes
     friend_codes = []
     file_map = {}
+    skipped_count = 0
     
     for player_file in player_files:
         friend_code = extract_friend_code_from_html(player_file)
+        
+        # Check if should skip
+        if friend_code in SKIP_FRIEND_CODES:
+            print(f"⏭️  Skipping {player_file.name}: In skip list (API account owner)")
+            skipped_count += 1
+            continue
+            
         if friend_code and api.validate_friend_code(friend_code):
             friend_codes.append(friend_code)
             file_map[friend_code] = player_file
         else:
             print(f"⚠️  Skipping {player_file.name}: Invalid or missing friend code")
+            skipped_count += 1
     
-    print(f"✅ {len(friend_codes)} valid friend codes to update\n")
+    print(f"✅ {len(friend_codes)} valid friend codes to update")
+    if skipped_count > 0:
+        print(f"⏭️  {skipped_count} profiles skipped\n")
+    else:
+        print()
     
     if not friend_codes:
         print("❌ No valid friend codes found. Exiting.")

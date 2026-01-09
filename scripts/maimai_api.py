@@ -164,10 +164,11 @@ class MaiMaiAPI:
         Returns:
             True if valid format, False otherwise
         """
-        # Friend code should be 15 digits
+        # Friend code should be numeric and at least 13 digits (some codes have leading zeros removed)
         return (
             isinstance(friend_code, str) and
-            len(friend_code) == 15 and
+            len(friend_code) >= 13 and
+            len(friend_code) <= 15 and
             friend_code.isdigit()
         )
 
