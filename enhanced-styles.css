@@ -1,0 +1,226 @@
+/* ================================================
+   BAMACO Enhanced Styles - Mobile-First Design
+   Apply to all pages for consistent modern UI
+   ================================================ */
+
+/* ===== Enhanced Page Headers ===== */
+.page-header-enhanced {
+  text-align: center;
+  padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem);
+  background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  border-radius: var(--radius-xl);
+  margin-bottom: clamp(1.5rem, 4vw, 2rem);
+  position: relative;
+  overflow: hidden;
+}
+
+.page-header-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  to { left: 100%; }
+}
+
+.page-title-enhanced {
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 800;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  z-index: 1;
+}
+
+.page-description-enhanced {
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  color: var(--text-secondary);
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ===== Enhanced Search Bars ===== */
+.search-bar-enhanced {
+  max-width: 600px;
+  margin: 0 auto clamp(1.5rem, 4vw, 2rem);
+  position: relative;
+}
+
+.search-bar-enhanced input {
+  width: 100%;
+  padding: clamp(0.75rem, 3vw, 1rem) clamp(1rem, 4vw, 1.5rem);
+  padding-left: clamp(2.5rem, 8vw, 3.5rem);
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  font-size: clamp(0.875rem, 3vw, 1rem);
+  transition: var(--transition-smooth);
+  touch-action: manipulation;
+}
+
+.search-bar-enhanced input:focus {
+  outline: none;
+  border-color: var(--text-secondary);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  transform: translateY(-2px);
+}
+
+.search-bar-enhanced::before {
+  content: '🔍';
+  position: absolute;
+  left: clamp(0.75rem, 3vw, 1rem);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: clamp(1rem, 4vw, 1.25rem);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ===== Enhanced Grids ===== */
+.grid-enhanced {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(clamp(250px, 45vw, 300px), 1fr));
+  gap: clamp(1rem, 3vw, 1.5rem);
+}
+
+/* ===== Enhanced Cards Base ===== */
+.card-enhanced {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: clamp(1.25rem, 4vw, 1.5rem);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
+  touch-action: manipulation;
+}
+
+.card-enhanced::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--text-primary), var(--text-secondary));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.card-enhanced:hover::after,
+.card-enhanced:active::after {
+  transform: scaleX(1);
+}
+
+.card-enhanced:hover,
+.card-enhanced:active {
+  transform: translateY(-8px);
+  border-color: var(--text-secondary);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger animation delays */
+.card-enhanced:nth-child(1) { animation-delay: 0.05s; }
+.card-enhanced:nth-child(2) { animation-delay: 0.1s; }
+.card-enhanced:nth-child(3) { animation-delay: 0.15s; }
+.card-enhanced:nth-child(4) { animation-delay: 0.2s; }
+.card-enhanced:nth-child(5) { animation-delay: 0.25s; }
+.card-enhanced:nth-child(6) { animation-delay: 0.3s; }
+.card-enhanced:nth-child(n+7) { animation-delay: 0.35s; }
+
+/* ===== Mobile Optimizations ===== */
+@media (max-width: 768px) {
+  .grid-enhanced {
+    grid-template-columns: repeat(auto-fill, minmax(clamp(140px, 40vw, 200px), 1fr));
+  }
+  
+  .card-enhanced:hover {
+    /* Reduced transform on mobile for touch devices */
+    transform: translateY(-4px);
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-enhanced {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .page-header-enhanced {
+    padding: 2rem 1rem;
+  }
+  
+  .search-bar-enhanced {
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* ===== Touch Device Optimizations ===== */
+@media (hover: none) and (pointer: coarse) {
+  /* Mobile touch optimization */
+  .card-enhanced:active {
+    transform: scale(0.98);
+  }
+  
+  .search-bar-enhanced input:focus {
+    transform: none; /* Remove transform on mobile to prevent keyboard issues */
+  }
+}
+
+/* ===== Accessibility Enhancements ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== Loading States ===== */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-card) 50%, var(--bg-tertiary) 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

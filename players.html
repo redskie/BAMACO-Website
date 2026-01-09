@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Players - BAMACO</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="enhanced-styles.css" />
+    <style>
+      /* Enhanced Page Header */
+      .page-header-enhanced {
+        text-align: center;
+        padding: clamp(2rem, 5vw, 4rem) 1rem;
+        background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+        border-radius: var(--radius-xl);
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .page-header-enhanced::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+        animation: shimmer 3s infinite;
+      }
+      
+      @keyframes shimmer {
+        to { left: 100%; }
+      }
+      
+      .page-title-enhanced {
+        font-size: clamp(2rem, 6vw, 3rem);
+        font-weight: 800;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        position: relative;
+        z-index: 1;
+      }
+      
+      .page-description-enhanced {
+        font-size: clamp(1rem, 3vw, 1.25rem);
+        color: var(--text-secondary);
+        position: relative;
+        z-index: 1;
+      }
+      
+      /* Enhanced Search Bar */
+      .search-bar-enhanced {
+        max-width: 600px;
+        margin: 0 auto 2rem;
+        position: relative;
+      }
+      
+      .search-bar-enhanced input {
+        width: 100%;
+        padding: clamp(0.75rem, 3vw, 1rem) clamp(1rem, 4vw, 1.5rem);
+        padding-left: clamp(2.5rem, 8vw, 3.5rem);
+        background: var(--bg-card);
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        color: var(--text-primary);
+        font-size: clamp(0.875rem, 3vw, 1rem);
+        transition: var(--transition-smooth);
+      }
+      
+      .search-bar-enhanced input:focus {
+        outline: none;
+        border-color: var(--text-secondary);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        transform: translateY(-2px);
+      }
+      
+      .search-bar-enhanced::before {
+        content: '🔍';
+        position: absolute;
+        left: clamp(0.75rem, 3vw, 1rem);
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: clamp(1rem, 4vw, 1.25rem);
+        pointer-events: none;
+      }
+      
+      /* Enhanced Player Cards */
+      .players-grid-enhanced {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(clamp(250px, 45vw, 300px), 1fr));
+        gap: clamp(1rem, 3vw, 1.5rem);
+      }
+      
+      .player-card-enhanced {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: clamp(1.25rem, 4vw, 1.5rem);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        opacity: 0;
+        animation: fadeInUp 0.6s ease-out forwards;
+      }
+      
+      .player-card-enhanced::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--text-primary), var(--text-secondary));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+      }
+      
+      .player-card-enhanced:hover::after {
+        transform: scaleX(1);
+      }
+      
+      .player-card-enhanced:hover {
+        transform: translateY(-8px);
+        border-color: var(--text-secondary);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      }
+      
+      .player-avatar {
+        width: clamp(60px, 15vw, 80px);
+        height: clamp(60px, 15vw, 80px);
+        background: var(--bg-tertiary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(1.5rem, 5vw, 2rem);
+        font-weight: 800;
+        margin: 0 auto 1rem;
+        border: 3px solid var(--border-color);
+        transition: var(--transition-smooth);
+      }
+      
+      .player-card-enhanced:hover .player-avatar {
+        border-color: var(--text-secondary);
+        transform: scale(1.1) rotate(5deg);
+      }
+      
+      .player-name {
+        font-size: clamp(1rem, 4vw, 1.25rem);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .player-meta {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(0.5rem, 2vw, 0.75rem);
+        margin-top: 1rem;
+      }
+      
+      .player-stat {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: clamp(0.75rem, 3vw, 0.875rem);
+        padding: clamp(0.375rem, 2vw, 0.5rem) clamp(0.625rem, 3vw, 0.75rem);
+        background: var(--bg-tertiary);
+        border-radius: var(--radius-sm);
+      }
+      
+      .player-stat-label {
+        color: var(--text-muted);
+      }
+      
+      .player-stat-value {
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+      
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      /* Stagger animation delays */
+      .player-card-enhanced:nth-child(1) { animation-delay: 0.05s; }
+      .player-card-enhanced:nth-child(2) { animation-delay: 0.1s; }
+      .player-card-enhanced:nth-child(3) { animation-delay: 0.15s; }
+      .player-card-enhanced:nth-child(4) { animation-delay: 0.2s; }
+      .player-card-enhanced:nth-child(5) { animation-delay: 0.25s; }
+      .player-card-enhanced:nth-child(6) { animation-delay: 0.3s; }
+      .player-card-enhanced:nth-child(n+7) { animation-delay: 0.35s; }
+      
+      /* Mobile optimizations */
+      @media (max-width: 768px) {
+        .players-grid-enhanced {
+          grid-template-columns: repeat(auto-fill, minmax(clamp(140px, 40vw, 200px), 1fr));
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .players-grid-enhanced {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="container">
+        <div class="nav-brand">
+          <h1>BAMACO</h1>
+          <span class="brand-subtitle">Bataan MaiMai Community</span>
+        </div>
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="players.html" class="active">Players</a></li>
+          <li><a href="guilds.html">Guilds</a></li>
+          <li><a href="articles.html">Tips & Guides</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="container">
+      <div class="page-header-enhanced">
+        <h2 class="page-title-enhanced">Community Players</h2>
+        <p class="page-description-enhanced">
+          Meet the talented players of our community
+        </p>
+      </div>
+
+      <div class="search-bar-enhanced">
+        <input type="text" id="player-search" placeholder="Search players..." />
+      </div>
+
+      <div class="players-grid-enhanced" id="players-grid"></div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <p>
+          &copy; 2026 BAMACO - Bataan MaiMai Community. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="navbar.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        loadAllPlayers();
+
+        // Search functionality
+        document
+          .getElementById('player-search')
+          .addEventListener('input', (e) => {
+            filterPlayers(e.target.value);
+          });
+      });
+    </script>
+  </body>
+</html>

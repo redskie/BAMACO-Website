@@ -1,0 +1,21 @@
+name: Player Profile Request
+description: Submit a new player profile for BAMACO
+title: "[PROFILE-NEW] "
+labels: ["player-profile-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🎮 New Player Profile Request
+        
+        This issue was automatically created from the profile submission form.
+        **Do not edit manually** - all data is processed automatically.
+        
+  - type: textarea
+    id: profile-data
+    attributes:
+      label: Profile Data
+      description: Auto-filled from submission form
+      placeholder: Profile data will appear here
+    validations:
+      required: true
