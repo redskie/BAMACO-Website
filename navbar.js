@@ -87,13 +87,13 @@ function getRelativePath(targetHref, currentPath) {
   // Handle GitHub Pages and other hosted environments
   let pathSegments = pathname.split('/').filter(segment => segment !== '');
   
-  // Detect repository name (for GitHub Pages: /BAMACO-Website/)
-  let repoBase = '';
+  // Check if we're in a repository (GitHub Pages style)
+  let isInRepository = false;
   if (pathSegments.length > 0 && pathSegments[0] && !pathSegments[0].includes('.html')) {
     const possibleRepoNames = ['BAMACO-Website', 'BMC-Website-New', 'bamaco', 'bmc'];
     if (possibleRepoNames.some(name => pathSegments[0].toLowerCase().includes(name.toLowerCase()))) {
-      repoBase = pathSegments[0] + '/'; // Keep the repository name
-      pathSegments = pathSegments.slice(1); // Remove repo name from depth calculation
+      isInRepository = true;
+      pathSegments = pathSegments.slice(1); // Remove repo name for depth calculation
     }
   }
   
@@ -103,19 +103,16 @@ function getRelativePath(targetHref, currentPath) {
     pathSegments = pathSegments.slice(0, -1);
   }
   
-  // Calculate directory depth
+  // Calculate directory depth (within the repository)
   const directoryDepth = pathSegments.length;
   
   // Build the correct path
   if (directoryDepth > 0) {
-    // From subdirectory: ../BAMACO-Website/targetFile.html
-    return '../' + repoBase + targetHref;
-  } else if (repoBase) {
-    // From root with repo base: BAMACO-Website/targetFile.html
-    return repoBase + targetHref;
+    // From subdirectory: just go up with ../
+    return '../'.repeat(directoryDepth) + targetHref;
   }
   
-  // Local development or simple hosting
+  // From repository root or local development
   return targetHref;
 }
 
