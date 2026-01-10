@@ -24,17 +24,7 @@ function generateNavbar() {
   
   const navLinks = NAVBAR_CONFIG.links.map(link => {
     const isActive = isActiveLink(link.href, currentPath) ? ' class="active"' : '';
-    let href = getRelativePath(link.href, currentPath);
-    
-    // Fallback: if we detect we might be in a hosted environment with issues,
-    // try to construct a more reliable path
-    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      const pathname = window.location.pathname;
-      if (pathname.includes('/players/') || pathname.includes('/guilds/') || pathname.includes('/articles/')) {
-        href = '../' + link.href;
-      }
-    }
-    
+    const href = getRelativePath(link.href, currentPath);
     return `<li><a href="${href}"${isActive}>${link.text}</a></li>`;
   }).join('');
 
@@ -94,15 +84,16 @@ function getRelativePath(targetHref, currentPath) {
   // Get the actual current pathname
   const pathname = window.location.pathname;
   
-  // Handle different hosting environments
+  // Handle GitHub Pages and other hosted environments
   let pathSegments = pathname.split('/').filter(segment => segment !== '');
   
-  // Remove any repository name from GitHub Pages (e.g., /BAMACO-Website/)
+  // Detect repository name (for GitHub Pages: /BAMACO-Website/)
+  let repoBase = '';
   if (pathSegments.length > 0 && pathSegments[0] && !pathSegments[0].includes('.html')) {
-    // Check if first segment might be a repository name
     const possibleRepoNames = ['BAMACO-Website', 'BMC-Website-New', 'bamaco', 'bmc'];
     if (possibleRepoNames.some(name => pathSegments[0].toLowerCase().includes(name.toLowerCase()))) {
-      pathSegments = pathSegments.slice(1); // Remove repo name from path calculation
+      repoBase = pathSegments[0] + '/'; // Keep the repository name
+      pathSegments = pathSegments.slice(1); // Remove repo name from depth calculation
     }
   }
   
@@ -115,11 +106,16 @@ function getRelativePath(targetHref, currentPath) {
   // Calculate directory depth
   const directoryDepth = pathSegments.length;
   
-  // If we're in a subdirectory, add appropriate number of ../
+  // Build the correct path
   if (directoryDepth > 0) {
-    return '../'.repeat(directoryDepth) + targetHref;
+    // From subdirectory: ../BAMACO-Website/targetFile.html
+    return '../' + repoBase + targetHref;
+  } else if (repoBase) {
+    // From root with repo base: BAMACO-Website/targetFile.html
+    return repoBase + targetHref;
   }
   
+  // Local development or simple hosting
   return targetHref;
 }
 
@@ -131,6 +127,12 @@ function initializeNavbar() {
     console.log('Current hostname:', window.location.hostname);
     console.log('Current pathname:', window.location.pathname);
     console.log('Detected path:', getCurrentPagePath());
+    
+    // Show generated paths for each link
+    NAVBAR_CONFIG.links.forEach(link => {
+      const generatedPath = getRelativePath(link.href, getCurrentPagePath());
+      console.log(`${link.text} → ${generatedPath}`);
+    });
   }
   
   // Find where to inject navbar - look for existing navbar or body start
