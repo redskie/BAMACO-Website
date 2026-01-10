@@ -71,10 +71,12 @@ def update_player_html(html_file, api_data):
             )
         
         # Update icon/avatar URL (if available)
-        if api_data.get('icon_url'):
+        if api_data.get('avatar_url') and api_data['avatar_url'].strip():
+            # Basic URL validation and escaping
+            avatar_url = api_data['avatar_url'].replace('\\', '\\\\').replace("'", "\\'")
             content = re.sub(
                 r"(avatarImage:\s*['\"])([^'\"]*)(['\"])",
-                r"\1" + api_data['icon_url'] + r"\3",
+                r"\1" + avatar_url + r"\3",
                 content
             )
         
