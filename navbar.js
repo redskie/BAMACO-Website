@@ -24,7 +24,17 @@ function generateNavbar() {
   
   const navLinks = NAVBAR_CONFIG.links.map(link => {
     const isActive = isActiveLink(link.href, currentPath) ? ' class="active"' : '';
-    const href = getRelativePath(link.href, currentPath);
+    let href = getRelativePath(link.href, currentPath);
+    
+    // Fallback: if we detect we might be in a hosted environment with issues,
+    // try to construct a more reliable path
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      const pathname = window.location.pathname;
+      if (pathname.includes('/players/') || pathname.includes('/guilds/') || pathname.includes('/articles/')) {
+        href = '../' + link.href;
+      }
+    }
+    
     return `<li><a href="${href}"${isActive}>${link.text}</a></li>`;
   }).join('');
 
@@ -81,19 +91,33 @@ function isActiveLink(linkHref, currentPath) {
 
 // Calculate relative path based on current location
 function getRelativePath(targetHref, currentPath) {
-  // Get the actual current pathname to determine directory depth
+  // Get the actual current pathname
   const pathname = window.location.pathname;
   
-  // Count directory depth (how many levels deep we are)
-  const pathSegments = pathname.split('/').filter(segment => segment !== '');
+  // Handle different hosting environments
+  let pathSegments = pathname.split('/').filter(segment => segment !== '');
+  
+  // Remove any repository name from GitHub Pages (e.g., /BAMACO-Website/)
+  if (pathSegments.length > 0 && pathSegments[0] && !pathSegments[0].includes('.html')) {
+    // Check if first segment might be a repository name
+    const possibleRepoNames = ['BAMACO-Website', 'BMC-Website-New', 'bamaco', 'bmc'];
+    if (possibleRepoNames.some(name => pathSegments[0].toLowerCase().includes(name.toLowerCase()))) {
+      pathSegments = pathSegments.slice(1); // Remove repo name from path calculation
+    }
+  }
   
   // Remove the filename from segments to get directory depth
-  const directoryDepth = pathSegments.length - (pathSegments[pathSegments.length - 1].includes('.html') ? 1 : 0);
+  const lastSegment = pathSegments[pathSegments.length - 1];
+  if (lastSegment && lastSegment.includes('.html')) {
+    pathSegments = pathSegments.slice(0, -1);
+  }
+  
+  // Calculate directory depth
+  const directoryDepth = pathSegments.length;
   
   // If we're in a subdirectory, add appropriate number of ../
   if (directoryDepth > 0) {
-    const relativePath = '../'.repeat(directoryDepth) + targetHref;
-    return relativePath;
+    return '../'.repeat(directoryDepth) + targetHref;
   }
   
   return targetHref;
@@ -101,6 +125,14 @@ function getRelativePath(targetHref, currentPath) {
 
 // Initialize navbar when DOM is loaded
 function initializeNavbar() {
+  // Debug logging for hosted environments
+  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    console.log('🌐 Navbar Debug Info:');
+    console.log('Current hostname:', window.location.hostname);
+    console.log('Current pathname:', window.location.pathname);
+    console.log('Detected path:', getCurrentPagePath());
+  }
+  
   // Find where to inject navbar - look for existing navbar or body start
   let navbarTarget = document.querySelector('nav.navbar');
   
