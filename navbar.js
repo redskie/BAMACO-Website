@@ -24,7 +24,7 @@ function generateNavbar() {
   
   const navLinks = NAVBAR_CONFIG.links.map(link => {
     const isActive = isActiveLink(link.href, currentPath) ? ' class="active"' : '';
-    const href = getRelativePath(link.href, currentPath);
+    const href = getAbsolutePath(link.href);
     return `<li><a href="${href}"${isActive}>${link.text}</a></li>`;
   }).join('');
 
@@ -77,6 +77,32 @@ function isActiveLink(linkHref, currentPath) {
   if (linkFile === 'queue.html' && (pathname.includes('queue') || currentFile.includes('queue'))) return true;
   
   return linkFile === currentFile;
+}
+
+// Get absolute path for GitHub Pages or relative path for local development
+function getAbsolutePath(targetHref) {
+  // Check if we're on GitHub Pages
+  const isGitHubPages = window.location.hostname.includes('github.io');
+  
+  if (isGitHubPages) {
+    // For GitHub Pages, use the repository base path
+    const pathSegments = window.location.pathname.split('/').filter(segment => segment !== '');
+    const repoName = pathSegments[0]; // First segment is the repository name
+    return `/${repoName}/${targetHref}`;
+  } else {
+    // For local development, use relative paths
+    const pathname = window.location.pathname;
+    const pathSegments = pathname.split('/').filter(segment => segment !== '');
+    
+    // Remove filename to get directory depth
+    const lastSegment = pathSegments[pathSegments.length - 1];
+    if (lastSegment && lastSegment.includes('.html')) {
+      pathSegments.pop();
+    }
+    
+    const directoryDepth = pathSegments.length;
+    return directoryDepth > 0 ? '../'.repeat(directoryDepth) + targetHref : targetHref;
+  }
 }
 
 // Calculate relative path based on current location
