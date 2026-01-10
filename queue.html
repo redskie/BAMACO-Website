@@ -207,6 +207,17 @@
       </div>
     </div>
 
+    <!-- Credits Overview -->
+    <div class="queue-list">
+      <h2>Player Credits</h2>
+      <div id="creditsDisplay" style="display: grid; gap: var(--spacing-xs); max-height: 200px; overflow-y: auto;">
+        <div class="empty-state">
+          <p>No active credits</p>
+          <p style="margin-top: var(--spacing-xs);">Credits will appear here when players join the queue</p>
+        </div>
+      </div>
+    </div>
+
     <!-- Queue List -->
     <div class="queue-list">
       <h2>Queue (<span id="queueCount">0</span> players waiting)</h2>
@@ -268,7 +279,8 @@
       snapshot.forEach((child) => {
         playerCredits[child.key] = child.val();
       });
-      renderQueue();
+      renderCredits(); // Render the separate credits card
+      renderQueue();   // Also refresh queue in case it affects display
     });
 
     function renderQueue() {
@@ -288,13 +300,11 @@
       }
 
       display.innerHTML = queue.map((player, index) => {
-        const credits = playerCredits[player.name] || 0;
         return `
         <div class="queue-item">
           <div class="player-info">
             <span class="position-badge">${index + 1}</span>
             <strong>${player.name}</strong>
-            <span class="paid-badge" style="background: var(--bg-tertiary); color: #2196f3; border-color: #2196f3;">💳 ${credits} ${credits === 1 ? 'Credit' : 'Credits'}</span>
             ${player.paid ? '<span class="paid-badge">PAID</span>' : ''}
           </div>
         </div>
@@ -310,6 +320,30 @@
       } else {
         display.innerHTML = playing.map(p => `<span>${p.name}</span>`).join(' <span style="color: var(--text-muted);">vs</span> ');
       }
+    }
+
+    function renderCredits() {
+      const display = document.getElementById('creditsDisplay');
+      
+      if (Object.keys(playerCredits).length === 0 || Object.values(playerCredits).every(c => c === 0)) {
+        display.innerHTML = `
+          <div class="empty-state">
+            <p>No active credits</p>
+            <p style="margin-top: var(--spacing-xs);">Credits will appear here when players join the queue</p>
+          </div>
+        `;
+        return;
+      }
+
+      display.innerHTML = Object.entries(playerCredits)
+        .filter(([name, credits]) => credits > 0)
+        .sort(([,a], [,b]) => b - a)
+        .map(([name, credits]) => `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-xs); background: var(--bg-secondary); border-radius: var(--radius-sm); margin-bottom: 4px;">
+            <span><strong>${name}</strong></span>
+            <span style="color: var(--text-secondary);">💳 ${credits} ${credits === 1 ? 'Credit' : 'Credits'}</span>
+          </div>
+        `).join('');
     }
   </script>
 </body>

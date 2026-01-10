@@ -306,13 +306,13 @@
       </div>
 
       <!-- Currently Playing -->
-      <div class="currently-playing">
+      <div class="queue-list">
         <h2>Currently Playing</h2>
-        <div class="playing-pair" id="currentlyPlaying">
+        <div id="currentlyPlaying" style="text-align: center; font-size: 1.25rem; padding: var(--spacing-md);">
           <span>No one playing</span>
         </div>
-        <button onclick="clearCurrentPlayers()" class="btn btn-secondary" style="margin-top: var(--spacing-sm);">
-          Clear Current Players
+        <button onclick="clearCurrentPlayers()" class="btn btn-secondary" style="width: 100%; margin-top: var(--spacing-sm);">
+          Finish Current Game
         </button>
       </div>
 
@@ -440,13 +440,11 @@
       }
 
       display.innerHTML = queue.map((player, index) => {
-        const credits = playerCredits[player.name] || 0;
         return `
         <div class="queue-item">
           <div class="player-info">
             <span class="position-badge">${index + 1}</span>
             <strong>${player.name}</strong>
-            <span class="paid-badge" style="background: var(--bg-tertiary); color: var(--text-secondary); border-color: var(--border-color);">💳 ${credits} ${credits === 1 ? 'Credit' : 'Credits'}</span>
             ${player.paid ? '<span class="paid-badge" style="background: var(--bg-tertiary); color: #4caf50; border-color: #4caf50;">✓ PAID</span>' : '<span class="paid-badge" style="background: var(--bg-tertiary); color: #f44336; border-color: #f44336;">✗ UNPAID</span>'}
           </div>
           <div class="queue-actions">
