@@ -1053,15 +1053,17 @@ Reduce hero padding on mobile */
 }
 
 .btn-primary {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: var(--bg-primary);
+  border: 1px solid var(--accent-primary);
+  font-weight: 700;
 }
 
 .btn-primary:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, var(--accent-secondary), var(--accent-hover));
+  border-color: var(--accent-secondary);
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
 }
 
 .btn-secondary {
