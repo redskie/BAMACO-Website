@@ -1,33 +1,155 @@
 /**
- * Mobile Navigation Toggle
- * Handles hamburger menu functionality for responsive navbar
+ * Centralized Navbar Management
+ * Generates and injects navbar into pages, handles mobile navigation
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+// Centralized navbar configuration
+const NAVBAR_CONFIG = {
+  brand: {
+    title: 'BAMACO',
+    subtitle: 'Bataan MaiMai Community'
+  },
+  links: [
+    { href: 'index.html', text: 'Home', id: 'home' },
+    { href: 'players.html', text: 'Players', id: 'players' },
+    { href: 'guilds.html', text: 'Guilds', id: 'guilds' },
+    { href: 'articles.html', text: 'Tips & Guides', id: 'articles' },
+    { href: 'queue.html', text: 'Queue', id: 'queue' }
+  ]
+};
+
+// Generate navbar HTML
+function generateNavbar() {
+  const currentPath = getCurrentPagePath();
+  
+  const navLinks = NAVBAR_CONFIG.links.map(link => {
+    const isActive = isActiveLink(link.href, currentPath) ? ' class="active"' : '';
+    const href = getRelativePath(link.href, currentPath);
+    return `<li><a href="${href}"${isActive}>${link.text}</a></li>`;
+  }).join('');
+
+  return `
+    <nav class="navbar">
+      <div class="container">
+        <div class="nav-brand">
+          <h1>${NAVBAR_CONFIG.brand.title}</h1>
+          <span class="brand-subtitle">${NAVBAR_CONFIG.brand.subtitle}</span>
+        </div>
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <ul class="nav-links">
+          ${navLinks}
+        </ul>
+      </div>
+    </nav>
+  `;
+}
+
+// Get current page path for active state detection
+function getCurrentPagePath() {
+  const path = window.location.pathname;
+  const filename = path.split('/').pop() || 'index.html';
+  
+  // Handle special cases
+  if (filename === '' || filename === '/') return 'index.html';
+  if (path.includes('/players/')) return 'players.html';
+  if (path.includes('/guilds/')) return 'guilds.html';
+  if (path.includes('/articles/')) return 'articles.html';
+  
+  return filename;
+}
+
+// Check if link should be active
+function isActiveLink(linkHref, currentPath) {
+  const linkFile = linkHref.split('/').pop();
+  const currentFile = currentPath.split('/').pop();
+  
+  // Handle special cases
+  if (linkFile === 'index.html' && (currentFile === 'index.html' || currentFile === '')) return true;
+  if (linkFile === 'players.html' && currentPath.includes('players')) return true;
+  if (linkFile === 'guilds.html' && currentPath.includes('guilds')) return true;
+  if (linkFile === 'articles.html' && currentPath.includes('articles')) return true;
+  
+  return linkFile === currentFile;
+}
+
+// Calculate relative path based on current location
+function getRelativePath(targetHref, currentPath) {
+  const currentDepth = currentPath.split('/').length - 1;
+  
+  // If we're in a subdirectory (players/, guilds/, articles/)
+  if (currentDepth > 0) {
+    return '../' + targetHref;
+  }
+  
+  return targetHref;
+}
+
+// Initialize navbar when DOM is loaded
+function initializeNavbar() {
+  // Find where to inject navbar - look for existing navbar or body start
+  let navbarTarget = document.querySelector('nav.navbar');
+  
+  if (navbarTarget) {
+    // Replace existing navbar
+    navbarTarget.outerHTML = generateNavbar();
+  } else {
+    // Insert at beginning of body
+    const body = document.body;
+    if (body) {
+      body.insertAdjacentHTML('afterbegin', generateNavbar());
+    }
+  }
+  
+  // Initialize mobile navigation after navbar is injected
+  initializeMobileNavigation();
+}
+
+// Mobile navigation functionality
+function initializeMobileNavigation() {
   const navToggle = document.querySelector('.nav-toggle');
   const navLinks = document.querySelector('.nav-links');
 
   if (navToggle && navLinks) {
+    // Remove any existing event listeners
+    navToggle.replaceWith(navToggle.cloneNode(true));
+    const newNavToggle = document.querySelector('.nav-toggle');
+    
     // Toggle menu on hamburger click
-    navToggle.addEventListener('click', () => {
-      navToggle.classList.toggle('active');
+    newNavToggle.addEventListener('click', () => {
+      newNavToggle.classList.toggle('active');
       navLinks.classList.toggle('active');
     });
 
     // Close menu when clicking a link
     navLinks.querySelectorAll('a').forEach((link) => {
       link.addEventListener('click', () => {
-        navToggle.classList.remove('active');
+        newNavToggle.classList.remove('active');
         navLinks.classList.remove('active');
       });
     });
 
     // Close menu when clicking outside
     document.addEventListener('click', (e) => {
-      if (!navToggle.contains(e.target) && !navLinks.contains(e.target)) {
-        navToggle.classList.remove('active');
+      if (!newNavToggle.contains(e.target) && !navLinks.contains(e.target)) {
+        newNavToggle.classList.remove('active');
         navLinks.classList.remove('active');
       }
     });
   }
-});
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', initializeNavbar);
+
+// Export functions for manual use if needed
+window.BAMACO_Navbar = {
+  init: initializeNavbar,
+  regenerate: () => {
+    initializeNavbar();
+  },
+  config: NAVBAR_CONFIG
+};
