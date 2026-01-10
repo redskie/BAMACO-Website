@@ -84,36 +84,41 @@ function getRelativePath(targetHref, currentPath) {
   // Get the actual current pathname
   const pathname = window.location.pathname;
   
-  // Handle GitHub Pages and other hosted environments
-  let pathSegments = pathname.split('/').filter(segment => segment !== '');
+  // Handle GitHub Pages - detect if we're on GitHub Pages
+  const isGitHubPages = window.location.hostname.includes('github.io');
   
-  // Check if we're in a repository (GitHub Pages style)
-  let isInRepository = false;
-  if (pathSegments.length > 0 && pathSegments[0] && !pathSegments[0].includes('.html')) {
-    const possibleRepoNames = ['BAMACO-Website', 'BMC-Website-New', 'bamaco', 'bmc'];
-    if (possibleRepoNames.some(name => pathSegments[0].toLowerCase().includes(name.toLowerCase()))) {
-      isInRepository = true;
-      pathSegments = pathSegments.slice(1); // Remove repo name for depth calculation
+  if (isGitHubPages) {
+    // For GitHub Pages, use absolute paths within the repository
+    const pathSegments = pathname.split('/').filter(segment => segment !== '');
+    
+    // Find repository name (first segment after github.io)
+    const repoName = pathSegments[0];
+    
+    // Check if we're in a subdirectory (more than just repo/file.html)
+    const hasSubdirectories = pathSegments.length > 2 || 
+                             (pathSegments.length === 2 && !pathSegments[1].includes('.html'));
+    
+    if (hasSubdirectories) {
+      // From subdirectory: navigate up to repo root, then to target
+      const currentDir = pathSegments.slice(1, -1); // Remove repo and filename
+      return '../'.repeat(currentDir.length) + targetHref;
+    } else {
+      // From repo root: direct relative path
+      return targetHref;
     }
+  } else {
+    // For local development, use simple relative paths
+    const pathSegments = pathname.split('/').filter(segment => segment !== '');
+    
+    // Remove filename to get directory depth
+    const lastSegment = pathSegments[pathSegments.length - 1];
+    if (lastSegment && lastSegment.includes('.html')) {
+      pathSegments.pop();
+    }
+    
+    const directoryDepth = pathSegments.length;
+    return directoryDepth > 0 ? '../'.repeat(directoryDepth) + targetHref : targetHref;
   }
-  
-  // Remove the filename from segments to get directory depth
-  const lastSegment = pathSegments[pathSegments.length - 1];
-  if (lastSegment && lastSegment.includes('.html')) {
-    pathSegments = pathSegments.slice(0, -1);
-  }
-  
-  // Calculate directory depth (within the repository)
-  const directoryDepth = pathSegments.length;
-  
-  // Build the correct path
-  if (directoryDepth > 0) {
-    // From subdirectory: just go up with ../
-    return '../'.repeat(directoryDepth) + targetHref;
-  }
-  
-  // From repository root or local development
-  return targetHref;
 }
 
 // Initialize navbar when DOM is loaded
