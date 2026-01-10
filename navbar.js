@@ -50,14 +50,15 @@ function generateNavbar() {
 
 // Get current page path for active state detection
 function getCurrentPagePath() {
-  const path = window.location.pathname;
-  const filename = path.split('/').pop() || 'index.html';
+  const pathname = window.location.pathname;
+  const filename = pathname.split('/').pop() || 'index.html';
   
-  // Handle special cases
-  if (filename === '' || filename === '/') return 'index.html';
-  if (path.includes('/players/')) return 'players.html';
-  if (path.includes('/guilds/')) return 'guilds.html';
-  if (path.includes('/articles/')) return 'articles.html';
+  // Handle special cases for active state
+  if (filename === '' || pathname === '/' || filename === 'index.html') return 'index.html';
+  if (pathname.includes('/players/')) return 'players.html';
+  if (pathname.includes('/guilds/')) return 'guilds.html';
+  if (pathname.includes('/articles/')) return 'articles.html';
+  if (pathname.includes('queue')) return 'queue.html';
   
   return filename;
 }
@@ -66,23 +67,33 @@ function getCurrentPagePath() {
 function isActiveLink(linkHref, currentPath) {
   const linkFile = linkHref.split('/').pop();
   const currentFile = currentPath.split('/').pop();
+  const pathname = window.location.pathname;
   
   // Handle special cases
-  if (linkFile === 'index.html' && (currentFile === 'index.html' || currentFile === '')) return true;
-  if (linkFile === 'players.html' && currentPath.includes('players')) return true;
-  if (linkFile === 'guilds.html' && currentPath.includes('guilds')) return true;
-  if (linkFile === 'articles.html' && currentPath.includes('articles')) return true;
+  if (linkFile === 'index.html' && (currentFile === 'index.html' || pathname === '/' || pathname === '')) return true;
+  if (linkFile === 'players.html' && pathname.includes('/players/')) return true;
+  if (linkFile === 'guilds.html' && pathname.includes('/guilds/')) return true;
+  if (linkFile === 'articles.html' && pathname.includes('/articles/')) return true;
+  if (linkFile === 'queue.html' && (pathname.includes('queue') || currentFile.includes('queue'))) return true;
   
   return linkFile === currentFile;
 }
 
 // Calculate relative path based on current location
 function getRelativePath(targetHref, currentPath) {
-  const currentDepth = currentPath.split('/').length - 1;
+  // Get the actual current pathname to determine directory depth
+  const pathname = window.location.pathname;
   
-  // If we're in a subdirectory (players/, guilds/, articles/)
-  if (currentDepth > 0) {
-    return '../' + targetHref;
+  // Count directory depth (how many levels deep we are)
+  const pathSegments = pathname.split('/').filter(segment => segment !== '');
+  
+  // Remove the filename from segments to get directory depth
+  const directoryDepth = pathSegments.length - (pathSegments[pathSegments.length - 1].includes('.html') ? 1 : 0);
+  
+  // If we're in a subdirectory, add appropriate number of ../
+  if (directoryDepth > 0) {
+    const relativePath = '../'.repeat(directoryDepth) + targetHref;
+    return relativePath;
   }
   
   return targetHref;
