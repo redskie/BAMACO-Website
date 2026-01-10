@@ -154,13 +154,20 @@
     }
     
     .add-player-form input {
-      flex: 1;
-      min-width: 200px;
       background: var(--bg-card);
       color: var(--text-primary);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
       padding: 12px;
+    }
+
+    .add-player-form input[type="text"] {
+      flex: 2;
+      min-width: 200px;
+    }
+
+    .add-player-form input[type="number"] {
+      width: 100px;
     }
     
     .add-player-form input::placeholder {
@@ -268,6 +275,36 @@
         <button onclick="logout()" class="btn btn-secondary">Logout</button>
       </div>
 
+      <!-- Credits Management Card -->
+      <div class="queue-list">
+        <h2>Credits Management</h2>
+        <div class="add-player-form" style="margin-bottom: var(--spacing-md);">
+          <input 
+            type="text" 
+            id="creditPlayerName" 
+            placeholder="Player name"
+            style="padding: 12px; font-size: 16px; flex: 2;"
+          >
+          <input 
+            type="number" 
+            id="creditAmount" 
+            placeholder="Credits"
+            min="0"
+            value="1"
+            style="padding: 12px; font-size: 16px; width: 100px;"
+          >
+          <button onclick="addCredits()" class="btn btn-primary">Add Credits</button>
+          <button onclick="removeCredits()" class="btn btn-secondary">Remove Credits</button>
+        </div>
+        
+        <h3 style="margin-bottom: var(--spacing-sm);">Current Credits</h3>
+        <div id="creditsDisplay" style="display: grid; gap: var(--spacing-xs); max-height: 200px; overflow-y: auto;">
+          <p class="text-muted" style="text-align: center; padding: var(--spacing-md);">
+            No credits assigned
+          </p>
+        </div>
+      </div>
+
       <!-- Currently Playing -->
       <div class="currently-playing">
         <h2>Currently Playing</h2>
@@ -326,11 +363,12 @@
 
   <script src="navbar.js"></script>
   <script type="module">
-    import { database, queueRef, currentlyPlayingRef, gameHistoryRef, ref, onValue, set, push, get, update, remove } from './firebase-config.js';
+    import { database, queueRef, currentlyPlayingRef, gameHistoryRef, playerCreditsRef, ref, onValue, set, push, get, update, remove } from './firebase-config.js';
 
     const ADMIN_PASSWORD = 'Nachi';
     let queue = [];
     let currentlyPlaying = [];
+    let playerCredits = {};
 
     // Check if already logged in
     if (localStorage.getItem('bamaco_admin_auth') === 'true') {
@@ -379,6 +417,15 @@
         });
         renderCurrentlyPlaying();
       });
+
+      // Listen to player credits changes
+      onValue(playerCreditsRef, (snapshot) => {
+        playerCredits = {};
+        snapshot.forEach((child) => {
+          playerCredits[child.key] = child.val();
+        });
+        renderCredits();
+      });
     }
 
     function renderQueue() {
@@ -392,11 +439,14 @@
         return;
       }
 
-      display.innerHTML = queue.map((player, index) => `
+      display.innerHTML = queue.map((player, index) => {
+        const credits = playerCredits[player.name] || 0;
+        return `
         <div class="queue-item">
           <div class="player-info">
             <span class="position-badge">${index + 1}</span>
             <strong>${player.name}</strong>
+            <span class="paid-badge" style="background: var(--bg-tertiary); color: var(--text-secondary); border-color: var(--border-color);">💳 ${credits} ${credits === 1 ? 'Credit' : 'Credits'}</span>
             ${player.paid ? '<span class="paid-badge" style="background: var(--bg-tertiary); color: #4caf50; border-color: #4caf50;">✓ PAID</span>' : '<span class="paid-badge" style="background: var(--bg-tertiary); color: #f44336; border-color: #f44336;">✗ UNPAID</span>'}
           </div>
           <div class="queue-actions">
@@ -406,7 +456,7 @@
             <button onclick="deletePlayer('${player.key}')" class="btn btn-secondary btn-small">Delete</button>
           </div>
         </div>
-      `).join('');
+      `;}).join('');
     }
 
     function renderCurrentlyPlaying() {
@@ -419,20 +469,98 @@
       }
     }
 
-    // Add player
+    function renderCredits() {
+      const display = document.getElementById('creditsDisplay');
+      
+      if (Object.keys(playerCredits).length === 0) {
+        display.innerHTML = '<p class="text-muted" style="text-align: center; padding: var(--spacing-md);">No credits assigned</p>';
+        return;
+      }
+
+      display.innerHTML = Object.entries(playerCredits)
+        .filter(([name, credits]) => credits > 0)
+        .sort(([,a], [,b]) => b - a)
+        .map(([name, credits]) => `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-xs); background: var(--bg-secondary); border-radius: var(--radius-sm); margin-bottom: 4px;">
+            <span><strong>${name}</strong></span>
+            <span style="color: var(--text-secondary);">${credits} ${credits === 1 ? 'Credit' : 'Credits'}</span>
+          </div>
+        `).join('');
+    }
+
+    // Add player with credit logic
     window.addPlayer = async function() {
       const input = document.getElementById('newPlayerName');
       const name = input.value.trim();
       
       if (!name) return;
 
+      // Check if player already in queue
+      const existingPlayer = queue.find(p => p.name.toLowerCase() === name.toLowerCase());
+      
+      if (existingPlayer) {
+        // Player already in queue - add 1 credit instead
+        const currentCredits = playerCredits[name] || 0;
+        await set(ref(database, `playerCredits/${name}`), currentCredits + 1);
+        
+        // Show feedback
+        input.value = '';
+        input.placeholder = `+1 Credit added to ${name}`;
+        setTimeout(() => {
+          input.placeholder = "Enter player name";
+        }, 2000);
+        return;
+      }
+
+      // Add player to queue and give 1 credit
       await push(queueRef, {
         name: name,
         paid: false,
         timestamp: Date.now()
       });
 
+      // Add 1 credit for being in queue
+      const currentCredits = playerCredits[name] || 0;
+      await set(ref(database, `playerCredits/${name}`), currentCredits + 1);
+
       input.value = '';
+    };
+
+    // Credit management functions
+    window.addCredits = async function() {
+      const nameInput = document.getElementById('creditPlayerName');
+      const amountInput = document.getElementById('creditAmount');
+      const name = nameInput.value.trim();
+      const amount = parseInt(amountInput.value) || 1;
+      
+      if (!name) return;
+
+      const currentCredits = playerCredits[name] || 0;
+      await set(ref(database, `playerCredits/${name}`), currentCredits + amount);
+      
+      nameInput.value = '';
+      amountInput.value = '1';
+    };
+
+    window.removeCredits = async function() {
+      const nameInput = document.getElementById('creditPlayerName');
+      const amountInput = document.getElementById('creditAmount');
+      const name = nameInput.value.trim();
+      const amount = parseInt(amountInput.value) || 1;
+      
+      if (!name) return;
+
+      const currentCredits = playerCredits[name] || 0;
+      const newCredits = Math.max(0, currentCredits - amount);
+      
+      if (newCredits === 0) {
+        await remove(ref(database, `playerCredits/${name}`));
+      } else {
+        await set(ref(database, `playerCredits/${name}`), newCredits);
+      }
+      
+      nameInput.value = '';
+      amountInput.value = '1';
     };
 
     // Allow Enter key to add player
@@ -501,7 +629,7 @@
       document.getElementById('swapPos2').value = '';
     };
 
-    // Next pair playing
+    // Next pair playing with credit logic
     window.nextPairPlaying = async function() {
       if (queue.length < 2) {
         alert('Not enough players in queue');
@@ -510,25 +638,33 @@
 
       const pair = queue.slice(0, 2);
       
-      // If there are currently playing players, add them to game history
+      // If there are currently playing players, finish their game first
       if (currentlyPlaying.length > 0) {
-        await push(gameHistoryRef, {
-          players: currentlyPlaying.map(p => p.name),
-          timestamp: Date.now()
-        });
+        await finishCurrentGame();
       }
 
       // Set new pair as currently playing
       await set(currentlyPlayingRef, pair.map(p => ({ name: p.name })));
 
-      // Remove from queue
+      // Process credits for each player
       for (const player of pair) {
+        // Reduce 1 credit (moving from queue to playing)
+        const currentCredits = playerCredits[player.name] || 0;
+        const newCredits = Math.max(0, currentCredits - 1);
+        
+        if (newCredits === 0) {
+          await remove(ref(database, `playerCredits/${player.name}`));
+        } else {
+          await set(ref(database, `playerCredits/${player.name}`), newCredits);
+        }
+
+        // Remove from queue
         const playerRef = ref(database, `queue/${player.key}`);
         await remove(playerRef);
       }
     };
 
-    // Next solo playing
+    // Next solo playing with credit logic  
     window.nextSoloPlaying = async function() {
       if (queue.length < 1) {
         alert('No players in queue');
@@ -537,33 +673,58 @@
 
       const soloPlayer = queue[0];
       
-      // If there are currently playing players, add them to game history
+      // If there are currently playing players, finish their game first
       if (currentlyPlaying.length > 0) {
-        await push(gameHistoryRef, {
-          players: currentlyPlaying.map(p => p.name),
-          timestamp: Date.now()
-        });
+        await finishCurrentGame();
       }
 
       // Set solo player as currently playing
       await set(currentlyPlayingRef, [{ name: soloPlayer.name }]);
+
+      // Process credits for the player
+      const currentCredits = playerCredits[soloPlayer.name] || 0;
+      const newCredits = Math.max(0, currentCredits - 1);
+      
+      if (newCredits === 0) {
+        await remove(ref(database, `playerCredits/${soloPlayer.name}`));
+      } else {
+        await set(ref(database, `playerCredits/${soloPlayer.name}`), newCredits);
+      }
 
       // Remove from queue
       const playerRef = ref(database, `queue/${soloPlayer.key}`);
       await remove(playerRef);
     };
 
-    // Clear currently playing
-    window.clearCurrentPlayers = async function() {
-      if (confirm('Clear currently playing players?')) {
-        // Add to game history before clearing
-        if (currentlyPlaying.length > 0) {
-          await push(gameHistoryRef, {
-            players: currentlyPlaying.map(p => p.name),
+    // Function to finish current game and handle credit logic
+    async function finishCurrentGame() {
+      if (currentlyPlaying.length === 0) return;
+
+      // Add finished players to game history
+      await push(gameHistoryRef, {
+        players: currentlyPlaying.map(p => p.name),
+        timestamp: Date.now()
+      });
+
+      // Auto-requeue players with remaining credits
+      for (const player of currentlyPlaying) {
+        const remainingCredits = playerCredits[player.name] || 0;
+        
+        if (remainingCredits > 0) {
+          // Add back to end of queue
+          await push(queueRef, {
+            name: player.name,
+            paid: true, // They have credits so mark as paid
             timestamp: Date.now()
           });
         }
-        
+      }
+    }
+
+    // Clear currently playing with credit logic
+    window.clearCurrentPlayers = async function() {
+      if (confirm('Finish current game and clear players?')) {
+        await finishCurrentGame();
         await set(currentlyPlayingRef, null);
       }
     };
