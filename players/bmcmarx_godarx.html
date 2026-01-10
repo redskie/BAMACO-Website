@@ -6,6 +6,81 @@
     <title>Player Profile - BAMACO</title>
     <link rel="stylesheet" href="../styles.css" />
 
+    <style>
+      /* Rolling text animation for long titles */
+      .rolling-text {
+        position: relative;
+        overflow: hidden;
+        white-space: nowrap;
+        max-width: 100%;
+        display: inline-block;
+      }
+      
+      .rolling-text-content {
+        display: inline-block;
+        animation: scroll-horizontal 8s linear infinite;
+        padding-left: 100%; /* Start off-screen */
+      }
+      
+      .rolling-text-content:hover {
+        animation-play-state: paused;
+      }
+      
+      @keyframes scroll-horizontal {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-100%);
+        }
+      }
+      
+      /* Alternative: Marquee effect for very long titles */
+      .marquee-text {
+        overflow: hidden;
+        white-space: nowrap;
+        position: relative;
+        max-width: 100%;
+      }
+      
+      .marquee-text-content {
+        display: inline-block;
+        animation: marquee 12s linear infinite;
+      }
+      
+      .marquee-text-content:hover {
+        animation-play-state: paused;
+      }
+      
+      @keyframes marquee {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+      }
+      
+      /* Tooltip for full title on hover */
+      .long-title-container {
+        position: relative;
+      }
+      
+      .long-title-container:hover::after {
+        content: attr(data-full-title);
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--bg-card);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        padding: 0.5rem;
+        white-space: nowrap;
+        z-index: 1000;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        margin-top: 0.5rem;
+      }
+    </style>
+
     <!-- ============================================ -->
     <!-- EDIT YOUR PLAYER INFORMATION BELOW -->
     <!-- ============================================ -->
@@ -201,7 +276,30 @@
         }
 
         document.getElementById('player-name').textContent = PLAYER_INFO.ign;
-        document.getElementById('player-title').textContent = PLAYER_INFO.title;
+        
+        // Handle long titles with rolling text effect
+        const titleElement = document.getElementById('player-title');
+        const title = PLAYER_INFO.title;
+        
+        if (title.length > 20) {
+          // Create container with tooltip
+          const container = document.createElement('span');
+          container.className = 'long-title-container marquee-text';
+          container.setAttribute('data-full-title', title);
+          
+          // Create animated content
+          const content = document.createElement('span');
+          content.className = 'marquee-text-content';
+          content.textContent = title;
+          
+          container.appendChild(content);
+          
+          // Replace title element content
+          titleElement.innerHTML = '';
+          titleElement.appendChild(container);
+        } else {
+          titleElement.textContent = title;
+        }
         document.getElementById('player-rating').textContent =
           PLAYER_INFO.rating;
         document.getElementById('player-rank').textContent = PLAYER_INFO.rank;
