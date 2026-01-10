@@ -401,7 +401,7 @@ a:hover {
   /* Responsive: 60px on mobile to 80px on desktop */
   width: clamp(60px, 10vw, 80px);
   height: clamp(60px, 10vw, 80px);
-  border-radius: 50%;
+  border-radius: 12px; /* Less circular, more rounded rectangle */
   background: linear-gradient(
     135deg,
     var(--accent-primary),
@@ -415,6 +415,8 @@ a:hover {
   font-weight: bold;
   color: white;
   margin: 0 auto var(--spacing-sm);
+  overflow: hidden; /* Ensure images don't overflow */
+  position: relative; /* For proper image positioning */
 }
 
 .card-name {
@@ -577,7 +579,7 @@ a:hover {
   /* Responsive: 100px on mobile to 150px on desktop */
   width: clamp(100px, 15vw, 150px);
   height: clamp(100px, 15vw, 150px);
-  border-radius: 50%;
+  border-radius: 20px; /* Less circular, more rounded rectangle */
   background: linear-gradient(
     135deg,
     var(--accent-primary),
@@ -591,6 +593,8 @@ a:hover {
   font-weight: bold;
   color: white;
   flex-shrink: 0;
+  overflow: hidden; /* Ensure images don't overflow */
+  position: relative; /* For proper image positioning */
 }
 
 .profile-info {

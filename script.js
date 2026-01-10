@@ -343,10 +343,15 @@ function createPlayerCard(player) {
   // Check if enhanced styles are available (players page)
   const cardClass = document.querySelector('.players-grid-enhanced') ? 'player-card-enhanced' : 'player-card';
   
+  // Create avatar HTML with image or fallback to initials
+  const avatarContent = player.avatarImage && player.avatarImage.trim() 
+    ? `<img src="${player.avatarImage}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover;" />`
+    : displayName.substring(0, 2).toUpperCase();
+  
   if (cardClass === 'player-card-enhanced') {
     return `
       <a href="players/${playerSlug}.html" class="player-card-enhanced">
-        <div class="player-avatar">${displayName.substring(0, 2).toUpperCase()}</div>
+        <div class="player-avatar">${avatarContent}</div>
         <h3 class="player-name">${displayName}</h3>
         <div class="player-meta">
           <div class="player-stat">
@@ -362,10 +367,14 @@ function createPlayerCard(player) {
     `;
   }
   
-  // Fallback to original card style for other pages
+  // Fallback to original card style for other pages with avatar support
+  const fallbackAvatarContent = player.avatarImage && player.avatarImage.trim()
+    ? `<img src="${player.avatarImage}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover;" />`
+    : displayName.charAt(0);
+    
   return `
     <div class="player-card" onclick="window.location.href='players/${playerSlug}.html'">
-      <div class="card-avatar">${displayName.charAt(0)}</div>
+      <div class="card-avatar">${fallbackAvatarContent}</div>
       <h3 class="card-name">${displayName}</h3>
       <p class="card-role">${player.role}</p>
       <div class="card-stats">

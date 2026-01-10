@@ -87,6 +87,7 @@ def extract_player_data(html_file):
             "joined": get_value("joined"),
             "bio": get_value("bio"),
             "guildId": get_value("guildId"),  # Using guildId field
+            "avatarImage": get_value("avatarImage"),  # Include avatar image URL
             "achievements": achievements
         }
         
