@@ -7,16 +7,52 @@ let data = {
   articles: [],
 };
 
-// Load data from JSON file
+// Caching system for improved performance
+let cachedData = null;
+let cacheTime = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Load data from JSON file with caching
 async function loadData() {
+  const now = Date.now();
+  
+  // Return cached data if still valid
+  if (cachedData && cacheTime && (now - cacheTime) < CACHE_DURATION) {
+    data = cachedData;
+    return data;
+  }
+  
   try {
+    console.log('🔄 Loading fresh data from data.json...');
     const response = await fetch('data.json');
     data = await response.json();
+    
+    // Cache the data
+    cachedData = { ...data }; // Create a copy
+    cacheTime = now;
+    
+    console.log('✅ Data loaded and cached successfully');
     return data;
   } catch (error) {
-    console.error('Error loading data:', error);
-    return null;
+    console.error('❌ Error loading data:', error);
+    
+    // Return cached data if available, otherwise empty structure
+    if (cachedData) {
+      console.log('⚠️ Using cached data due to fetch error');
+      data = cachedData;
+    } else {
+      console.log('⚠️ No cached data available, using empty structure');
+      data = { players: [], guilds: [], articles: [] };
+    }
+    return data;
   }
+}
+
+// Clear cache manually (for debugging or forced refresh)
+function clearDataCache() {
+  cachedData = null;
+  cacheTime = null;
+  console.log('🗑️ Data cache cleared');
 }
 
 // ============================================
