@@ -14,6 +14,7 @@ const NAVBAR_CONFIG = {
     { href: 'players.html', text: 'Players', id: 'players' },
     { href: 'guilds.html', text: 'Guilds', id: 'guilds' },
     { href: 'articles.html', text: 'Tips & Guides', id: 'articles' },
+    { href: 'calculator.html', text: 'Calculator', id: 'calculator' },
     { href: 'queue.html', text: 'Queue', id: 'queue' }
   ]
 };
@@ -58,6 +59,7 @@ function getCurrentPagePath() {
   if (pathname.includes('/players/')) return 'players.html';
   if (pathname.includes('/guilds/')) return 'guilds.html';
   if (pathname.includes('/articles/')) return 'articles.html';
+  if (pathname.includes('calculator')) return 'calculator.html';
   if (pathname.includes('queue')) return 'queue.html';
   
   return filename;
@@ -74,6 +76,7 @@ function isActiveLink(linkHref, currentPath) {
   if (linkFile === 'players.html' && pathname.includes('/players/')) return true;
   if (linkFile === 'guilds.html' && pathname.includes('/guilds/')) return true;
   if (linkFile === 'articles.html' && pathname.includes('/articles/')) return true;
+  if (linkFile === 'calculator.html' && (pathname.includes('calculator') || currentFile.includes('calculator'))) return true;
   if (linkFile === 'queue.html' && (pathname.includes('queue') || currentFile.includes('queue'))) return true;
   
   return linkFile === currentFile;

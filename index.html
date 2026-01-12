@@ -442,13 +442,13 @@
           </div>
         </div>
 
-        <!-- Medium: Featured Player -->
+        <!-- Medium: Rating Calculator -->
         <div class="bento-item medium" style="background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));">
-          <h3 style="font-size: clamp(1rem, 3vw, 1.125rem); margin-bottom: clamp(0.5rem, 2vw, 0.75rem); font-weight: 700;">Top Player</h3>
-          <div id="top-player-spotlight" style="text-align: center;">
-            <div style="width: clamp(50px, 12vw, 60px); height: clamp(50px, 12vw, 60px); background: var(--bg-tertiary); border-radius: 50%; margin: clamp(0.5rem, 2vw, 0.75rem) auto; border: 2px solid var(--text-secondary);"></div>
-            <div style="font-size: clamp(0.875rem, 3vw, 1rem); font-weight: 600; margin-bottom: 0.25rem;">Loading...</div>
-            <div style="color: var(--text-muted); font-size: clamp(0.625rem, 2.5vw, 0.75rem);">Community Leader</div>
+          <h3 style="font-size: clamp(1rem, 3vw, 1.125rem); margin-bottom: clamp(0.5rem, 2vw, 0.75rem); font-weight: 700;">🎮 Rating Calculator</h3>
+          <div style="text-align: center;">
+            <div style="font-size: clamp(2rem, 8vw, 3rem); margin: clamp(0.5rem, 2vw, 1rem) 0;">🔢</div>
+            <p style="color: var(--text-secondary); font-size: clamp(0.75rem, 2.5vw, 0.875rem); margin-bottom: clamp(0.75rem, 2vw, 1rem);">Calculate your maimai rating and get chart recommendations</p>
+            <a href="calculator.html" class="btn btn-primary" style="font-size: clamp(0.75rem, 2.5vw, 0.875rem);">Open Calculator</a>
           </div>
         </div>
       </div>
@@ -503,32 +503,6 @@
         loadFeaturedPlayers();
         loadTopGuilds();
         loadLatestArticles();
-        
-        // Load top player spotlight
-        fetch('data.json')
-          .then(response => response.json())
-          .then(data => {
-            if (data.players && data.players.length > 0) {
-              const topPlayer = data.players[0];
-              const spotlight = document.getElementById('top-player-spotlight');
-              const displayName = topPlayer.ign || topPlayer.name;
-              
-              // Create avatar content with image or fallback to initials
-              const avatarContent = topPlayer.avatarImage && topPlayer.avatarImage.trim() 
-                ? `<img src="${topPlayer.avatarImage}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover;" />`
-                : displayName.substring(0, 2).toUpperCase();
-              
-              spotlight.innerHTML = `
-                <a href="players/${topPlayer.id}.html" style="text-decoration: none; color: inherit; display: block;">
-                  <div style="width: clamp(50px, 12vw, 60px); height: clamp(50px, 12vw, 60px); background: var(--bg-tertiary); border-radius: 12px; margin: clamp(0.5rem, 2vw, 0.75rem) auto; border: 2px solid var(--text-secondary); display: flex; align-items: center; justify-content: center; font-size: clamp(1.25rem, 4vw, 1.5rem); font-weight: 800; overflow: hidden; position: relative;">
-                    ${avatarContent}
-                  </div>
-                  <div style="font-size: clamp(0.875rem, 3vw, 1rem); font-weight: 600; margin-bottom: 0.25rem;">${displayName}</div>
-                  <div style="color: var(--text-muted); font-size: clamp(0.625rem, 2.5vw, 0.75rem);">${topPlayer.role || topPlayer.main_character || 'Community Leader'}</div>
-                </a>
-              `;
-            }
-          });
       });
       
       // Enhanced card rendering with animations
