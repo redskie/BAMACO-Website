@@ -51,6 +51,20 @@
         <button onclick="logout()" class="px-6 py-2 bg-bg-secondary border border-border-primary rounded-lg font-semibold hover-btn-secondary">Logout</button>
       </div>
 
+      <!-- Member Queue Requests (New Notifications Section) -->
+      <div class="bg-bg-card border border-border-primary rounded-xl p-6 sm:p-8 mb-6" id="queueRequestsSection">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl sm:text-2xl font-bold flex items-center gap-2">
+            🔔 Queue Requests
+            <span id="requestsBadge" class="bg-accent-pink text-white text-sm px-2 py-0.5 rounded-full hidden">0</span>
+          </h2>
+          <button onclick="refreshQueueRequests()" class="px-3 py-1 text-sm bg-bg-secondary border border-border-primary rounded hover-btn-secondary">Refresh</button>
+        </div>
+        <div id="queueRequestsDisplay" class="space-y-3">
+          <p class="text-text-muted text-center py-4">No pending queue requests</p>
+        </div>
+      </div>
+
       <!-- Credits Management Card -->
       <div class="bg-bg-card border border-border-primary rounded-xl p-6 sm:p-8 mb-6">
         <h2 class="text-xl sm:text-2xl font-bold mb-6">Credits Management</h2>
@@ -178,6 +192,108 @@
       if (typeof initializeQueue === 'function') {
         initializeQueue();
       }
+      // Load queue requests
+      loadQueueRequests();
+    }
+
+    // Queue Requests Management
+    window.loadQueueRequests = function() {
+      const requests = JSON.parse(localStorage.getItem('bamaco_queue_requests') || '[]');
+      const pendingRequests = requests.filter(r => r.status === 'pending');
+      
+      const container = document.getElementById('queueRequestsDisplay');
+      const badge = document.getElementById('requestsBadge');
+      
+      if (pendingRequests.length > 0) {
+        badge.textContent = pendingRequests.length;
+        badge.classList.remove('hidden');
+        
+        container.innerHTML = pendingRequests.map(req => `
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-bg-secondary border border-border-primary rounded-lg">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-accent-pink rounded-full flex items-center justify-center text-white font-bold">
+                ${req.ign?.charAt(0).toUpperCase() || '?'}
+              </div>
+              <div>
+                <p class="font-semibold">${req.ign || 'Unknown'}</p>
+                <p class="text-xs text-text-muted">FC: ${formatFriendCode(req.friendCode)} • ${timeAgo(req.requestedAt)}</p>
+              </div>
+            </div>
+            <div class="flex gap-2 w-full sm:w-auto">
+              <button onclick="approveQueueRequest('${req.id}', '${req.ign}')" class="flex-1 sm:flex-none px-4 py-2 bg-green-200 text-green-800 font-semibold rounded-lg hover-btn-primary text-sm">
+                ✓ Approve
+              </button>
+              <button onclick="denyQueueRequest('${req.id}')" class="flex-1 sm:flex-none px-4 py-2 bg-red-200 text-red-800 font-semibold rounded-lg hover:bg-red-300 text-sm">
+                ✗ Deny
+              </button>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        badge.classList.add('hidden');
+        container.innerHTML = '<p class="text-text-muted text-center py-4">No pending queue requests</p>';
+      }
+    };
+
+    window.refreshQueueRequests = function() {
+      loadQueueRequests();
+    };
+
+    window.approveQueueRequest = function(requestId, playerName) {
+      // Update request status
+      const requests = JSON.parse(localStorage.getItem('bamaco_queue_requests') || '[]');
+      const index = requests.findIndex(r => r.id === requestId);
+      if (index !== -1) {
+        requests[index].status = 'approved';
+        localStorage.setItem('bamaco_queue_requests', JSON.stringify(requests));
+      }
+      
+      // Remove from admin notifications
+      const notifications = JSON.parse(localStorage.getItem('bamaco_admin_notifications') || '[]');
+      const filtered = notifications.filter(n => n.requestId !== requestId);
+      localStorage.setItem('bamaco_admin_notifications', JSON.stringify(filtered));
+      
+      // Add player to actual queue
+      document.getElementById('newPlayerName').value = playerName;
+      if (typeof window.addPlayer === 'function') {
+        window.addPlayer();
+      }
+      
+      loadQueueRequests();
+      alert(`✅ ${playerName} has been added to the queue!`);
+    };
+
+    window.denyQueueRequest = function(requestId) {
+      // Update request status
+      const requests = JSON.parse(localStorage.getItem('bamaco_queue_requests') || '[]');
+      const index = requests.findIndex(r => r.id === requestId);
+      if (index !== -1) {
+        requests[index].status = 'denied';
+        localStorage.setItem('bamaco_queue_requests', JSON.stringify(requests));
+      }
+      
+      // Remove from admin notifications
+      const notifications = JSON.parse(localStorage.getItem('bamaco_admin_notifications') || '[]');
+      const filtered = notifications.filter(n => n.requestId !== requestId);
+      localStorage.setItem('bamaco_admin_notifications', JSON.stringify(filtered));
+      
+      loadQueueRequests();
+    };
+
+    function formatFriendCode(code) {
+      if (!code) return '---';
+      return code.match(/.{1,3}/g)?.join('-') || code;
+    }
+
+    function timeAgo(dateString) {
+      if (!dateString) return 'Unknown';
+      const date = new Date(dateString);
+      const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+      
+      if (seconds < 60) return 'Just now';
+      if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+      return `${Math.floor(seconds / 86400)}d ago`;
     }
 
     window.logout = function() {

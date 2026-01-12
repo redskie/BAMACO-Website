@@ -156,7 +156,7 @@ class MaiMaiAPI:
     
     def validate_friend_code(self, friend_code: str) -> bool:
         """
-        Validate friend code format
+        Validate friend code format (basic check, API does full validation)
         
         Args:
             friend_code: Friend code to validate
@@ -164,11 +164,11 @@ class MaiMaiAPI:
         Returns:
             True if valid format, False otherwise
         """
-        # Friend code should be numeric and at least 13 digits (some codes have leading zeros removed)
+        # Basic validation - must be numeric and reasonable length
+        # API will do the actual validation
         return (
             isinstance(friend_code, str) and
-            len(friend_code) >= 13 and
-            len(friend_code) <= 15 and
+            len(friend_code) >= 10 and
             friend_code.isdigit()
         )
 
