@@ -472,11 +472,11 @@ if (typeof document !== 'undefined') {
       }
       
       .maimai-popup-character.char1 {
-        background-image: url('https://github.com/redskie/BAMACO-Website/tree/main/assets/images/chara-right.png');
+        background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZmY2YjlkIiByeD0iMTAiLz4KPHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgeD0iMTAiIHk9IjEwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+CjxnIGZpbGw9IiNmZmZmZmYiPgo8Y2lyY2xlIGN4PSI2MCIgY3k9IjcwIiByPSI4Ii8+CjxjaXJjbGUgY3g9IjEyMCIgY3k9IjcwIiByPSI4Ii8+CjxwYXRoIGQ9Im02MCA5MHEzMCAyMCA2MCAwaS0zMCAxMC02MCAweiIvPgo8L2c+Cjwvc3ZnPgo8L3N2Zz4=');
       }
       
       .maimai-popup-character.char2 {
-        background-image: url('https://github.com/redskie/BAMACO-Website/tree/main/assets/images/chara-left.png');
+        background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjYTg1NWY3IiByeD0iMTAiLz4KPHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgeD0iMTAiIHk9IjEwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+CjxnIGZpbGw9IiNmZmZmZmYiPgo8Y2lyY2xlIGN4PSI1NSIgY3k9IjY1IiByPSI2Ii8+CjxjaXJjbGUgY3g9IjEyNSIgY3k9IjY1IiByPSI2Ii8+CjxwYXRoIGQ9Im01NSA5NXEzNSAyNSA3MCAwaS0zNSAxNS03MCAweiIvPgo8L2c+Cjwvc3ZnPgo8L3N2Zz4=');
       }
     `;
     document.head.appendChild(style);
