@@ -472,11 +472,11 @@ if (typeof document !== 'undefined') {
       }
       
       .maimai-popup-character.char1 {
-        background-image: url('https://github.com/redskie/BAMACO-Website/assets/images/chara-right.png');
+        background-image: url('https://github.com/redskie/BAMACO-Website/tree/main/assets/images/chara-right.png');
       }
       
       .maimai-popup-character.char2 {
-        background-image: url('https://github.com/redskie/BAMACO-Website/assets/images/chara-left.png');
+        background-image: url('https://github.com/redskie/BAMACO-Website/tree/main/assets/images/chara-left.png');
       }
     `;
     document.head.appendChild(style);
