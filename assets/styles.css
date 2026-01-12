@@ -3,23 +3,23 @@
    ============================================ */
 
 :root {
-  /* Monochromatic Color Palette - Blacks, Greys, and Whites */
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #1a1a1a;
-  --bg-tertiary: #2a2a2a;
-  --bg-card: #1f1f1f;
-  --bg-card-hover: #2d2d2d;
+  /* Pastel Pink Color Palette - Matching Tailwind Config */
+  --bg-primary: #ffe6f0;
+  --bg-secondary: #ffcfe3;
+  --bg-tertiary: #ffb8d6;
+  --bg-card: #ffd9eb;
+  --bg-card-hover: #ffc2df;
 
-  --text-primary: #f5f5f5;
-  --text-secondary: #b8b8b8;
-  --text-muted: #7a7a7a;
+  --text-primary: #2d1b2e;
+  --text-secondary: #5a3d5c;
+  --text-muted: #8b6f8d;
 
-  --accent-primary: #ffffff;
-  --accent-secondary: #e0e0e0;
-  --accent-hover: #d0d0d0;
+  --accent-primary: #ff6b9d;
+  --accent-secondary: #a855f7;
+  --accent-hover: #ff5a8f;
 
-  --border-color: #333333;
-  --shadow: rgba(0, 0, 0, 0.6);
+  --border-color: #ffadd2;
+  --shadow: rgba(255, 107, 157, 0.2);
 
   /* Spacing */
   --spacing-xs: 0.5rem;
@@ -124,13 +124,14 @@ a:hover {
    ============================================ */
 
 .navbar {
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(135deg, #ffcfe3 0%, #ffd9eb 100%);
+  border-bottom: 2px solid var(--border-color);
   padding: var(--spacing-sm) 0;
   position: sticky;
   top: 0;
   z-index: 1000;
   backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(255, 107, 157, 0.1);
 }
 
 .navbar .container {
@@ -149,13 +150,14 @@ a:hover {
   font-size: clamp(1.5rem, 1.3rem + 1vw, 1.8rem);
   background: linear-gradient(
     135deg,
-    var(--accent-primary),
-    var(--accent-secondary)
+    #ff6b9d,
+    #a855f7
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin: 0;
+  font-weight: 800;
 }
 
 .brand-subtitle {
@@ -217,7 +219,9 @@ a:hover {
 .nav-links a:hover,
 .nav-links a.active {
   color: var(--text-primary);
-  background: var(--bg-tertiary);
+  background: rgba(255, 107, 157, 0.15);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 8px rgba(255, 107, 157, 0.2);
 }
 
 /* ============================================
@@ -811,12 +815,13 @@ a:hover {
    ============================================ */
 
 footer {
-  background: var(--bg-secondary);
-  border-top: 1px solid var(--border-color);
+  background: linear-gradient(135deg, #ffd9eb 0%, #ffcfe3 100%);
+  border-top: 2px solid var(--border-color);
   padding: var(--spacing-lg) 0;
   margin-top: var(--spacing-xl);
   text-align: center;
   color: var(--text-muted);
+  box-shadow: 0 -2px 10px rgba(255, 107, 157, 0.1);
 }
 
 /* ============================================

@@ -1,664 +1,492 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Rating Calculator - BAMACO</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="enhanced-styles.css" />
-    <style>
-      /* Calculator-specific styles matching BAMACO theme */
-      .calc-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: var(--spacing-md);
-        margin-bottom: var(--spacing-xl);
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rating Calculator - BAMACO</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="assets/tailwind-config.js"></script>
+  <script>tailwind.config = window.BAMACO_TAILWIND_CONFIG;</script>
+  
+  <link rel="stylesheet" href="assets/styles.css">
 
-      .calc-card {
-        background: var(--bg-card);
-        padding: var(--spacing-lg);
-        border-radius: var(--radius-lg);
-        border: 1px solid var(--border-color);
-        transition: var(--transition-smooth);
-      }
+  <style>
+    /* Calculator-specific styles using CSS variables from tailwind-config */
+    .rank-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: #1a0b1e;
+    }
 
-      .calc-card:hover {
-        transform: translateY(-4px);
-        border-color: var(--text-secondary);
-        box-shadow: 0 10px 30px var(--shadow);
-      }
+    /* Rank colors matching maimai theme */
+    .rank-sss-plus { background: linear-gradient(135deg, #ffd700, #ffa500); }
+    .rank-sss { background: linear-gradient(135deg, #ffd700, #ff8c00); }
+    .rank-ss-plus { background: linear-gradient(135deg, #c0c0c0, #a0a0a0); }
+    .rank-ss { background: linear-gradient(135deg, #c0c0c0, #909090); }
+    .rank-s-plus { background: linear-gradient(135deg, #cd7f32, #b8860b); }
+    .rank-s { background: linear-gradient(135deg, #cd7f32, #a0522d); }
+    .rank-aaa { background: linear-gradient(135deg, #4caf50, #45a049); }
+    .rank-aa { background: linear-gradient(135deg, #2196f3, #1976d2); }
+    .rank-a { background: linear-gradient(135deg, #00bcd4, #0097a7); }
+    .rank-bbb { background: linear-gradient(135deg, #9c27b0, #7b1fa2); }
+    .rank-bb { background: linear-gradient(135deg, #673ab7, #512da8); }
+    .rank-b { background: linear-gradient(135deg, #ff5722, #e64a19); }
+    .rank-c { background: linear-gradient(135deg, #795548, #5d4037); }
+    .rank-d { background: linear-gradient(135deg, #9e9e9e, #757575); }
 
-      .calc-card h2 {
-        color: var(--text-primary);
-        margin-bottom: var(--spacing-md);
-        font-size: 1.5rem;
-        font-weight: 700;
-      }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ff6b9d;
+      animation: pulse 2s infinite;
+    }
 
-      .input-group {
-        margin-bottom: var(--spacing-md);
-      }
+    .api-status.connected .status-dot {
+      background: #4caf50;
+      animation: none;
+    }
 
-      .input-group label {
-        display: block;
-        margin-bottom: var(--spacing-xs);
-        color: var(--text-secondary);
-        font-weight: 500;
-        font-size: 0.9rem;
-      }
+    .api-status.error .status-dot {
+      background: #ff4444;
+      animation: none;
+    }
 
-      .input-group input[type='number'],
-      .input-group select {
-        width: 100%;
-        padding: 0.75rem;
-        border: 2px solid var(--border-color);
-        border-radius: var(--radius-sm);
-        font-size: 1rem;
-        transition: var(--transition);
-        background: var(--bg-secondary);
-        color: var(--text-primary);
-      }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
 
-      .input-group input[type='number']:focus,
-      .input-group select:focus {
-        outline: none;
-        border-color: var(--text-secondary);
-        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-      }
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #1a0b1e;
+      animation: spin 1s ease-in-out infinite;
+    }
 
-      .calc-btn {
-        width: 100%;
-        padding: 1rem;
-        background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
-        color: var(--bg-primary);
-        border: none;
-        border-radius: var(--radius-sm);
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: var(--transition-smooth);
-      }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
 
-      .calc-btn:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
-      }
+    .loading button::after {
+      content: '';
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      margin-left: 10px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #1a0b1e;
+      animation: spin 1s ease-in-out infinite;
+      vertical-align: middle;
+    }
+  </style>
+</head>
 
-      .calc-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
+<body class="bg-bg-primary text-text-primary font-sans antialiased">
+  <!-- Navbar will be dynamically generated by navbar.js -->
 
-      .result-panel {
-        margin-top: var(--spacing-md);
-        padding: var(--spacing-md);
-        background: var(--bg-secondary);
-        border-radius: var(--radius-sm);
-        border-left: 4px solid var(--text-primary);
-      }
-
-      .result-panel.hidden {
-        display: none;
-      }
-
-      .rating-display {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-md);
-        margin-bottom: var(--spacing-sm);
-      }
-
-      .rating-value {
-        font-size: 2.5rem;
-        font-weight: bold;
-        background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-
-      .rank-badge {
-        padding: 0.5rem 1rem;
-        border-radius: var(--radius-sm);
-        font-weight: bold;
-        font-size: 1.2rem;
-        color: var(--bg-primary);
-      }
-
-      /* Rank colors matching maimai theme */
-      .rank-sss-plus { background: linear-gradient(135deg, #ffd700, #ffa500); }
-      .rank-sss { background: linear-gradient(135deg, #ffd700, #ff8c00); }
-      .rank-ss-plus { background: linear-gradient(135deg, #c0c0c0, #a0a0a0); }
-      .rank-ss { background: linear-gradient(135deg, #c0c0c0, #909090); }
-      .rank-s-plus { background: linear-gradient(135deg, #cd7f32, #b8860b); }
-      .rank-s { background: linear-gradient(135deg, #cd7f32, #a0522d); }
-      .rank-aaa { background: linear-gradient(135deg, #4caf50, #45a049); }
-      .rank-aa { background: linear-gradient(135deg, #2196f3, #1976d2); }
-      .rank-a { background: linear-gradient(135deg, #00bcd4, #0097a7); }
-      .rank-bbb { background: linear-gradient(135deg, #9c27b0, #7b1fa2); }
-      .rank-bb { background: linear-gradient(135deg, #673ab7, #512da8); }
-      .rank-b { background: linear-gradient(135deg, #ff5722, #e64a19); }
-      .rank-c { background: linear-gradient(135deg, #795548, #5d4037); }
-      .rank-d { background: linear-gradient(135deg, #9e9e9e, #757575); }
-
-      .error-message {
-        margin-top: var(--spacing-md);
-        padding: var(--spacing-sm);
-        background: rgba(255, 68, 68, 0.1);
-        border-left: 4px solid #ff4444;
-        border-radius: var(--radius-sm);
-        color: #ff6b6b;
-      }
-
-      .error-message.hidden {
-        display: none;
-      }
-
-      .details {
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-      }
-
-      .range-display {
-        margin-top: var(--spacing-sm);
-      }
-
-      .range-value {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: var(--spacing-sm);
-        font-size: 1.2rem;
-        color: var(--text-primary);
-      }
-
-      .range-value strong {
-        color: var(--text-primary);
-      }
-
-      .range-bar {
-        height: 20px;
-        background: var(--bg-tertiary);
-        border-radius: var(--radius-sm);
-        overflow: hidden;
-      }
-
-      .range-fill {
-        height: 100%;
-        background: linear-gradient(90deg, var(--text-primary) 0%, var(--text-secondary) 100%);
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: var(--spacing-md);
-      }
-
-      th,
-      td {
-        padding: var(--spacing-sm);
-        text-align: left;
-        border-bottom: 1px solid var(--border-color);
-        color: var(--text-primary);
-      }
-
-      th {
-        background: var(--bg-tertiary);
-        color: var(--text-primary);
-        font-weight: 600;
-      }
-
-      tr:hover {
-        background: var(--bg-tertiary);
-      }
-
-      .rank-group {
-        margin-bottom: var(--spacing-md);
-      }
-
-      .rank-header {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-sm);
-        padding: var(--spacing-sm);
-        background: var(--bg-tertiary);
-        border-radius: var(--radius-sm);
-        cursor: pointer;
-        user-select: none;
-      }
-
-      .rank-header:hover {
-        background: var(--bg-card-hover);
-      }
-
-      .count {
-        color: var(--text-muted);
-        font-size: 0.9rem;
-      }
-
-      .api-status {
-        background: var(--bg-card);
-        color: var(--text-secondary);
-        padding: var(--spacing-sm) var(--spacing-md);
-        border-radius: var(--radius-sm);
-        margin-bottom: var(--spacing-md);
-        border: 1px solid var(--border-color);
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-sm);
-      }
-
-      .api-status.connected {
-        border-color: #4caf50;
-        color: #4caf50;
-      }
-
-      .api-status.error {
-        border-color: #ff4444;
-        color: #ff6b6b;
-      }
-
-      .status-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: var(--text-secondary);
-        animation: pulse 2s infinite;
-      }
-
-      .api-status.connected .status-dot {
-        background: #4caf50;
-        animation: none;
-      }
-
-      .api-status.error .status-dot {
-        background: #ff4444;
-        animation: none;
-      }
-
-      @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-      }
-
-      .spinner {
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        border-radius: 50%;
-        border-top-color: var(--bg-primary);
-        animation: spin 1s ease-in-out infinite;
-      }
-
-      @keyframes spin {
-        to { transform: rotate(360deg); }
-      }
-
-      .loading button::after {
-        content: '';
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        margin-left: 10px;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 50%;
-        border-top-color: var(--bg-primary);
-        animation: spin 1s ease-in-out infinite;
-        vertical-align: middle;
-      }
-
-      @media (max-width: 768px) {
-        .calc-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Navbar will be auto-injected by navbar.js -->
-
-    <div class="container">
-      <!-- Page Header -->
-      <div class="page-header-enhanced">
-        <h1 class="page-title-enhanced">🎮 Rating Calculator</h1>
-        <p class="page-description-enhanced">
-          Calculate your maimai rating and get chart recommendations
-        </p>
-      </div>
-
-      <!-- API Status -->
-      <div id="api-status" class="api-status">
-        <div class="status-dot"></div>
-        <span>Checking API connection...</span>
-      </div>
-
-      <!-- Calculator Grid -->
-      <div class="calc-grid">
-        <!-- Rating Calculator -->
-        <div class="calc-card">
-          <h2>Rating Calculator</h2>
-          <div class="input-group">
-            <label for="level">Chart Level (1.0 - 15.0)</label>
-            <input
-              type="number"
-              id="level"
-              min="1.0"
-              max="15.0"
-              step="0.1"
-              placeholder="13.7"
-              value="13.7"
-            />
-          </div>
-          <div class="input-group">
-            <label for="achievement">Achievement % (0 - 101)</label>
-            <input
-              type="number"
-              id="achievement"
-              min="0"
-              max="101"
-              step="0.01"
-              placeholder="100.30"
-              value="100.3"
-            />
-          </div>
-          <button class="calc-btn" id="calculate-btn">Calculate Rating</button>
-          <div id="rating-result" class="result-panel hidden"></div>
-          <div id="rating-error" class="error-message hidden"></div>
-        </div>
-
-        <!-- Rating Range -->
-        <div class="calc-card">
-          <h2>Rating Range by Rank</h2>
-          <div class="input-group">
-            <label for="range-level">Chart Level</label>
-            <input
-              type="number"
-              id="range-level"
-              min="1.0"
-              max="15.0"
-              step="0.1"
-              placeholder="13.7"
-              value="13.7"
-            />
-          </div>
-          <div class="input-group">
-            <label for="rank-select">Target Rank</label>
-            <select id="rank-select">
-              <option value="SSS+">SSS+</option>
-              <option value="SSS" selected>SSS</option>
-              <option value="SS+">SS+</option>
-              <option value="SS">SS</option>
-              <option value="S+">S+</option>
-              <option value="S">S</option>
-              <option value="AAA">AAA</option>
-              <option value="AA">AA</option>
-              <option value="A">A</option>
-              <option value="BBB">BBB</option>
-              <option value="BB">BB</option>
-              <option value="B">B</option>
-              <option value="C">C</option>
-            </select>
-          </div>
-          <button class="calc-btn" id="range-btn">Get Rating Range</button>
-          <div id="range-result" class="result-panel hidden"></div>
-          <div id="range-error" class="error-message hidden"></div>
-        </div>
-
-        <!-- Recommendations -->
-        <div class="calc-card">
-          <h2>Chart Recommendations</h2>
-          <div class="input-group">
-            <label for="target-rating">Target Rating</label>
-            <input type="number" id="target-rating" min="1" placeholder="300" value="300" />
-          </div>
-          <button class="calc-btn" id="rec-btn">Get Recommendations</button>
-          <div id="rec-result" class="result-panel hidden"></div>
-          <div id="rec-error" class="error-message hidden"></div>
-        </div>
-      </div>
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <!-- Page Header -->
+    <div class="text-center py-8 sm:py-12 bg-gradient-to-br from-white/5 to-white/0 rounded-2xl mb-8 relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_3s_infinite]"></div>
+      <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black mb-4 bg-gradient-to-br from-accent-pink to-accent-purple bg-clip-text text-transparent relative z-10">
+        Rating Calculator
+      </h2>
+      <p class="text-lg sm:text-xl text-text-secondary relative z-10">
+        Calculate your maimai rating and get chart recommendations
+      </p>
     </div>
 
-    <!-- Scripts -->
-    <script src="navbar.js"></script>
-    <script>
-      // API URL - Production deployment on Render
-      const API_BASE_URL = 'https://bamaco-calc-api.onrender.com';
+    <!-- API Status -->
+    <div id="api-status" class="bg-bg-card border border-border-primary rounded-lg p-4 mb-6 flex items-center gap-3">
+      <div class="status-dot"></div>
+      <span class="text-text-secondary">Checking API connection...</span>
+    </div>
 
-      // Utility function for API calls
-      async function callAPI(endpoint, method = 'GET', data = null) {
-        const options = {
-          method,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        };
+    <!-- Calculator Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <!-- Rating Calculator -->
+      <div class="bg-bg-card border border-border-primary rounded-xl p-6 hover-card hover-gradient-line group relative overflow-hidden">
+        <div class="absolute inset-0 h-1 top-0 bg-gradient-to-r from-accent-pink to-accent-purple scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300"></div>
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-3">
+          <span class="w-8 h-8 bg-accent-pink/20 rounded-lg flex items-center justify-center text-accent-pink">📊</span>
+          Rating Calculator
+        </h3>
+        
+        <div class="mb-4">
+          <label for="level" class="block text-sm font-medium text-text-secondary mb-2">Chart Level (1.0 - 15.0)</label>
+          <input
+            type="number"
+            id="level"
+            min="1.0"
+            max="15.0"
+            step="0.1"
+            placeholder="13.7"
+            value="13.7"
+            class="w-full px-4 py-3 bg-bg-secondary border border-border-primary rounded-lg text-text-primary focus:outline-none focus:border-text-secondary transition-all duration-300"
+          />
+        </div>
+        
+        <div class="mb-4">
+          <label for="achievement" class="block text-sm font-medium text-text-secondary mb-2">Achievement % (0 - 101)</label>
+          <input
+            type="number"
+            id="achievement"
+            min="0"
+            max="101"
+            step="0.01"
+            placeholder="100.30"
+            value="100.3"
+            class="w-full px-4 py-3 bg-bg-secondary border border-border-primary rounded-lg text-text-primary focus:outline-none focus:border-text-secondary transition-all duration-300"
+          />
+        </div>
+        
+        <button id="calculate-btn" class="w-full px-6 py-3 bg-green-200 text-green-800 font-bold rounded-lg transition-all duration-300 hover-btn-primary">
+          Calculate Rating
+        </button>
+        
+        <div id="rating-result" class="hidden mt-4 p-4 bg-bg-secondary border border-border-primary rounded-lg border-l-4 border-l-accent-pink"></div>
+        <div id="rating-error" class="hidden mt-4 p-3 bg-red-500/10 border-l-4 border-l-red-400 rounded-lg text-red-400 text-sm"></div>
+      </div>
 
-        if (data) {
-          options.body = JSON.stringify(data);
-        }
+      <!-- Rating Range -->
+      <div class="bg-bg-card border border-border-primary rounded-xl p-6 hover-card hover-gradient-line group relative overflow-hidden">
+        <div class="absolute inset-0 h-1 top-0 bg-gradient-to-r from-accent-pink to-accent-purple scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300"></div>
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-3">
+          <span class="w-8 h-8 bg-accent-purple/20 rounded-lg flex items-center justify-center text-accent-purple">📈</span>
+          Rating Range by Rank
+        </h3>
+        
+        <div class="mb-4">
+          <label for="range-level" class="block text-sm font-medium text-text-secondary mb-2">Chart Level</label>
+          <input
+            type="number"
+            id="range-level"
+            min="1.0"
+            max="15.0"
+            step="0.1"
+            placeholder="13.7"
+            value="13.7"
+            class="w-full px-4 py-3 bg-bg-secondary border border-border-primary rounded-lg text-text-primary focus:outline-none focus:border-text-secondary transition-all duration-300"
+          />
+        </div>
+        
+        <div class="mb-4">
+          <label for="rank-select" class="block text-sm font-medium text-text-secondary mb-2">Target Rank</label>
+          <select id="rank-select" class="w-full px-4 py-3 bg-bg-secondary border border-border-primary rounded-lg text-text-primary focus:outline-none focus:border-text-secondary transition-all duration-300">
+            <option value="SSS+">SSS+</option>
+            <option value="SSS" selected>SSS</option>
+            <option value="SS+">SS+</option>
+            <option value="SS">SS</option>
+            <option value="S+">S+</option>
+            <option value="S">S</option>
+            <option value="AAA">AAA</option>
+            <option value="AA">AA</option>
+            <option value="A">A</option>
+            <option value="BBB">BBB</option>
+            <option value="BB">BB</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+          </select>
+        </div>
+        
+        <button id="range-btn" class="w-full px-6 py-3 bg-yellow-200 text-yellow-800 font-bold rounded-lg transition-all duration-300 hover-btn-primary">
+          Get Rating Range
+        </button>
+        
+        <div id="range-result" class="hidden mt-4 p-4 bg-bg-secondary border border-border-primary rounded-lg border-l-4 border-l-accent-purple"></div>
+        <div id="range-error" class="hidden mt-4 p-3 bg-red-500/10 border-l-4 border-l-red-400 rounded-lg text-red-400 text-sm"></div>
+      </div>
 
-        try {
-          const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+      <!-- Recommendations -->
+      <div class="bg-bg-card border border-border-primary rounded-xl p-6 hover-card hover-gradient-line group relative overflow-hidden">
+        <div class="absolute inset-0 h-1 top-0 bg-gradient-to-r from-accent-pink to-accent-purple scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300"></div>
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-3">
+          <span class="w-8 h-8 bg-accent-blue/20 rounded-lg flex items-center justify-center text-accent-blue">🎯</span>
+          Chart Recommendations
+        </h3>
+        
+        <div class="mb-4">
+          <label for="target-rating" class="block text-sm font-medium text-text-secondary mb-2">Target Rating</label>
+          <input 
+            type="number" 
+            id="target-rating" 
+            min="1" 
+            placeholder="300" 
+            value="300"
+            class="w-full px-4 py-3 bg-bg-secondary border border-border-primary rounded-lg text-text-primary focus:outline-none focus:border-text-secondary transition-all duration-300"
+          />
+        </div>
+        
+        <button id="rec-btn" class="w-full px-6 py-3 bg-green-200 text-green-800 font-bold rounded-lg transition-all duration-300 hover-btn-primary">
+          Get Recommendations
+        </button>
+        
+        <div id="rec-result" class="hidden mt-4 p-4 bg-bg-secondary border border-border-primary rounded-lg border-l-4 border-l-accent-blue"></div>
+        <div id="rec-error" class="hidden mt-4 p-3 bg-red-500/10 border-l-4 border-l-red-400 rounded-lg text-red-400 text-sm"></div>
+      </div>
+    </div>
+  </main>
 
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
-          }
+  <footer class="border-t border-border-primary py-8 mt-16 bg-gradient-to-r from-bg-card to-bg-secondary shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-text-muted">
+      <p>&copy; 2026 BAMACO - Bataan MaiMai Community. All rights reserved.</p>
+    </div>
+  </footer>
 
-          return await response.json();
-        } catch (error) {
-          if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
-            throw new Error(
-              'API connection error. The API may be deploying or temporarily unavailable.'
-            );
-          }
-          throw error;
-        }
+  <script src="assets/script.js"></script>
+  <script src="assets/page-transitions.js"></script>
+  <script src="assets/navbar.js"></script>
+  <script>
+    // API URL - Production deployment on Render
+    const API_BASE_URL = 'https://bamaco-calc-api.onrender.com';
+
+    // Utility function for API calls
+    async function callAPI(endpoint, method = 'GET', data = null) {
+      const options = {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+
+      if (data) {
+        options.body = JSON.stringify(data);
       }
 
-      // Check API status on page load
-      async function checkAPIStatus() {
-        const statusDiv = document.getElementById('api-status');
-        try {
-          const response = await fetch(`${API_BASE_URL}/health`, {
-            mode: 'cors',
-            headers: {'Content-Type': 'application/json'},
-          });
-          if (response.ok) {
-            statusDiv.className = 'api-status connected';
-            statusDiv.innerHTML =
-              '<div class="status-dot"></div><span>✓ API Connected</span>';
-          } else {
-            throw new Error('API returned error status');
-          }
-        } catch (error) {
-          statusDiv.className = 'api-status error';
+      try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
+        return await response.json();
+      } catch (error) {
+        if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+          throw new Error(
+            'API connection error. The API may be deploying or temporarily unavailable.'
+          );
+        }
+        throw error;
+      }
+    }
+
+    // Check API status on page load
+    async function checkAPIStatus() {
+      const statusDiv = document.getElementById('api-status');
+      try {
+        const response = await fetch(`${API_BASE_URL}/health`, {
+          mode: 'cors',
+          headers: {'Content-Type': 'application/json'},
+        });
+        if (response.ok) {
+          statusDiv.className = 'bg-bg-card border border-green-400 rounded-lg p-4 mb-6 flex items-center gap-3';
           statusDiv.innerHTML =
-            '<div class="status-dot"></div><span>✗ API connection error. Please try again later.</span>';
+            '<div class="status-dot connected"></div><span class="text-green-400">✓ API Connected</span>';
+        } else {
+          throw new Error('API returned error status');
         }
+      } catch (error) {
+        statusDiv.className = 'bg-bg-card border border-red-400 rounded-lg p-4 mb-6 flex items-center gap-3';
+        statusDiv.innerHTML =
+          '<div class="status-dot error"></div><span class="text-red-400">✗ API connection error. Please try again later.</span>';
+      }
+    }
+
+    // Check status when page loads
+    checkAPIStatus();
+
+    // Rating Calculator
+    document.getElementById('calculate-btn').addEventListener('click', async () => {
+      const level = parseFloat(document.getElementById('level').value);
+      const achievement = parseFloat(document.getElementById('achievement').value);
+      const resultDiv = document.getElementById('rating-result');
+      const errorDiv = document.getElementById('rating-error');
+      const button = document.getElementById('calculate-btn');
+
+      // Clear previous results
+      resultDiv.classList.add('hidden');
+      errorDiv.classList.add('hidden');
+
+      // Validation
+      if (isNaN(level) || isNaN(achievement)) {
+        errorDiv.textContent = 'Please enter valid numbers';
+        errorDiv.classList.remove('hidden');
+        return;
       }
 
-      // Check status when page loads
-      checkAPIStatus();
+      // Show loading
+      button.disabled = true;
+      button.textContent = 'Calculating...';
 
-      // Rating Calculator
-      document.getElementById('calculate-btn').addEventListener('click', async () => {
-        const level = parseFloat(document.getElementById('level').value);
-        const achievement = parseFloat(document.getElementById('achievement').value);
-        const resultDiv = document.getElementById('rating-result');
-        const errorDiv = document.getElementById('rating-error');
-        const button = document.getElementById('calculate-btn');
+      try {
+        const data = await callAPI('/rating', 'POST', {level, achievement});
 
-        // Clear previous results
-        resultDiv.classList.add('hidden');
-        errorDiv.classList.add('hidden');
+        const rankClass = data.rank_title.toLowerCase().replace('+', '-plus');
+        resultDiv.innerHTML = `
+          <div class="flex items-center gap-4 mb-3">
+            <div class="text-3xl font-black bg-gradient-to-br from-accent-pink to-accent-purple bg-clip-text text-transparent">${data.rating.toFixed(2)}</div>
+            <div class="rank-badge rank-${rankClass}">${data.rank_title}</div>
+          </div>
+          <p class="text-text-secondary text-sm">
+            Capped Achievement: ${data.capped_achievement.toFixed(2)}%
+          </p>
+        `;
+        resultDiv.classList.remove('hidden');
+      } catch (error) {
+        errorDiv.textContent = `Error: ${error.message}`;
+        errorDiv.classList.remove('hidden');
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Calculate Rating';
+      }
+    });
 
-        // Validation
-        if (isNaN(level) || isNaN(achievement)) {
-          errorDiv.textContent = 'Please enter valid numbers';
-          errorDiv.classList.remove('hidden');
-          return;
-        }
+    // Rating Range
+    document.getElementById('range-btn').addEventListener('click', async () => {
+      const level = parseFloat(document.getElementById('range-level').value);
+      const rankTitle = document.getElementById('rank-select').value;
+      const resultDiv = document.getElementById('range-result');
+      const errorDiv = document.getElementById('range-error');
+      const button = document.getElementById('range-btn');
 
-        // Show loading
-        button.disabled = true;
-        button.textContent = 'Calculating...';
+      resultDiv.classList.add('hidden');
+      errorDiv.classList.add('hidden');
 
-        try {
-          const data = await callAPI('/rating', 'POST', {level, achievement});
+      if (isNaN(level)) {
+        errorDiv.textContent = 'Please enter a valid level';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
 
-          const rankClass = data.rank_title.toLowerCase().replace('+', '-plus');
-          resultDiv.innerHTML = `
-            <div class="rating-display">
-              <div class="rating-value">${data.rating.toFixed(2)}</div>
-              <div class="rank-badge rank-${rankClass}">${data.rank_title}</div>
-            </div>
-            <div class="details">
-              <p>Capped Achievement: ${data.capped_achievement.toFixed(2)}%</p>
-            </div>
-          `;
-          resultDiv.classList.remove('hidden');
-        } catch (error) {
-          errorDiv.textContent = `Error: ${error.message}`;
-          errorDiv.classList.remove('hidden');
-        } finally {
-          button.disabled = false;
-          button.textContent = 'Calculate Rating';
-        }
-      });
+      button.disabled = true;
+      button.textContent = 'Loading...';
 
-      // Rating Range
-      document.getElementById('range-btn').addEventListener('click', async () => {
-        const level = parseFloat(document.getElementById('range-level').value);
-        const rankTitle = document.getElementById('rank-select').value;
-        const resultDiv = document.getElementById('range-result');
-        const errorDiv = document.getElementById('range-error');
-        const button = document.getElementById('range-btn');
+      try {
+        const data = await callAPI('/rating-range', 'POST', {
+          level,
+          rank_title: rankTitle,
+        });
 
-        resultDiv.classList.add('hidden');
-        errorDiv.classList.add('hidden');
+        resultDiv.innerHTML = `
+          <div class="flex justify-between items-center mb-3 text-lg">
+            <span>Min: <strong class="text-accent-pink">${data.min_rating}</strong></span>
+            <span>Max: <strong class="text-accent-purple">${data.max_rating}</strong></span>
+          </div>
+          <div class="h-4 bg-bg-tertiary rounded-full overflow-hidden mb-3">
+            <div class="h-full bg-gradient-to-r from-accent-pink to-accent-purple w-full"></div>
+          </div>
+          <p class="text-text-secondary text-sm">
+            Rank: ${data.rank_title}
+          </p>
+        `;
+        resultDiv.classList.remove('hidden');
+      } catch (error) {
+        errorDiv.textContent = `Error: ${error.message}`;
+        errorDiv.classList.remove('hidden');
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Get Rating Range';
+      }
+    });
 
-        if (isNaN(level)) {
-          errorDiv.textContent = 'Please enter a valid level';
-          errorDiv.classList.remove('hidden');
-          return;
-        }
+    // Recommendations
+    document.getElementById('rec-btn').addEventListener('click', async () => {
+      const targetRating = parseFloat(document.getElementById('target-rating').value);
+      const resultDiv = document.getElementById('rec-result');
+      const errorDiv = document.getElementById('rec-error');
+      const button = document.getElementById('rec-btn');
 
-        button.disabled = true;
-        button.textContent = 'Loading...';
+      resultDiv.classList.add('hidden');
+      errorDiv.classList.add('hidden');
 
-        try {
-          const data = await callAPI('/rating-range', 'POST', {
-            level,
-            rank_title: rankTitle,
-          });
+      if (isNaN(targetRating)) {
+        errorDiv.textContent = 'Please enter a valid rating';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
 
-          resultDiv.innerHTML = `
-            <div class="range-display">
-              <div class="range-value">
-                <span>Min: <strong>${data.min_rating}</strong></span>
-                <span>Max: <strong>${data.max_rating}</strong></span>
+      button.disabled = true;
+      button.textContent = 'Loading...';
+
+      try {
+        const data = await callAPI('/recommended-levels', 'POST', {
+          rating: targetRating,
+        });
+
+        let html = '';
+        for (const [rank, levels] of Object.entries(data)) {
+          const rankClass = rank.toLowerCase().replace('+', '-plus');
+          html += `
+            <div class="mb-4">
+              <div class="flex items-center gap-3 p-3 bg-bg-tertiary rounded-lg cursor-pointer mb-3">
+                <span class="rank-badge rank-${rankClass}">${rank}</span>
+                <span class="text-text-muted text-sm">(${levels.length} option${levels.length !== 1 ? 's' : ''})</span>
               </div>
-              <div class="range-bar">
-                <div class="range-fill" style="width: 100%"></div>
-              </div>
-              <p class="details" style="margin-top: 10px;">
-                Rank: ${data.rank_title}
-              </p>
-            </div>
-          `;
-          resultDiv.classList.remove('hidden');
-        } catch (error) {
-          errorDiv.textContent = `Error: ${error.message}`;
-          errorDiv.classList.remove('hidden');
-        } finally {
-          button.disabled = false;
-          button.textContent = 'Get Rating Range';
-        }
-      });
-
-      // Recommendations
-      document.getElementById('rec-btn').addEventListener('click', async () => {
-        const targetRating = parseFloat(document.getElementById('target-rating').value);
-        const resultDiv = document.getElementById('rec-result');
-        const errorDiv = document.getElementById('rec-error');
-        const button = document.getElementById('rec-btn');
-
-        resultDiv.classList.add('hidden');
-        errorDiv.classList.add('hidden');
-
-        if (isNaN(targetRating)) {
-          errorDiv.textContent = 'Please enter a valid rating';
-          errorDiv.classList.remove('hidden');
-          return;
-        }
-
-        button.disabled = true;
-        button.textContent = 'Loading...';
-
-        try {
-          const data = await callAPI('/recommended-levels', 'POST', {
-            rating: targetRating,
-          });
-
-          let html = '';
-          for (const [rank, levels] of Object.entries(data)) {
-            const rankClass = rank.toLowerCase().replace('+', '-plus');
-            html += `
-              <div class="rank-group">
-                <h3 class="rank-header">
-                  <span class="rank-badge rank-${rankClass}">${rank}</span>
-                  <span class="count">(${levels.length} option${levels.length !== 1 ? 's' : ''})</span>
-                </h3>
-                <table>
+              <div class="bg-bg-tertiary rounded-lg overflow-hidden">
+                <table class="w-full">
                   <thead>
-                    <tr>
-                      <th>Level</th>
-                      <th>Min Achievement</th>
-                      <th>Rating</th>
+                    <tr class="bg-bg-card">
+                      <th class="p-3 text-left text-text-primary font-semibold">Level</th>
+                      <th class="p-3 text-left text-text-primary font-semibold">Min Achievement</th>
+                      <th class="p-3 text-left text-text-primary font-semibold">Rating</th>
                     </tr>
                   </thead>
                   <tbody>
-            `;
+          `;
 
-            levels.slice(0, 5).forEach((level) => {
-              html += `
-                <tr>
-                  <td>${level.lv.toFixed(1)}</td>
-                  <td>${level.min_achv.toFixed(2)}%</td>
-                  <td>${level.rating}</td>
-                </tr>
-              `;
-            });
-
-            if (levels.length > 5) {
-              html += `
-                <tr>
-                  <td colspan="3" style="text-align: center; color: var(--text-muted);">
-                    ... and ${levels.length - 5} more
-                  </td>
-                </tr>
-              `;
-            }
-
+          levels.slice(0, 5).forEach((level, index) => {
             html += `
-                  </tbody>
-                </table>
-              </div>
+              <tr class="${index % 2 === 0 ? 'bg-bg-secondary' : 'bg-bg-tertiary'} hover:bg-bg-card transition-colors">
+                <td class="p-3 text-text-primary">${level.lv.toFixed(1)}</td>
+                <td class="p-3 text-text-primary">${level.min_achv.toFixed(2)}%</td>
+                <td class="p-3 text-text-primary">${level.rating}</td>
+              </tr>
+            `;
+          });
+
+          if (levels.length > 5) {
+            html += `
+              <tr>
+                <td colspan="3" class="p-3 text-center text-text-muted text-sm">
+                  ... and ${levels.length - 5} more
+                </td>
+              </tr>
             `;
           }
 
-          resultDiv.innerHTML = html;
-          resultDiv.classList.remove('hidden');
-        } catch (error) {
-          errorDiv.textContent = `Error: ${error.message}`;
-          errorDiv.classList.remove('hidden');
-        } finally {
-          button.disabled = false;
-          button.textContent = 'Get Recommendations';
+          html += `
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
         }
-      });
-    </script>
-  </body>
+
+        resultDiv.innerHTML = html;
+        resultDiv.classList.remove('hidden');
+      } catch (error) {
+        errorDiv.textContent = `Error: ${error.message}`;
+        errorDiv.classList.remove('hidden');
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Get Recommendations';
+      }
+    });
+  </script>
+</body>
 </html>

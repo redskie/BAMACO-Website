@@ -4,286 +4,62 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Queue Admin Panel - BAMACO</title>
-  <link rel="stylesheet" href="styles.css">  <link rel="stylesheet" href="enhanced-styles.css">  <style>
-    .admin-login {
-      max-width: 400px;
-      margin: 100px auto;
-      padding: 0 var(--spacing-md);
-      text-align: center;
-    }
-    
-    .admin-panel {
-      display: none;
-    }
-    
-    .queue-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: clamp(1rem, 2vw, 1.5rem);
-    }
-    
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: var(--spacing-md);
-      flex-wrap: wrap;
-      gap: var(--spacing-sm);
-    }
-    
-    .section-header h1 {
-      font-size: clamp(1.5rem, 4vw, 2.5rem);
-    }
-    
-    .queue-list {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      padding: clamp(1rem, 2vw, 1.5rem);
-      margin-bottom: var(--spacing-lg);
-    }
-    
-    .queue-list h2 {
-      color: var(--text-primary);
-      margin-bottom: var(--spacing-md);
-      font-size: clamp(1.25rem, 3vw, 1.75rem);
-    }
-    
-    .queue-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: var(--spacing-sm);
-      border-bottom: 1px solid var(--border-color);
-      transition: background 0.2s;
-      border-radius: var(--radius-sm);
-      gap: var(--spacing-sm);
-    }
-    
-    .queue-item:hover {
-      background: var(--bg-tertiary);
-    }
-    
-    .queue-item:last-child {
-      border-bottom: none;
-    }
-    
-    .player-info {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-sm);
-      flex: 1;
-      min-width: 0;
-    }
-    
-    .player-info strong {
-      color: var(--text-primary);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    
-    .position-badge {
-      background: var(--bg-tertiary);
-      color: var(--text-primary);
-      border: 1px solid var(--border-color);
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      flex-shrink: 0;
-    }
-    
-    .paid-badge {
-      background: var(--bg-tertiary);
-      color: var(--text-secondary);
-      padding: 4px 10px;
-      border-radius: var(--radius-sm);
-      font-size: 12px;
-      border: 1px solid var(--border-color);
-      white-space: nowrap;
-    }
-    
-    .queue-actions {
-      display: flex;
-      gap: var(--spacing-xs);
-      flex-shrink: 0;
-      flex-wrap: wrap;
-    }
-    
-    .btn-small {
-      padding: 8px 14px;
-      font-size: 14px;
-      white-space: nowrap;
-    }
-    
-    .currently-playing {
-      background: var(--bg-card);
-      border: 2px solid var(--border-color);
-      color: var(--text-primary);
-      padding: clamp(1rem, 3vw, 1.5rem);
-      border-radius: var(--radius-lg);
-      margin-bottom: var(--spacing-lg);
-      text-align: center;
-    }
-    
-    .currently-playing h2 {
-      font-size: clamp(1.25rem, 3vw, 1.75rem);
-      margin-bottom: var(--spacing-sm);
-    }
-    
-    .playing-pair {
-      display: flex;
-      justify-content: center;
-      gap: var(--spacing-md);
-      margin-top: var(--spacing-sm);
-      font-size: clamp(1.25rem, 4vw, 1.75rem);
-      font-weight: bold;
-      flex-wrap: wrap;
-      color: var(--text-primary);
-    }
-    
-    .add-player-form {
-      display: flex;
-      gap: var(--spacing-sm);
-      margin-bottom: var(--spacing-lg);
-      flex-wrap: wrap;
-    }
-    
-    .add-player-form input {
-      background: var(--bg-card);
-      color: var(--text-primary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      padding: 12px;
-    }
-
-    .add-player-form input[type="text"] {
-      flex: 2;
-      min-width: 200px;
-    }
-
-    .add-player-form input[type="number"] {
-      width: 100px;
-    }
-    
-    .add-player-form input::placeholder {
-      color: var(--text-muted);
-    }
-    
-    .swap-controls {
-      display: flex;
-      gap: var(--spacing-sm);
-      align-items: center;
-      margin-bottom: var(--spacing-md);
-      flex-wrap: wrap;
-    }
-    
-    .swap-controls input {
-      width: 80px;
-      background: var(--bg-card);
-      color: var(--text-primary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      padding: 8px;
-    }
-    
-    .swap-controls span {
-      color: var(--text-secondary);
-    }
-
-    @media (max-width: 768px) {
-      .section-header {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      
-      .section-header button {
-        width: 100%;
-      }
-      
-      .queue-item {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      
-      .queue-actions {
-        width: 100%;
-        margin-top: var(--spacing-xs);
-      }
-      
-      .queue-actions button {
-        flex: 1;
-      }
-      
-      .add-player-form {
-        flex-direction: column;
-      }
-      
-      .add-player-form input,
-      .add-player-form button {
-        width: 100%;
-      }
-      
-      .swap-controls {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      
-      .swap-controls input,
-      .swap-controls button {
-        width: 100%;
-      }
-    }
-  </style>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+      <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="assets/tailwind-config.js"></script>
+    <script>tailwind.config = window.BAMACO_TAILWIND_CONFIG;</script>
+  
+  <link rel="stylesheet" href="assets/styles.css">
 </head>
-<body>
+<body class="bg-bg-primary text-text-primary font-sans antialiased">
   <!-- Navigation -->
   <!-- Navbar will be dynamically generated by navbar.js -->
 
   <!-- Login Form -->
-  <div class="admin-login" id="loginSection">
-    <div class="card">
-      <h1>Admin Login</h1>
-      <p class="text-muted">Enter password to access queue management</p>
+  <div class="max-w-md mx-auto px-4 py-24" id="loginSection">
+    <div class="bg-bg-card border border-border-primary rounded-xl p-8">
+      <h1 class="text-3xl font-black mb-2 text-center">Admin Login</h1>
+      <p class="text-text-muted text-center mb-6">Enter password to access queue management</p>
       <form id="loginForm">
-        <div style="margin: var(--spacing-md) 0;">
+        <div class="mb-6">
           <input 
             type="password" 
             id="adminPassword" 
             placeholder="Admin Password"
-            style="width: 100%; padding: 12px; font-size: 16px;"
+            class="w-full px-4 py-3 bg-bg-secondary border border-border-primary rounded-lg text-text-primary text-base focus:outline-none focus:border-text-secondary transition-all duration-300"
             required
           >
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+        <button type="submit" class="w-full px-6 py-3 bg-green-200 text-green-800 font-bold rounded-lg transition-all duration-300 hover-btn-primary">Login</button>
       </form>
-      <p id="loginError" style="color: #dc3545; margin-top: var(--spacing-sm); display: none;">
+      <p id="loginError" class="text-red-500 text-center mt-4 hidden">
         Incorrect password
       </p>
     </div>
   </div>
 
   <!-- Admin Panel -->
-  <div class="admin-panel" id="adminPanel">
-    <div class="queue-container">
-      <div class="section-header">
-        <h1>Queue Management</h1>
-        <button onclick="logout()" class="btn btn-secondary">Logout</button>
+  <div class="hidden" id="adminPanel">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <h1 class="text-3xl sm:text-4xl font-black">Queue Management</h1>
+        <button onclick="logout()" class="px-6 py-2 bg-bg-secondary border border-border-primary rounded-lg font-semibold hover-btn-secondary">Logout</button>
       </div>
 
       <!-- Credits Management Card -->
-      <div class="queue-list">
-        <h2>Credits Management</h2>
-        <div class="add-player-form" style="margin-bottom: var(--spacing-md);">
+      <div class="bg-bg-card border border-border-primary rounded-xl p-6 sm:p-8 mb-6">
+        <h2 class="text-xl sm:text-2xl font-bold mb-6">Credits Management</h2>
+        <div class="flex flex-col sm:flex-row gap-3 mb-6">
           <input 
             type="text" 
             id="creditPlayerName" 
             placeholder="Player name"
-            style="padding: 12px; font-size: 16px; flex: 2;"
+            class="flex-1 px-4 py-3 bg-bg-secondary border border-border-primary rounded-lg text-text-primary focus:outline-none focus:border-text-secondary transition-all duration-300"
           >
           <input 
             type="number" 
@@ -291,69 +67,69 @@
             placeholder="Credits"
             min="0"
             value="1"
-            style="padding: 12px; font-size: 16px; width: 100px;"
+            class="w-full sm:w-24 px-4 py-3 bg-bg-secondary border border-border-primary rounded-lg text-text-primary focus:outline-none focus:border-text-secondary transition-all duration-300"
           >
-          <button onclick="addCredits()" class="btn btn-primary">Add Credits</button>
-          <button onclick="removeCredits()" class="btn btn-secondary">Remove Credits</button>
+          <button onclick="addCredits()" class="px-6 py-3 bg-yellow-200 text-yellow-800 font-semibold rounded-lg hover-btn-primary transition-all duration-300">Add Credits</button>
+          <button onclick="removeCredits()" class="px-6 py-3 bg-bg-secondary border border-border-primary font-semibold rounded-lg hover-btn-secondary">Remove Credits</button>
         </div>
         
-        <h3 style="margin-bottom: var(--spacing-sm);">Current Credits</h3>
-        <div id="creditsDisplay" style="display: grid; gap: var(--spacing-xs); max-height: 200px; overflow-y: auto;">
-          <p class="text-muted" style="text-align: center; padding: var(--spacing-md);">
+        <h3 class="text-lg font-bold mb-3">Current Credits</h3>
+        <div id="creditsDisplay" class="grid gap-2 max-h-48 overflow-y-auto">
+          <p class="text-text-muted text-center py-6">
             No credits assigned
           </p>
         </div>
       </div>
 
       <!-- Currently Playing -->
-      <div class="queue-list">
-        <h2>Currently Playing</h2>
-        <div id="currentlyPlaying" style="text-align: center; font-size: 1.25rem; padding: var(--spacing-md);">
+      <div class="bg-bg-card border-2 border-border-primary rounded-xl p-6 sm:p-8 mb-6 text-center">
+        <h2 class="text-xl sm:text-2xl font-bold mb-4">Currently Playing</h2>
+        <div id="currentlyPlaying" class="text-xl sm:text-2xl font-bold">
           <span>No one playing</span>
         </div>
-        <button onclick="clearCurrentPlayers()" class="btn btn-secondary" style="width: 100%; margin-top: var(--spacing-sm);">
+        <button onclick="clearCurrentPlayers()" class="w-full mt-4 px-6 py-3 bg-bg-secondary border border-border-primary font-semibold rounded-lg hover-btn-secondary">
           Finish Current Game
         </button>
       </div>
 
       <!-- Add Player -->
-      <div class="add-player-form">
+      <div class="flex flex-col sm:flex-row gap-3 mb-6">
         <input 
           type="text" 
           id="newPlayerName" 
           placeholder="Enter player name"
-          style="padding: 12px; font-size: 16px;"
+          class="flex-1 px-4 py-3 bg-bg-secondary border border-border-primary rounded-lg text-text-primary focus:outline-none focus:border-text-secondary transition-all duration-300"
         >
-        <button onclick="addPlayer()" class="btn btn-primary">Add to Queue</button>
+        <button onclick="addPlayer()" class="px-6 py-3 bg-green-200 text-green-800 font-semibold rounded-lg hover-btn-primary transition-all duration-300">Add to Queue</button>
       </div>
 
       <!-- Swap Controls -->
-      <div class="swap-controls">
-        <span>Swap positions:</span>
-        <input type="number" id="swapPos1" min="1" placeholder="Pos 1">
-        <span>↔</span>
-        <input type="number" id="swapPos2" min="1" placeholder="Pos 2">
-        <button onclick="swapPlayers()" class="btn btn-secondary btn-small">Swap</button>
+      <div class="flex flex-col sm:flex-row items-center gap-3 mb-6">
+        <span class="text-text-secondary">Swap positions:</span>
+        <input type="number" id="swapPos1" min="1" placeholder="Pos 1" class="w-full sm:w-20 px-3 py-2 bg-bg-secondary border border-border-primary rounded-lg text-text-primary focus:outline-none focus:border-text-secondary">
+        <span class="text-text-muted">↔</span>
+        <input type="number" id="swapPos2" min="1" placeholder="Pos 2" class="w-full sm:w-20 px-3 py-2 bg-bg-secondary border border-border-primary rounded-lg text-text-primary focus:outline-none focus:border-text-secondary">
+        <button onclick="swapPlayers()" class="w-full sm:w-auto px-6 py-2 bg-bg-secondary border border-border-primary font-semibold rounded-lg hover-btn-secondary">Swap</button>
       </div>
 
       <!-- Main Queue Actions -->
-      <div style="display: flex; gap: var(--spacing-sm); margin-bottom: var(--spacing-md); flex-wrap: wrap;">
-        <button onclick="nextPairPlaying()" class="btn btn-primary">
+      <div class="flex flex-col sm:flex-row gap-3 mb-6">
+        <button onclick="nextPairPlaying()" class="px-6 py-3 bg-green-200 text-green-800 font-semibold rounded-lg hover-btn-primary transition-all duration-300">
           ▶ Next Pair Playing
         </button>
-        <button onclick="nextSoloPlaying()" class="btn btn-primary">
+        <button onclick="nextSoloPlaying()" class="px-6 py-3 bg-yellow-200 text-yellow-800 font-semibold rounded-lg hover-btn-primary transition-all duration-300">
           ▶ Next Solo Playing
         </button>
-        <button onclick="deleteTopPair()" class="btn btn-secondary">
+        <button onclick="deleteTopPair()" class="px-6 py-3 bg-bg-secondary border border-border-primary font-semibold rounded-lg hover-btn-secondary">
           Delete Top Pair
         </button>
       </div>
 
       <!-- Queue List -->
-      <div class="queue-list">
-        <h2>Queue (<span id="queueCount">0</span> players)</h2>
+      <div class="bg-bg-card border border-border-primary rounded-xl p-6 sm:p-8">
+        <h2 class="text-xl sm:text-2xl font-bold mb-6">Queue (<span id="queueCount">0</span> players)</h2>
         <div id="queueDisplay">
-          <p class="text-muted" style="text-align: center; padding: var(--spacing-lg);">
+          <p class="text-text-muted text-center py-8">
             Queue is empty
           </p>
         </div>
@@ -361,11 +137,77 @@
     </div>
   </div>
 
-  <script src="navbar.js"></script>
-  <script type="module">
-    import { database, queueRef, currentlyPlayingRef, gameHistoryRef, playerCreditsRef, ref, onValue, set, push, get, update, remove } from './firebase-config.js';
-
+  <script src="assets/page-transitions.js"></script>
+  <script src="assets/navbar.js"></script>
+  
+  <script>
+    // Move the main login logic outside of the module to prevent Firebase import blocking the login
     const ADMIN_PASSWORD = 'Nachi';
+
+    // Check if already logged in
+    if (localStorage.getItem('bamaco_admin_auth') === 'true') {
+      showAdminPanel();
+    }
+
+    // Login form
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('loginForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const password = document.getElementById('adminPassword').value;
+        
+        console.log('Password entered:', password); // Debug log
+        console.log('Expected password:', ADMIN_PASSWORD); // Debug log
+        
+        if (password === ADMIN_PASSWORD) {
+          localStorage.setItem('bamaco_admin_auth', 'true');
+          console.log('Login successful!'); // Debug log
+          showAdminPanel();
+        } else {
+          console.log('Login failed!'); // Debug log
+          document.getElementById('loginError').classList.remove('hidden');
+        }
+      });
+    });
+
+    function showAdminPanel() {
+      console.log('Showing admin panel...'); // Debug log
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('adminPanel').classList.remove('hidden');
+      document.getElementById('adminPanel').style.display = 'block';
+      // Initialize Firebase-dependent features after login
+      if (typeof initializeQueue === 'function') {
+        initializeQueue();
+      }
+    }
+
+    window.logout = function() {
+      localStorage.removeItem('bamaco_admin_auth');
+      location.reload();
+    };
+  </script>
+
+  <script type="module">
+    // Firebase-dependent code in separate module
+    import { database, queueRef, currentlyPlayingRef, gameHistoryRef, playerCreditsRef, ref, onValue, set, push, get, update, remove } from './config/firebase-config.js';
+
+    // Test Firebase connection
+    console.log('Firebase modules imported successfully');
+    console.log('Database:', database);
+    console.log('Queue ref:', queueRef);
+    
+    // Test if we can read from Firebase
+    try {
+      const testRef = ref(database, 'test');
+      onValue(testRef, (snapshot) => {
+        console.log('Firebase connection test successful!');
+        console.log('Test data:', snapshot.val());
+      }, (error) => {
+        console.error('Firebase connection error:', error);
+      });
+    } catch (error) {
+      console.error('Firebase initialization error:', error);
+    }
+    
     let queue = [];
     let currentlyPlaying = [];
     let playerCredits = {};
@@ -435,26 +277,34 @@
       count.textContent = queue.length;
 
       if (queue.length === 0) {
-        display.innerHTML = '<p class="text-muted" style="text-align: center; padding: var(--spacing-lg);">Queue is empty</p>';
+        display.innerHTML = '<p class="text-text-muted text-center py-8">Queue is empty</p>';
         return;
       }
 
-      display.innerHTML = queue.map((player, index) => {
-        return `
-        <div class="queue-item">
-          <div class="player-info">
-            <span class="position-badge">${index + 1}</span>
-            <strong>${player.name}</strong>
-            ${player.paid ? '<span class="paid-badge" style="background: var(--bg-tertiary); color: #4caf50; border-color: #4caf50;">✓ PAID</span>' : '<span class="paid-badge" style="background: var(--bg-tertiary); color: #f44336; border-color: #f44336;">✗ UNPAID</span>'}
-          </div>
-          <div class="queue-actions">
-            <button onclick="togglePaid('${player.key}', ${player.paid})" class="btn btn-secondary btn-small">
-              ${player.paid ? 'Mark Unpaid' : 'Mark Paid'}
-            </button>
-            <button onclick="deletePlayer('${player.key}')" class="btn btn-secondary btn-small">Delete</button>
-          </div>
+      // Create 2-column grid layout for all screen sizes
+      display.innerHTML = `
+        <div class="grid grid-cols-2 gap-2 sm:gap-4">
+          ${queue.map((player, index) => {
+            return `
+            <div class="flex flex-col justify-between items-start p-3 sm:p-4 border border-border-primary hover:bg-bg-tertiary transition-all duration-200 rounded gap-2">
+              <div class="flex items-center gap-2 w-full">
+                <span class="w-8 h-8 sm:w-9 sm:h-9 bg-bg-tertiary border border-border-primary rounded-full flex items-center justify-center font-bold text-xs sm:text-sm flex-shrink-0">${index + 1}</span>
+                <strong class="text-xs sm:text-sm truncate flex-1">${player.name}</strong>
+              </div>
+              <div class="w-full">
+                ${player.paid ? '<span class="px-2 py-1 bg-bg-tertiary text-green-500 border border-green-500 rounded text-xs block text-center mb-1">✓ PAID</span>' : '<span class="px-2 py-1 bg-bg-tertiary text-red-500 border border-red-500 rounded text-xs block text-center mb-1">✗ UNPAID</span>'}
+              </div>
+              <div class="flex gap-1 w-full">
+                <button onclick="togglePaid('${player.key}', ${player.paid})" class="flex-1 px-2 py-1 bg-bg-secondary border border-border-primary rounded text-xs font-semibold hover-btn-secondary">
+                  ${player.paid ? 'Unpaid' : 'Paid'}
+                </button>
+                <button onclick="deletePlayer('${player.key}')" class="flex-1 px-2 py-1 bg-bg-secondary border border-border-primary rounded text-xs font-semibold hover-btn-secondary">Delete</button>
+              </div>
+            </div>
+          `;
+          }).join('')}
         </div>
-      `;}).join('');
+      `;
     }
 
     function renderCurrentlyPlaying() {
@@ -463,7 +313,7 @@
       if (currentlyPlaying.length === 0) {
         display.innerHTML = '<span>No one playing</span>';
       } else {
-        display.innerHTML = currentlyPlaying.map(p => `<span>${p.name}</span>`).join(' <span>vs</span> ');
+        display.innerHTML = currentlyPlaying.map(p => `<span>${p.name}</span>`).join(' <span>and</span> ');
       }
     }
 
@@ -471,7 +321,7 @@
       const display = document.getElementById('creditsDisplay');
       
       if (Object.keys(playerCredits).length === 0) {
-        display.innerHTML = '<p class="text-muted" style="text-align: center; padding: var(--spacing-md);">No credits assigned</p>';
+        display.innerHTML = '<p class="text-text-muted text-center py-6">No credits assigned</p>';
         return;
       }
 
@@ -479,9 +329,9 @@
         .filter(([name, credits]) => credits > 0)
         .sort(([,a], [,b]) => b - a)
         .map(([name, credits]) => `
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-xs); background: var(--bg-secondary); border-radius: var(--radius-sm); margin-bottom: 4px;">
+          <div class="flex justify-between items-center p-2 bg-bg-secondary rounded">
             <span><strong>${name}</strong></span>
-            <span style="color: var(--text-secondary);">${credits} ${credits === 1 ? 'Credit' : 'Credits'}</span>
+            <span class="text-text-secondary">${credits} ${credits === 1 ? 'Credit' : 'Credits'}</span>
           </div>
         `).join('');
     }

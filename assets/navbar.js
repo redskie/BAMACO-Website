@@ -19,31 +19,50 @@ const NAVBAR_CONFIG = {
   ]
 };
 
-// Generate navbar HTML
+// Generate navbar HTML with Tailwind classes
 function generateNavbar() {
   const currentPath = getCurrentPagePath();
   
   const navLinks = NAVBAR_CONFIG.links.map(link => {
-    const isActive = isActiveLink(link.href, currentPath) ? ' class="active"' : '';
+    const isActive = isActiveLink(link.href, currentPath);
+    const activeClasses = isActive 
+      ? 'text-text-primary bg-green-200 bg-opacity-20 shadow-sm' 
+      : 'text-text-secondary hover:text-text-primary hover:bg-green-200 hover:bg-opacity-10';
     const href = getAbsolutePath(link.href);
-    return `<li><a href="${href}"${isActive}>${link.text}</a></li>`;
+    return `<li><a href="${href}" class="${activeClasses} block px-4 py-3 rounded-lg transition-all duration-300 text-center md:text-left md:py-2">${link.text}</a></li>`;
+  }).join('');
+
+  // Generate mobile menu links separately for better control
+  const mobileNavLinks = NAVBAR_CONFIG.links.map(link => {
+    const isActive = isActiveLink(link.href, currentPath);
+    const activeClasses = isActive 
+      ? 'text-text-primary bg-green-200 bg-opacity-20 shadow-sm font-medium' 
+      : 'text-text-secondary hover:text-text-primary hover:bg-green-200 hover:bg-opacity-10';
+    const href = getAbsolutePath(link.href);
+    return `<a href="${href}" class="${activeClasses} block px-4 py-2 rounded-lg transition-all duration-300 text-center h-10 min-h-10 flex items-center justify-center">${link.text}</a>`;
   }).join('');
 
   return `
-    <nav class="navbar">
-      <div class="container">
-        <div class="nav-brand">
-          <h1>${NAVBAR_CONFIG.brand.title}</h1>
-          <span class="brand-subtitle">${NAVBAR_CONFIG.brand.subtitle}</span>
+    <nav class="sticky top-0 z-50 bg-gradient-to-r from-bg-secondary to-bg-card border-b-2 border-border-primary shadow-lg backdrop-blur-md">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+          <div class="nav-brand z-50">
+            <h1 class="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-accent-pink to-accent-purple bg-clip-text text-transparent">${NAVBAR_CONFIG.brand.title}</h1>
+            <span class="block text-xs text-text-secondary mt-[-4px]">${NAVBAR_CONFIG.brand.subtitle}</span>
+          </div>
+          <button class="nav-toggle md:hidden flex flex-col gap-1.5 p-2 z-50" aria-label="Toggle navigation">
+            <span class="w-6 h-0.5 bg-text-primary rounded transition-all duration-300"></span>
+            <span class="w-6 h-0.5 bg-text-primary rounded transition-all duration-300"></span>
+            <span class="w-6 h-0.5 bg-text-primary rounded transition-all duration-300"></span>
+          </button>
+          <ul class="nav-links hidden md:flex gap-4 list-none">
+            ${navLinks}
+          </ul>
+          <!-- Mobile navigation menu (hidden by default) -->
+          <div class="mobile-nav-links hidden absolute top-full left-0 right-0 bg-bg-card border-b-2 border-border-primary shadow-2xl mx-4 rounded-b-xl py-2 gap-0 z-40 md:hidden">
+            ${mobileNavLinks}
+          </div>
         </div>
-        <button class="nav-toggle" aria-label="Toggle navigation">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-        <ul class="nav-links">
-          ${navLinks}
-        </ul>
       </div>
     </nav>
   `;
@@ -152,6 +171,10 @@ function getRelativePath(targetHref, currentPath) {
 
 // Initialize navbar when DOM is loaded
 function initializeNavbar() {
+  // Debug logging for navbar links
+  console.log('🔧 Initializing BAMACO Navbar...');
+  console.log('📋 Configured links:', NAVBAR_CONFIG.links.map(link => link.text));
+  
   // Debug logging for hosted environments
   if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
     console.log('🌐 Navbar Debug Info:');
@@ -184,35 +207,71 @@ function initializeNavbar() {
   initializeMobileNavigation();
 }
 
-// Mobile navigation functionality
+// Mobile navigation functionality with Tailwind classes
 function initializeMobileNavigation() {
   const navToggle = document.querySelector('.nav-toggle');
-  const navLinks = document.querySelector('.nav-links');
+  const mobileNavLinks = document.querySelector('.mobile-nav-links');
 
-  if (navToggle && navLinks) {
+  if (navToggle && mobileNavLinks) {
     // Remove any existing event listeners
     navToggle.replaceWith(navToggle.cloneNode(true));
     const newNavToggle = document.querySelector('.nav-toggle');
     
     // Toggle menu on hamburger click
     newNavToggle.addEventListener('click', () => {
-      newNavToggle.classList.toggle('active');
-      navLinks.classList.toggle('active');
+      const isActive = newNavToggle.classList.toggle('active');
+      mobileNavLinks.classList.toggle('active');
+      
+      // Animate hamburger icon
+      const spans = newNavToggle.querySelectorAll('span');
+      if (isActive) {
+        spans[0].style.transform = 'rotate(45deg) translate(6px, 6px)';
+        spans[1].style.opacity = '0';
+        spans[2].style.transform = 'rotate(-45deg) translate(6px, -6px)';
+        
+        // Show mobile menu
+        mobileNavLinks.classList.remove('hidden');
+        mobileNavLinks.classList.add('flex', 'flex-col');
+        console.log('📱 Mobile menu opened - links available:', mobileNavLinks.querySelectorAll('a').length);
+      } else {
+        spans[0].style.transform = '';
+        spans[1].style.opacity = '';
+        spans[2].style.transform = '';
+        
+        // Hide mobile menu
+        mobileNavLinks.classList.add('hidden');
+        mobileNavLinks.classList.remove('flex', 'flex-col');
+        console.log('📱 Mobile menu closed');
+      }
     });
 
-    // Close menu when clicking a link
-    navLinks.querySelectorAll('a').forEach((link) => {
+    // Close menu when clicking a mobile link
+    mobileNavLinks.querySelectorAll('a').forEach((link) => {
       link.addEventListener('click', () => {
         newNavToggle.classList.remove('active');
-        navLinks.classList.remove('active');
+        mobileNavLinks.classList.remove('active', 'flex', 'flex-col');
+        mobileNavLinks.classList.add('hidden');
+        
+        // Reset hamburger icon
+        const spans = newNavToggle.querySelectorAll('span');
+        spans[0].style.transform = '';
+        spans[1].style.opacity = '';
+        spans[2].style.transform = '';
       });
     });
 
     // Close menu when clicking outside
     document.addEventListener('click', (e) => {
-      if (!newNavToggle.contains(e.target) && !navLinks.contains(e.target)) {
+      if (!newNavToggle.contains(e.target) && !mobileNavLinks.contains(e.target)) {
         newNavToggle.classList.remove('active');
-        navLinks.classList.remove('active');
+        mobileNavLinks.classList.remove('active', 'flex', 'flex-col');
+        mobileNavLinks.classList.add('hidden');
+        
+        // Reset hamburger icon
+        const spans = newNavToggle.querySelectorAll('span');
+        spans[0].style.transform = '';
+        spans[1].style.opacity = '';
+        spans[2].style.transform = '';
       }
     });
   }

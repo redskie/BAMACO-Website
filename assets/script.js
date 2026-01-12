@@ -23,8 +23,8 @@ async function loadData() {
   }
   
   try {
-    console.log('🔄 Loading fresh data from data.json...');
-    const response = await fetch('data.json');
+    console.log('🔄 Loading fresh data from config/data.json...');
+    const response = await fetch('config/data.json');
     data = await response.json();
     
     // Cache the data
@@ -369,6 +369,48 @@ async function loadArticle(articleId) {
 }
 
 // ============================================
+// Utility Functions
+// ============================================
+
+// Centralized marquee functionality
+function createMarqueeElement(text, threshold = 25) {
+  if (text.length >= threshold) {
+    const container = document.createElement('div');
+    container.className = 'marquee-container';
+    
+    const content = document.createElement('span');
+    content.className = 'marquee-content';
+    content.textContent = text;
+    
+    container.appendChild(content);
+    return container;
+  } else {
+    const span = document.createElement('span');
+    span.textContent = text;
+    return span;
+  }
+}
+
+// Apply marquee to an existing element
+function applyMarqueeToElement(element, text, threshold = 25) {
+  if (text.length >= threshold) {
+    const container = document.createElement('div');
+    container.className = 'marquee-container';
+    
+    const content = document.createElement('span');
+    content.className = 'marquee-content';
+    content.textContent = text;
+    
+    container.appendChild(content);
+    
+    element.innerHTML = '';
+    element.appendChild(container);
+  } else {
+    element.textContent = text;
+  }
+}
+
+// ============================================
 // Card Creation Functions
 // ============================================
 
@@ -383,6 +425,12 @@ function createPlayerCard(player) {
   const avatarContent = player.avatarImage && player.avatarImage.trim() 
     ? `<img src="${player.avatarImage}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover;" />`
     : displayName.substring(0, 2).toUpperCase();
+  
+  // Handle marquee for long titles using centralized function
+  const playerRole = player.role || player.title || player.special_title || 'Player';
+  const roleContent = playerRole.length >= 25 
+    ? `<div class="marquee-container text-xs"><span class="marquee-content">${playerRole}</span></div>`
+    : `<p class="card-role">${playerRole}</p>`;
   
   if (cardClass === 'player-card-enhanced') {
     return `
@@ -412,7 +460,7 @@ function createPlayerCard(player) {
     <div class="player-card" onclick="window.location.href='players/${playerSlug}.html'">
       <div class="card-avatar">${fallbackAvatarContent}</div>
       <h3 class="card-name">${displayName}</h3>
-      <p class="card-role">${player.role}</p>
+      ${roleContent}
       <div class="card-stats">
         <div class="card-stat">
           <span class="card-stat-value">${player.rating}</span>
@@ -430,47 +478,32 @@ function createPlayerCard(player) {
 function createGuildCard(guild) {
   const guildSlug = guild.id;
   
-  // Check if enhanced styles are available (guilds page)
-  const cardClass = document.querySelector('.guilds-grid-enhanced') ? 'guild-card-enhanced' : 'guild-card';
-  
-  if (cardClass === 'guild-card-enhanced') {
-    return `
-      <a href="guilds/${guildSlug}.html" class="guild-card-enhanced">
-        <div class="guild-emblem">${guild.name.charAt(0)}</div>
-        <h3 class="guild-name">${guild.name}</h3>
-        <p class="guild-motto">${guild.motto}</p>
-        <div class="guild-stats">
-          <div class="guild-stat">
-            <span class="guild-stat-value">${guild.memberCount || 0}</span>
-            <span class="guild-stat-label">Members</span>
-          </div>
-          <div class="guild-stat">
-            <span class="guild-stat-value">${guild.level || 1}</span>
-            <span class="guild-stat-label">Level</span>
-          </div>
-        </div>
-      </a>
-    `;
-  }
-  
-  // Fallback to original card style
   return `
-        <div class="guild-card" onclick="window.location.href='guilds/${guildSlug}.html'">
-            <div class="card-emblem">${guild.name.charAt(0)}</div>
-            <h3 class="card-name">${guild.name}</h3>
-            <p class="card-motto">${guild.motto}</p>
-            <div class="card-stats">
-                <div class="card-stat">
-                    <span class="card-stat-value">${guild.memberCount}</span>
-                    <span class="card-stat-label">Members</span>
-                </div>
-                <div class="card-stat">
-                    <span class="card-stat-value">${guild.level}</span>
-                    <span class="card-stat-label">Level</span>
-                </div>
-            </div>
+    <a href="guilds/${guildSlug}.html" class="block bg-bg-card border border-border-primary rounded-xl p-6 hover-card hover-gradient-line group">
+      <!-- Guild Emblem -->
+      <div class="w-16 h-16 rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-3xl font-black text-white mb-4 transform group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+        ${guild.name.charAt(0)}
+      </div>
+      
+      <!-- Guild Name -->
+      <h3 class="text-xl font-bold text-text-primary mb-2 group-hover:text-accent-pink transition-colors">${guild.name}</h3>
+      
+      <!-- Guild Motto -->
+      <p class="text-text-secondary text-sm mb-4 line-clamp-2">${guild.motto}</p>
+      
+      <!-- Guild Stats -->
+      <div class="flex gap-4">
+        <div class="flex-1 bg-bg-tertiary rounded-lg p-3 text-center">
+          <div class="text-2xl font-bold text-accent-pink">${guild.memberCount || 0}</div>
+          <div class="text-xs text-text-muted uppercase tracking-wide">Members</div>
         </div>
-    `;
+        <div class="flex-1 bg-bg-tertiary rounded-lg p-3 text-center">
+          <div class="text-2xl font-bold text-accent-purple">${guild.level || 1}</div>
+          <div class="text-xs text-text-muted uppercase tracking-wide">Level</div>
+        </div>
+      </div>
+    </a>
+  `;
 }
 
 function createArticleCard(article) {
@@ -478,31 +511,19 @@ function createArticleCard(article) {
   const authorIGN = author ? (author.ign || author.name) : article.authorId.replace(/_/g, ' ');
   const articleFilename = article.id;
   
-  // Check if enhanced styles are available (articles page)
-  const isEnhanced = document.querySelector('.grid-enhanced');
-  
-  if (isEnhanced) {
-    return `
-      <a href="articles/${articleFilename}.html" class="card-enhanced" style="text-align: left;">
-        <h3 style="font-size: clamp(1.125rem, 4vw, 1.375rem); font-weight: 700; margin-bottom: 0.75rem; color: var(--text-primary);">${article.title}</h3>
-        <p style="color: var(--text-secondary); font-size: clamp(0.875rem, 3vw, 1rem); margin-bottom: 1rem; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">${article.excerpt}</p>
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-size: clamp(0.75rem, 2.5vw, 0.875rem);">
-          <span style="color: var(--text-muted);">By ${authorIGN}</span>
-          <span style="background: var(--bg-tertiary); padding: 0.25rem 0.75rem; border-radius: 999px; font-weight: 600;">${article.category}</span>
-        </div>
-      </a>
-    `;
-  }
-  
-  // Fallback to original card style
   return `
-        <div class="article-card" onclick="window.location.href='articles/${articleFilename}.html'">
-            <h3 class="article-card-title">${article.title}</h3>
-            <p class="article-card-excerpt">${article.excerpt}</p>
-            <div class="article-card-meta">
-                <span>By ${authorIGN}</span>
-                <span class="article-category">${article.category}</span>
-            </div>
-        </div>
-    `;
+    <a href="articles/${articleFilename}.html" class="block bg-bg-card border border-border-primary rounded-xl p-6 hover-card hover-gradient-line group">
+      <!-- Article Title -->
+      <h3 class="text-xl font-bold text-text-primary mb-3 group-hover:text-accent-purple transition-colors line-clamp-2">${article.title}</h3>
+      
+      <!-- Article Excerpt -->
+      <p class="text-text-secondary text-sm mb-4 line-clamp-3 leading-relaxed">${article.excerpt}</p>
+      
+      <!-- Article Meta -->
+      <div class="flex justify-between items-center gap-2 text-sm">
+        <span class="text-text-muted">By ${authorIGN}</span>
+        <span class="bg-bg-tertiary px-3 py-1 rounded-full font-semibold text-accent-purple">${article.category}</span>
+      </div>
+    </a>
+  `;
 }

@@ -4,498 +4,167 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BAMACO - Bataan MaiMai Community</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="enhanced-styles.css" />
-    <style>
-      /* Enhanced Hero with Gradient Animation */
-      .hero-enhanced {
-        position: relative;
-        overflow: hidden;
-        min-height: clamp(50vh, 60vh, 70vh);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: clamp(2rem, 5vw, 4rem) 1rem;
-      }
-      
-      .hero-enhanced::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
-        background-size: 50px 50px;
-        animation: gridMove 20s linear infinite;
-        z-index: 0;
-      }
-      
-      @keyframes gridMove {
-        0% { transform: translate(0, 0); }
-        100% { transform: translate(50px, 50px); }
-      }
-      
-      .hero-content {
-        position: relative;
-        z-index: 1;
-        text-align: center;
-        max-width: 900px;
-      }
-      
-      .hero-title-enhanced {
-        font-size: clamp(2.5rem, 8vw, 5rem);
-        font-weight: 900;
-        letter-spacing: -0.02em;
-        margin-bottom: 1rem;
-        background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        animation: fadeInUp 0.8s ease-out;
-      }
-      
-      .hero-subtitle-enhanced {
-        font-size: clamp(1.25rem, 3vw, 1.75rem);
-        color: var(--text-secondary);
-        margin-bottom: 2rem;
-        font-weight: 300;
-        animation: fadeInUp 0.8s ease-out 0.2s both;
-      }
-      
-      .hero-cta {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        flex-wrap: wrap;
-        animation: fadeInUp 0.8s ease-out 0.4s both;
-      }
-      
-      .hero-cta .btn {
-        padding: 1rem 2.5rem;
-        font-size: 1.125rem;
-        border-radius: var(--radius-md);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-      }
-      
-      .hero-cta .btn::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.1);
-        transform: translate(-50%, -50%);
-        transition: width 0.6s, height 0.6s;
-      }
-      
-      .hero-cta .btn:hover::before {
-        width: 300px;
-        height: 300px;
-      }
-      
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      
-      /* Enhanced Stats with Hover Effects */
-      .stats-enhanced {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: clamp(1rem, 3vw, 1.5rem);
-        margin: clamp(-3rem, -4vw, -2rem) auto clamp(2rem, 4vw, 3rem);
-        max-width: 1200px;
-        padding: 0 clamp(1rem, 3vw, 2rem);
-        position: relative;
-        z-index: 10;
-      }
-      
-      .stat-card-enhanced {
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-lg);
-        padding: clamp(1rem, 3vw, 1.5rem);
-        text-align: center;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-      }
-      
-      .stat-card-enhanced::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-        transition: left 0.5s;
-      }
-      
-      .stat-card-enhanced:hover::before {
-        left: 100%;
-      }
-      
-      .stat-card-enhanced:hover {
-        transform: translateY(-4px) scale(1.01);
-        border-color: var(--text-secondary);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-      }
-      
-      .stat-number-enhanced {
-        font-size: clamp(2.5rem, 6vw, 3.5rem);
-        font-weight: 800;
-        background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 0.5rem;
-        line-height: 1;
-      }
-      
-      .stat-label-enhanced {
-        color: var(--text-muted);
-        font-size: 1rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-      
-      /* Bento Grid Layout */
-      .bento-grid {
-        display: grid;
-        grid-template-columns: repeat(12, 1fr);
-        gap: clamp(1rem, 2vw, 1.5rem);
-        margin-bottom: clamp(2rem, 4vw, 3rem);
-      }
-      
-      .bento-item {
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-lg);
-        padding: clamp(1rem, 3vw, 1.5rem);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-      }
-      
-      .bento-item:hover {
-        border-color: var(--text-secondary);
-        transform: translateY(-4px);
-      }
-      
-      .bento-item.large {
-        grid-column: span 8;
-      }
-      
-      .bento-item.medium {
-        grid-column: span 4;
-      }
-      
-      .bento-item.small {
-        grid-column: span 6;
-      }
-      
-      @media (max-width: 768px) {
-        .bento-item.large,
-        .bento-item.medium,
-        .bento-item.small {
-          grid-column: span 12;
-        }
-        
-        .stats-enhanced {
-          margin-top: 2rem;
-          grid-template-columns: 1fr;
-        }
-      }
-      
-      /* Enhanced Cards with Stagger Animation */
-      .card-grid-enhanced {
-        display: flex;
-        flex-direction: column;
-        gap: clamp(0.75rem, 2vw, 1rem);
-        margin-top: clamp(1rem, 2vw, 1.5rem);
-      }
-      
-      .card-enhanced {
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-md);
-        padding: clamp(0.875rem, 2.5vw, 1rem);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        opacity: 0;
-        animation: fadeInUp 0.6s ease-out forwards;
-      }
-      
-      .card-enhanced:nth-child(1) { animation-delay: 0.1s; }
-      .card-enhanced:nth-child(2) { animation-delay: 0.2s; }
-      .card-enhanced:nth-child(3) { animation-delay: 0.3s; }
-      .card-enhanced:nth-child(4) { animation-delay: 0.4s; }
-      .card-enhanced:nth-child(5) { animation-delay: 0.5s; }
-      .card-enhanced:nth-child(6) { animation-delay: 0.6s; }
-      
-      .card-enhanced::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, var(--text-primary), var(--text-secondary));
-        transform: scaleX(0);
-        transform-origin: left;
-        transition: transform 0.3s ease;
-      }
-      
-      .card-enhanced:hover::after {
-        transform: scaleX(1);
-      }
-      
-      .card-enhanced:hover {
-        transform: translateY(-3px);
-        border-color: var(--text-secondary);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-      }
-      
-      /* Section Headers with Underline Animation */
-      .section-title-enhanced {
-        font-size: clamp(1.25rem, 4vw, 1.75rem);
-        font-weight: 700;
-        margin-bottom: clamp(0.75rem, 2vw, 1rem);
-        position: relative;
-        display: inline-block;
-      }
-      
-      .section-title-enhanced::after {
-        content: '';
-        position: absolute;
-        bottom: -8px;
-        left: 0;
-        width: 60px;
-        height: 4px;
-        background: linear-gradient(90deg, var(--text-primary), transparent);
-        border-radius: 2px;
-      }
-      
-      /* Queue Status with Pulse Animation */
-      .queue-status-enhanced {
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-lg);
-        padding: clamp(1.25rem, 3vw, 2rem);
-        position: relative;
-        overflow: hidden;
-      }
-      
-      .queue-live-indicator {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: var(--bg-tertiary);
-        padding: clamp(0.375rem, 1.5vw, 0.5rem) clamp(0.75rem, 2vw, 1rem);
-        border-radius: 999px;
-        margin-bottom: clamp(0.75rem, 2vw, 1rem);
-        border: 1px solid var(--border-color);
-      }
-      
-      .queue-live-indicator::before {
-        content: '';
-        width: 8px;
-        height: 8px;
-        background: #4caf50;
-        border-radius: 50%;
-        animation: pulse 2s ease-in-out infinite;
-      }
-      
-      @keyframes pulse {
-        0%, 100% {
-          opacity: 1;
-          transform: scale(1);
-        }
-        50% {
-          opacity: 0.5;
-          transform: scale(1.2);
-        }
-      }
-      
-      .queue-stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: clamp(0.75rem, 2vw, 1rem);
-        margin: clamp(1rem, 2vw, 1.5rem) 0;
-      }
-      
-      .queue-stat-card {
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
-        padding: clamp(0.875rem, 2.5vw, 1rem);
-        border-radius: var(--radius-md);
-        text-align: center;
-        transition: all 0.3s ease;
-      }
-      
-      .queue-stat-card:hover {
-        transform: scale(1.05);
-        border-color: var(--text-secondary);
-      }
-      
-      /* Floating Action Button */
-      .fab {
-        position: fixed;
-        bottom: clamp(1rem, 3vw, 2rem);
-        right: clamp(1rem, 3vw, 2rem);
-        width: clamp(50px, 12vw, 60px);
-        height: clamp(50px, 12vw, 60px);
-        background: var(--text-primary);
-        color: var(--bg-primary);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: clamp(1.25rem, 4vw, 1.5rem);
-        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 1000;
-        text-decoration: none;
-        touch-action: manipulation;
-      }
-      
-      .fab:hover {
-        transform: translateY(-4px) scale(1.1);
-        box-shadow: 0 12px 32px rgba(0,0,0,0.5);
-      }
-
-    </style>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+        <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="assets/tailwind-config.js"></script>
+    <script>tailwind.config = window.BAMACO_TAILWIND_CONFIG;</script>
+    
+    <link rel="stylesheet" href="assets/styles.css" />
   </head>
-  <body>
+  
+  <body class="bg-bg-primary text-text-primary font-sans antialiased overflow-x-hidden">
     <!-- Navbar will be dynamically generated by navbar.js -->
 
-    <header class="hero hero-enhanced">
-      <div class="hero-content">
-        <h2 class="hero-title-enhanced">Welcome to BAMACO</h2>
-        <p class="hero-subtitle-enhanced">The Premier Bataan MaiMai Gaming Community</p>
-        <div class="hero-cta">
-          <a href="create-profile.html" class="btn btn-primary">Create Profile</a>
-          <a href="queue.html" class="btn btn-secondary">View Queue</a>
-        </div>
+    <!-- Hero Section -->
+    <header class="relative overflow-hidden min-h-[60vh] flex items-center justify-center py-16 sm:py-20 lg:py-24">
+      <!-- Animated Background Grid -->
+      <div class="absolute inset-0 -top-1/2 -left-1/2 w-[200%] h-[200%] z-0 opacity-30" 
+           style="background: radial-gradient(circle, rgba(255,107,157,0.03) 1px, transparent 1px); background-size: 50px 50px; animation: gridMove 20s linear infinite;"></div>
+      
+      <div class="relative z-10 text-center max-w-4xl mx-auto px-4 sm:px-6 animate-fade-in-up">
+        <h2 class="text-5xl sm:text-6xl lg:text-7xl font-black mb-4 bg-gradient-to-br from-accent-pink via-accent-purple to-accent-blue bg-clip-text text-transparent leading-tight">
+          Welcome to BAMACO
+        </h2>
+        <p class="text-xl sm:text-2xl lg:text-3xl text-text-secondary mb-8 font-light">
+          The Premier Bataan MaiMai Gaming Community
+        </p>
       </div>
     </header>
 
-    <!-- Enhanced Stats Section -->
-    <div class="stats-enhanced">
-      <div class="stat-card-enhanced">
-      <div class="stat-number-enhanced" id="player-count" style="font-size: clamp(2rem, 5vw, 3.5rem);">0</div>
-      <div class="stat-label-enhanced" style="font-size: clamp(0.75rem, 2vw, 1rem);">Active Players</div>
-      </div>
-      <div class="stat-card-enhanced">
-      <div class="stat-number-enhanced" id="guild-count" style="font-size: clamp(2rem, 5vw, 3.5rem);">0</div>
-      <div class="stat-label-enhanced" style="font-size: clamp(0.75rem, 2vw, 1rem);">Guilds</div>
-      </div>
-      <div class="stat-card-enhanced">
-      <div class="stat-number-enhanced" id="article-count" style="font-size: clamp(2rem, 5vw, 3.5rem);">0</div>
-      <div class="stat-label-enhanced" style="font-size: clamp(0.75rem, 2vw, 1rem);">Guides</div>
+    <!-- Stats Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 -mt-16 mb-12 relative z-20">
+      <div class="grid grid-cols-3 gap-4 sm:gap-6">
+        <div class="bg-bg-card border border-border-primary rounded-xl p-6 text-center hover-card hover-gradient-line group relative overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
+          <div class="text-5xl sm:text-6xl font-black bg-gradient-to-br from-accent-pink to-accent-purple bg-clip-text text-transparent mb-2" id="player-count">0</div>
+          <div class="text-text-muted text-sm uppercase tracking-wider font-semibold">Active Players</div>
+        </div>
+        
+        <div class="bg-bg-card border border-border-primary rounded-xl p-6 text-center hover-card hover-gradient-line group relative overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
+          <div class="text-5xl sm:text-6xl font-black bg-gradient-to-br from-accent-pink to-accent-purple bg-clip-text text-transparent mb-2" id="guild-count">0</div>
+          <div class="text-text-muted text-sm uppercase tracking-wider font-semibold">Guilds</div>
+        </div>
+        
+        <div class="bg-bg-card border border-border-primary rounded-xl p-6 text-center hover-card hover-gradient-line group relative overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
+          <div class="text-5xl sm:text-6xl font-black bg-gradient-to-br from-accent-pink to-accent-purple bg-clip-text text-transparent mb-2" id="article-count">0</div>
+          <div class="text-text-muted text-sm uppercase tracking-wider font-semibold">Guides</div>
+        </div>
       </div>
     </div>
 
-    <main class="container">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 pb-28 sm:pb-16">
       <!-- Bento Grid Layout -->
-      <div class="bento-grid">
-        <!-- Large: Queue Status -->
-        <div class="bento-item large queue-status-enhanced">
-          <div class="queue-live-indicator">
-            <span style="font-weight: 600; font-size: 0.875rem;">LIVE</span>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mb-8">
+        <!-- Large: Queue Status (8 columns) -->
+        <div class="lg:col-span-8 bg-bg-card border border-border-primary rounded-xl p-6 sm:p-8 transition-all duration-300 hover-btn-secondary relative overflow-hidden">
+          <div class="inline-flex items-center gap-2 bg-bg-tertiary px-4 py-2 rounded-full mb-4 border border-border-primary">
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse-slow"></div>
+            <span class="text-sm font-semibold">LIVE</span>
           </div>
-          <h3 style="font-size: clamp(1.25rem, 3vw, 1.5rem); margin-bottom: clamp(0.75rem, 2vw, 1rem);">Queue Status</h3>
+          <h3 class="text-2xl sm:text-3xl font-bold mb-6">Queue Status</h3>
           
-          <div class="queue-stats-grid">
-            <div class="queue-stat-card">
-              <div style="font-size: clamp(1.5rem, 5vw, 2rem); font-weight: 800; color: var(--text-primary);" id="queueCount">0</div>
-              <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: clamp(0.625rem, 2.5vw, 0.75rem); text-transform: uppercase; letter-spacing: 0.05em;">In Queue</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div class="bg-bg-tertiary border border-border-primary p-4 sm:p-5 rounded-lg text-center transition-all duration-300 hover-subtle">
+              <div class="text-3xl sm:text-4xl font-black text-text-primary" id="queueCount">0</div>
+              <div class="text-text-muted text-xs uppercase tracking-wider mt-1">In Queue</div>
             </div>
             
-            <div class="queue-stat-card">
-              <div style="font-size: clamp(0.875rem, 2vw, 1rem); font-weight: 700; color: var(--text-primary); min-height: 2rem; display: flex; align-items: center; justify-content: center;" id="currentlyPlaying">
+            <div class="bg-bg-tertiary border border-border-primary p-4 sm:p-5 rounded-lg text-center transition-all duration-300 hover-subtle">
+              <div class="text-base sm:text-lg font-bold text-text-primary min-h-[2rem] flex items-center justify-center" id="currentlyPlaying">
                 No one playing
               </div>
-              <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: clamp(0.625rem, 2.5vw, 0.75rem); text-transform: uppercase; letter-spacing: 0.05em;">Playing Now</div>
+              <div class="text-text-muted text-xs uppercase tracking-wider mt-1">Playing Now</div>
             </div>
           </div>
           
-          <div style="display: flex; gap: clamp(0.5rem, 2vw, 0.75rem); justify-content: center; flex-wrap: wrap; margin-top: clamp(1rem, 2vw, 1.5rem);">
-            <a href="queue.html" class="btn btn-primary">Join Queue</a>
-            <a href="queue-history.html" class="btn btn-secondary">View History</a>
+          <div class="flex gap-3 justify-center flex-wrap">
+            <a href="queue.html" class="px-6 py-3 bg-green-200 text-green-800 font-bold rounded-lg transition-all duration-300 hover-btn-primary">
+              Join Queue
+            </a>
+            <a href="queue-history.html" class="px-6 py-3 bg-bg-secondary border border-border-primary text-text-primary font-bold rounded-lg transition-all duration-300 hover-btn-secondary">
+              View History
+            </a>
           </div>
         </div>
 
-        <!-- Medium: Rating Calculator -->
-        <div class="bento-item medium" style="background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));">
-          <h3 style="font-size: clamp(1rem, 3vw, 1.125rem); margin-bottom: clamp(0.5rem, 2vw, 0.75rem); font-weight: 700;">🎮 Rating Calculator</h3>
-          <div style="text-align: center;">
-            <div style="font-size: clamp(2rem, 8vw, 3rem); margin: clamp(0.5rem, 2vw, 1rem) 0;">🔢</div>
-            <p style="color: var(--text-secondary); font-size: clamp(0.75rem, 2.5vw, 0.875rem); margin-bottom: clamp(0.75rem, 2vw, 1rem);">Calculate your maimai rating and get chart recommendations</p>
-            <a href="calculator.html" class="btn btn-primary" style="font-size: clamp(0.75rem, 2.5vw, 0.875rem);">Open Calculator</a>
+        <!-- Medium: Rating Calculator (4 columns) -->
+        <div class="lg:col-span-4 bg-bg-card border border-border-primary rounded-xl p-6 transition-all duration-300 hover-btn-secondary">
+          <h3 class="text-xl font-bold mb-4">Rating Calculator</h3>
+          <div class="text-center">
+            <div class="text-6xl my-4">🔢</div>
+            <p class="text-text-secondary text-sm mb-4">Calculate your maimai rating and get chart recommendations</p>
+            <a href="calculator.html" class="inline-block px-6 py-3 bg-green-200 text-green-800 font-bold rounded-lg transition-all duration-300 hover-btn-primary">
+              Open Calculator
+            </a>
           </div>
         </div>
       </div>
 
       <!-- Featured Players -->
-      <section class="content-section">
-        <h3 class="section-title-enhanced">Featured Players</h3>
-        <div class="card-grid-enhanced" id="featured-players"></div>
+      <section class="mb-8">
+        <h3 class="text-2xl sm:text-3xl font-bold mb-6 relative inline-block after:content-[''] after:absolute after:bottom-[-8px] after:left-0 after:w-16 after:h-1 after:bg-gradient-to-r after:from-text-primary after:to-transparent after:rounded-full">
+          Featured Players
+        </h3>
+        <div class="space-y-3" id="featured-players"></div>
       </section>
 
       <!-- Bento Grid for Guilds and Articles -->
-      <div class="bento-grid">
-        <div class="bento-item small">
-          <h3 class="section-title-enhanced">Top Guilds</h3>
-          <div class="card-grid-enhanced" id="featured-guilds"></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
+        <div class="bg-bg-card border border-border-primary rounded-xl p-6 hover-btn-secondary">
+          <h3 class="text-2xl font-bold mb-6 relative inline-block after:content-[''] after:absolute after:bottom-[-8px] after:left-0 after:w-16 after:h-1 after:bg-gradient-to-r after:from-text-primary after:to-transparent after:rounded-full">
+            Top Guilds
+          </h3>
+          <div class="space-y-3" id="featured-guilds"></div>
         </div>
         
-        <div class="bento-item small">
-          <h3 class="section-title-enhanced">Latest Guides</h3>
-          <div class="card-grid-enhanced" id="latest-articles"></div>
+        <div class="bg-bg-card border border-border-primary rounded-xl p-6 hover-btn-secondary">
+          <h3 class="text-2xl font-bold mb-6 relative inline-block after:content-[''] after:absolute after:bottom-[-8px] after:left-0 after:w-16 after:h-1 after:bg-gradient-to-r after:from-text-primary after:to-transparent after:rounded-full">
+            Latest Guides
+          </h3>
+          <div class="space-y-3" id="latest-articles"></div>
         </div>
       </div>
 
       <!-- Call to Action -->
-      <section class="content-section" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.05)); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius-lg); padding: clamp(1.25rem, 4vw, 2rem); text-align: center; margin-top: clamp(2rem, 4vw, 3rem);">
-        <h3 style="font-size: clamp(1.25rem, 4vw, 1.75rem); margin-bottom: clamp(0.5rem, 2vw, 0.75rem); font-weight: 700;">Join the Community</h3>
-        <p style="color: var(--text-secondary); margin-bottom: clamp(1rem, 3vw, 1.5rem); max-width: 600px; margin-left: auto; margin-right: auto; font-size: clamp(0.875rem, 3vw, 1rem);">Create your player profile, join guilds, and become part of Bataan's premier MaiMai community</p>
-        <div style="display: flex; gap: clamp(0.5rem, 2vw, 0.75rem); justify-content: center; flex-wrap: wrap;">
-          <a href="create-profile.html" class="btn btn-primary">Create Profile</a>
-          <a href="edit-profile.html" class="btn btn-secondary">Edit Profile</a>
+      <section class="bg-gradient-to-br from-white/5 to-white/0 border-2 border-white/10 rounded-xl p-8 sm:p-10 text-center">
+        <h3 class="text-2xl sm:text-3xl font-bold mb-3">Join the Community</h3>
+        <p class="text-text-secondary text-base sm:text-lg mb-6 max-w-2xl mx-auto">
+          Create your player profile, join guilds, and become part of Bataan's premier MaiMai community
+        </p>
+        <div class="flex gap-3 justify-center flex-wrap">
+          <a href="create-profile.html" class="px-6 py-3 bg-green-200 text-green-800 font-bold rounded-lg transition-all duration-300 hover-btn-primary">
+            Create Profile
+          </a>
+          <a href="edit-profile.html" class="px-6 py-3 bg-yellow-200 text-yellow-800 border border-yellow-300 font-bold rounded-lg transition-all duration-300 hover-btn-secondary">
+            Edit Profile
+          </a>
         </div>
       </section>
     </main>
 
-    <footer>
-      <div class="container">
+    <footer class="border-t border-border-primary py-8 mt-16 bg-gradient-to-r from-bg-card to-bg-secondary shadow-lg">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-text-muted">
         <p>&copy; 2026 BAMACO - Bataan MaiMai Community. All rights reserved.</p>
       </div>
     </footer>
 
     <!-- Floating Action Button -->
-    <a href="queue.html" class="fab" title="View Queue">
-      <span style="font-size: 1.5rem;">▶</span>
+    <a href="queue.html" 
+       class="fixed bottom-6 right-4 sm:bottom-6 sm:right-6 w-12 h-12 sm:w-16 sm:h-16 bg-green-200 text-green-800 rounded-full flex items-center justify-center text-xl sm:text-2xl shadow-[0_8px_24px_rgba(0,0,0,0.4)] transition-all duration-300 hover:-translate-y-1 hover:scale-110 hover:shadow-[0_12px_32px_rgba(0,0,0,0.5)] z-50"
+       title="View Queue">
+      <span>▶</span>
     </a>
 
-    <script src="script.js"></script>
-    <script src="navbar.js"></script>
+    <script src="assets/script.js"></script>
+    <script src="assets/page-transitions.js"></script>
+    <script src="assets/navbar.js"></script>
     <script>
       // Load homepage content
       document.addEventListener('DOMContentLoaded', () => {
@@ -505,10 +174,9 @@
         loadLatestArticles();
       });
       
-      // Enhanced card rendering with animations
-      const originalLoadFeaturedPlayers = window.loadFeaturedPlayers;
+      // Featured Players Rendering
       window.loadFeaturedPlayers = function() {
-        fetch('data.json')
+        fetch('config/data.json')
           .then(response => response.json())
           .then(data => {
             const container = document.getElementById('featured-players');
@@ -516,58 +184,72 @@
             
             container.innerHTML = featured.map((player, index) => {
               const displayName = player.ign || player.name;
-              
-              // Create avatar content with image or fallback to initials
               const avatarContent = player.avatarImage && player.avatarImage.trim() 
-                ? `<img src="${player.avatarImage}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover;" />`
+                ? `<img src="${player.avatarImage}" alt="${displayName}" class="w-full h-full object-cover" />`
                 : displayName.substring(0, 2).toUpperCase();
               
+              const playerTitle = player.role || player.title || player.special_title || player.main_character || 'Player';
+              const titleContent = playerTitle.length >= 25 
+                ? `<div class="marquee-container text-xs"><span class="marquee-content">${playerTitle}</span></div>`
+                : `<p class="text-text-muted text-xs truncate">${playerTitle}</p>`;
+              
               return `
-              <a href="players/${player.id}.html" class="card-enhanced" style="text-decoration: none; color: inherit; animation-delay: ${index * 0.1}s;">
-                <div style="display: flex; align-items: center; gap: clamp(0.5rem, 2vw, 0.75rem); margin-bottom: clamp(0.5rem, 2vw, 0.75rem);">
-                  <div style="width: clamp(36px, 10vw, 44px); height: clamp(36px, 10vw, 44px); background: var(--bg-tertiary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: clamp(0.75rem, 3vw, 0.875rem); overflow: hidden; position: relative;">
+              <a href="players/${player.id}.html" 
+                 class="block bg-bg-card border border-border-primary rounded-lg p-4 hover-card hover:shadow-lg group relative overflow-hidden"
+                 style="text-decoration: none; color: inherit; animation: fadeInUp 0.6s ease-out ${index * 0.1}s both;">
+                <div class="absolute inset-0 h-1 top-0 bg-gradient-to-r from-accent-pink to-accent-purple scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300"></div>
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="w-10 h-10 sm:w-11 sm:h-11 bg-bg-tertiary rounded-lg flex items-center justify-center font-bold text-sm flex-shrink-0 overflow-hidden">
                     ${avatarContent}
                   </div>
-                  <div style="flex: 1; min-width: 0;">
-                    <h4 style="font-size: clamp(0.875rem, 3vw, 1rem); font-weight: 600; margin-bottom: 0.125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</h4>
-                    <p style="color: var(--text-muted); font-size: clamp(0.625rem, 2.5vw, 0.75rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${player.role || player.title || player.special_title || player.main_character || 'Player'}</p>
+                  <div class="flex-1 min-w-0">
+                    <h4 class="text-base font-semibold truncate">${displayName}</h4>
+                    ${titleContent}
                   </div>
                 </div>
-                ${player.rating ? `<div style="display: inline-block; background: var(--bg-tertiary); padding: 0.125rem 0.5rem; border-radius: 999px; font-size: clamp(0.625rem, 2.5vw, 0.75rem); font-weight: 600;">Rating: ${player.rating}</div>` : ''}
+                ${player.rating ? `<div class="inline-block bg-bg-tertiary px-2 py-1 rounded-full text-xs font-semibold">Rating: ${player.rating}</div>` : ''}
               </a>
             `}).join('');
           });
       };
       
+      // Top Guilds Rendering
       window.loadTopGuilds = function() {
-        fetch('data.json')
+        fetch('config/data.json')
           .then(response => response.json())
           .then(data => {
             const container = document.getElementById('featured-guilds');
             const guilds = data.guilds.slice(0, 3);
             
             container.innerHTML = guilds.map((guild, index) => `
-              <a href="guilds/${guild.id}.html" class="card-enhanced" style="text-decoration: none; color: inherit; animation-delay: ${index * 0.1}s;">
-                <h4 style="font-size: clamp(0.875rem, 3vw, 1rem); font-weight: 600; margin-bottom: 0.25rem;">${guild.name}</h4>
-                <p style="color: var(--text-muted); font-size: clamp(0.625rem, 2.5vw, 0.75rem); margin-bottom: 0.5rem;">${guild.members?.length || 0} Members</p>
-                ${guild.description ? `<p style="color: var(--text-secondary); font-size: clamp(0.625rem, 2.5vw, 0.75rem); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${guild.description}</p>` : ''}
+              <a href="guilds/${guild.id}.html"
+                 class="block bg-bg-secondary border border-border-primary rounded-lg p-4 hover-card hover:shadow-lg group relative overflow-hidden"
+                 style="text-decoration: none; color: inherit; animation: fadeInUp 0.6s ease-out ${index * 0.1}s both;">
+                <div class="absolute inset-0 h-1 top-0 bg-gradient-to-r from-accent-pink to-accent-purple scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300"></div>
+                <h4 class="text-base font-semibold mb-1">${guild.name}</h4>
+                <p class="text-text-muted text-xs mb-2">${guild.members?.length || 0} Members</p>
+                ${guild.description ? `<p class="text-text-secondary text-xs line-clamp-2">${guild.description}</p>` : ''}
               </a>
             `).join('');
           });
       };
       
+      // Latest Articles Rendering
       window.loadLatestArticles = function() {
-        fetch('data.json')
+        fetch('config/data.json')
           .then(response => response.json())
           .then(data => {
             const container = document.getElementById('latest-articles');
             const articles = data.articles.slice(0, 3);
             
             container.innerHTML = articles.map((article, index) => `
-              <a href="articles/${article.id}.html" class="card-enhanced" style="text-decoration: none; color: inherit; animation-delay: ${index * 0.1}s;">
-                <h4 style="font-size: clamp(0.875rem, 3vw, 1rem); font-weight: 600; margin-bottom: 0.25rem;">${article.title}</h4>
-                <p style="color: var(--text-muted); font-size: clamp(0.625rem, 2.5vw, 0.75rem); margin-bottom: 0.5rem;">${article.category || 'Guide'}</p>
-                ${article.description ? `<p style="color: var(--text-secondary); font-size: clamp(0.625rem, 2.5vw, 0.75rem); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${article.description}</p>` : ''}
+              <a href="articles/${article.id}.html"
+                 class="block bg-bg-secondary border border-border-primary rounded-lg p-4 hover-card hover:shadow-lg group relative overflow-hidden"
+                 style="text-decoration: none; color: inherit; animation: fadeInUp 0.6s ease-out ${index * 0.1}s both;">
+                <div class="absolute inset-0 h-1 top-0 bg-gradient-to-r from-accent-pink to-accent-purple scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300"></div>
+                <h4 class="text-base font-semibold mb-1">${article.title}</h4>
+                <p class="text-text-muted text-xs mb-2">${article.category || 'Guide'}</p>
+                ${article.description ? `<p class="text-text-secondary text-xs line-clamp-2">${article.description}</p>` : ''}
               </a>
             `).join('');
           });
@@ -576,7 +258,7 @@
     
     <!-- Queue Status Real-time Updates -->
     <script type="module">
-      import { queueRef, currentlyPlayingRef, onValue } from './firebase-config.js';
+      import { queueRef, currentlyPlayingRef, onValue } from './config/firebase-config.js';
 
       // Listen to queue count
       onValue(queueRef, (snapshot) => {
@@ -594,8 +276,17 @@
         const display = document.getElementById('currentlyPlaying');
         if (playing.length === 0) {
           display.innerHTML = 'No one playing';
+        } else if (playing.length === 1) {
+          display.innerHTML = playing[0];
         } else {
-          display.innerHTML = playing.join(' <span style="color: var(--text-muted);">vs</span> ');
+          // Mobile-friendly vertical layout for multiple players
+          display.innerHTML = `
+            <div class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+              <span>${playing[0]}</span>
+              <span class="text-text-muted text-sm">and</span>
+              <span>${playing[1] || 'Player 2'}</span>
+            </div>
+          `;
         }
       });
     </script>
