@@ -13,6 +13,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="assets/tailwind-config.js"></script>
   <script>tailwind.config = window.BAMACO_TAILWIND_CONFIG;</script>
+  <script src="assets/loading-optimizer.js"></script>
   
   <link rel="stylesheet" href="assets/styles.css">
 </head>
@@ -38,9 +39,14 @@
     <div class="bg-bg-card border border-border-primary rounded-xl p-6 sm:p-8 mb-6 sm:mb-8">
       <h2 class="text-xl sm:text-2xl font-bold mb-4">Player Credits</h2>
       <div id="creditsDisplay" class="grid gap-2 max-h-48 sm:max-h-64 overflow-y-auto">
-        <div class="text-center py-8 text-text-muted">
-          <p>No active credits</p>
-          <p class="mt-2 text-sm">Credits will appear here when players join the queue</p>
+        <!-- Loading skeleton -->
+        <div class="flex justify-between items-center p-2 bg-bg-secondary rounded animate-pulse">
+          <div class="h-4 bg-bg-tertiary rounded w-1/3 smooth-skeleton"></div>
+          <div class="h-4 bg-bg-tertiary rounded w-1/4 smooth-skeleton"></div>
+        </div>
+        <div class="flex justify-between items-center p-2 bg-bg-secondary rounded animate-pulse">
+          <div class="h-4 bg-bg-tertiary rounded w-1/2 smooth-skeleton"></div>
+          <div class="h-4 bg-bg-tertiary rounded w-1/4 smooth-skeleton"></div>
         </div>
       </div>
     </div>
@@ -49,9 +55,20 @@
     <div class="bg-bg-card border border-border-primary rounded-xl p-6 sm:p-8 mb-6 sm:mb-8">
       <h2 class="text-xl sm:text-2xl font-bold mb-4">Queue (<span id="queueCount">0</span> players waiting)</h2>
       <div id="queueDisplay">
-        <div class="text-center py-8 text-text-muted">
-          <p>Queue is empty</p>
-          <p class="mt-2 text-sm">No one is waiting right now</p>
+        <!-- Loading skeleton -->
+        <div class="grid grid-cols-2 gap-2 sm:gap-4">
+          <div class="flex flex-col justify-between items-start p-3 sm:p-4 border border-border-primary rounded gap-2 animate-pulse">
+            <div class="flex items-center gap-2 w-full">
+              <div class="w-8 h-8 sm:w-10 sm:h-10 bg-bg-tertiary rounded-full smooth-skeleton"></div>
+              <div class="h-4 bg-bg-tertiary rounded flex-1 smooth-skeleton"></div>
+            </div>
+          </div>
+          <div class="flex flex-col justify-between items-start p-3 sm:p-4 border border-border-primary rounded gap-2 animate-pulse">
+            <div class="flex items-center gap-2 w-full">
+              <div class="w-8 h-8 sm:w-10 sm:h-10 bg-bg-tertiary rounded-full smooth-skeleton"></div>
+              <div class="h-4 bg-bg-tertiary rounded flex-1 smooth-skeleton"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -118,17 +135,18 @@
       count.textContent = queue.length;
 
       if (queue.length === 0) {
-        display.innerHTML = `
-          <div class="text-center py-8 text-text-muted">
+        const emptyHTML = `
+          <div class="text-center py-8 text-text-muted loading-fade-in">
             <p>Queue is empty</p>
             <p class="mt-2 text-sm">No one is waiting right now</p>
           </div>
         `;
+        BAMACO_LOADING.TransitionManager.replaceWithFade(display, emptyHTML);
         return;
       }
 
-      display.innerHTML = `
-        <div class="grid grid-cols-2 gap-2 sm:gap-4">
+      const queueHTML = `
+        <div class="grid grid-cols-2 gap-2 sm:gap-4 loading-fade-in">
           ${queue.map((player, index) => {
             return `
             <div class="flex flex-col justify-between items-start p-3 sm:p-4 border border-border-primary hover:bg-bg-tertiary transition-all duration-200 rounded gap-2">
@@ -142,40 +160,44 @@
           }).join('')}
         </div>
       `;
+      BAMACO_LOADING.TransitionManager.replaceWithFade(display, queueHTML);
     }
 
     function renderCurrentlyPlaying(playing) {
       const display = document.getElementById('currentlyPlaying');
       
-      if (playing.length === 0) {
-        display.innerHTML = '<span>No one playing</span>';
-      } else {
-        display.innerHTML = playing.map(p => `<span>${p.name}</span>`).join(' <span class="text-text-muted">and</span> ');
-      }
+      const playingHTML = playing.length === 0 
+        ? '<span class="loading-fade-in">No one playing</span>'
+        : `<span class="loading-fade-in">${playing.map(p => `<span>${p.name}</span>`).join(' <span class="text-text-muted">and</span> ')}</span>`;
+      
+      BAMACO_LOADING.TransitionManager.replaceWithFade(display, playingHTML, 200);
     }
 
     function renderCredits() {
       const display = document.getElementById('creditsDisplay');
       
       if (Object.keys(playerCredits).length === 0 || Object.values(playerCredits).every(c => c === 0)) {
-        display.innerHTML = `
-          <div class="text-center py-8 text-text-muted">
+        const emptyHTML = `
+          <div class="text-center py-8 text-text-muted loading-fade-in">
             <p>No active credits</p>
             <p class="mt-2 text-sm">Credits will appear here when players join the queue</p>
           </div>
         `;
+        BAMACO_LOADING.TransitionManager.replaceWithFade(display, emptyHTML);
         return;
       }
 
-      display.innerHTML = Object.entries(playerCredits)
+      const creditsHTML = Object.entries(playerCredits)
         .filter(([name, credits]) => credits > 0)
         .sort(([,a], [,b]) => b - a)
         .map(([name, credits]) => `
-          <div class="flex justify-between items-center p-2 bg-bg-secondary rounded">
+          <div class="flex justify-between items-center p-2 bg-bg-secondary rounded loading-fade-in">
             <span><strong>${name}</strong></span>
             <span class="text-text-secondary">💳 ${credits} ${credits === 1 ? 'Credit' : 'Credits'}</span>
           </div>
         `).join('');
+      
+      BAMACO_LOADING.TransitionManager.replaceWithFade(display, creditsHTML);
     }
   </script>
 </body>

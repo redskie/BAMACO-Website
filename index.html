@@ -13,6 +13,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/tailwind-config.js"></script>
     <script>tailwind.config = window.BAMACO_TAILWIND_CONFIG;</script>
+    <script src="assets/loading-optimizer.js"></script>
     
     <link rel="stylesheet" href="assets/styles.css" />
   </head>
@@ -38,16 +39,22 @@
 
     <!-- Stats Section -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 -mt-16 mb-12 relative z-20">
-      <div class="grid grid-cols-3 gap-4 sm:gap-6">
-        <div class="bg-bg-card border border-border-primary rounded-xl p-6 text-center hover-card hover-gradient-line group relative overflow-hidden">
-          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
-          <div class="text-5xl sm:text-6xl font-black bg-gradient-to-br from-accent-pink to-accent-purple bg-clip-text text-transparent mb-2" id="player-count">0</div>
-          <div class="text-text-muted text-sm uppercase tracking-wider font-semibold">Active Players</div>
+      <div class="grid grid-cols-3 gap-4 sm:gap-6" id="stats-container">
+        <!-- Loading skeletons will be replaced by real content -->
+        <div class="bg-bg-card border border-border-primary rounded-xl p-6 text-center hover-card animate-pulse">
+          <div class="w-16 h-16 bg-bg-tertiary rounded mx-auto mb-2"></div>
+          <div class="h-4 bg-bg-tertiary rounded w-20 mx-auto"></div>
         </div>
-        
-        <div class="bg-bg-card border border-border-primary rounded-xl p-6 text-center hover-card hover-gradient-line group relative overflow-hidden">
-          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
-          <div class="text-5xl sm:text-6xl font-black bg-gradient-to-br from-accent-pink to-accent-purple bg-clip-text text-transparent mb-2" id="guild-count">0</div>
+        <div class="bg-bg-card border border-border-primary rounded-xl p-6 text-center hover-card animate-pulse">
+          <div class="w-16 h-16 bg-bg-tertiary rounded mx-auto mb-2"></div>
+          <div class="h-4 bg-bg-tertiary rounded w-20 mx-auto"></div>
+        </div>
+        <div class="bg-bg-card border border-border-primary rounded-xl p-6 text-center hover-card animate-pulse">
+          <div class="w-16 h-16 bg-bg-tertiary rounded mx-auto mb-2"></div>
+          <div class="h-4 bg-bg-tertiary rounded w-20 mx-auto"></div>
+        </div>
+      </div>
+    </div>
           <div class="text-text-muted text-sm uppercase tracking-wider font-semibold">Guilds</div>
         </div>
         
@@ -168,13 +175,76 @@
     <script src="assets/page-transitions.js"></script>
     <script src="assets/navbar.js"></script>
     <script>
-      // Load homepage content
+      // Load homepage content with smooth loading states
       document.addEventListener('DOMContentLoaded', () => {
-        loadStats();
-        loadFeaturedPlayers();
-        loadTopGuilds();
-        loadLatestArticles();
+        // Use optimized loading for stats
+        loadStatsWithSkeletons();
+        loadFeaturedPlayersWithSkeletons();
+        loadTopGuildsWithSkeletons();
+        loadLatestArticlesWithSkeletons();
       });
+      
+      // Enhanced loading functions
+      async function loadStatsWithSkeletons() {
+        try {
+          const data = await BAMACO_LOADING.DataFetcher.fetchWithCache('config/data.json', 'homepage-data');
+          if (!data) throw new Error('No data');
+          
+          setTimeout(() => {
+            const statsContainer = document.getElementById('stats-container');
+            const realStatsHTML = `
+              <div class="bg-bg-card border border-border-primary rounded-xl p-6 text-center hover-card hover-gradient-line group relative overflow-hidden loading-fade-in">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
+                <div class="text-5xl sm:text-6xl font-black bg-gradient-to-br from-accent-pink to-accent-purple bg-clip-text text-transparent mb-2">${data.players?.length || 0}</div>
+                <div class="text-text-muted text-sm uppercase tracking-wider font-semibold">Active Players</div>
+              </div>
+              <div class="bg-bg-card border border-border-primary rounded-xl p-6 text-center hover-card hover-gradient-line group relative overflow-hidden loading-fade-in">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
+                <div class="text-5xl sm:text-6xl font-black bg-gradient-to-br from-accent-pink to-accent-purple bg-clip-text text-transparent mb-2">${data.guilds?.length || 0}</div>
+                <div class="text-text-muted text-sm uppercase tracking-wider font-semibold">Active Guilds</div>
+              </div>
+              <div class="bg-bg-card border border-border-primary rounded-xl p-6 text-center hover-card hover-gradient-line group relative overflow-hidden loading-fade-in">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
+                <div class="text-5xl sm:text-6xl font-black bg-gradient-to-br from-accent-pink to-accent-purple bg-clip-text text-transparent mb-2">${data.articles?.length || 0}</div>
+                <div class="text-text-muted text-sm uppercase tracking-wider font-semibold">Articles</div>
+              </div>
+            `;
+            BAMACO_LOADING.TransitionManager.replaceWithFade(statsContainer, realStatsHTML);
+          }, 150);
+        } catch (error) {
+          console.error('Failed to load stats:', error);
+        }
+      }
+      
+      function loadFeaturedPlayersWithSkeletons() {
+        BAMACO_LOADING.DataFetcher.loadWithSkeleton('#featured-players', () => {
+          return Array(3).fill(BAMACO_LOADING.LoadingSkeletons.playerCard()).join('');
+        }, async () => {
+          const data = await BAMACO_LOADING.DataFetcher.fetchWithCache('config/data.json', 'homepage-data');
+          const featured = (data?.players || []).slice(0, 3);
+          return featured.map(createPlayerCard).join('');
+        });
+      }
+      
+      function loadTopGuildsWithSkeletons() {
+        BAMACO_LOADING.DataFetcher.loadWithSkeleton('#top-guilds', () => {
+          return Array(3).fill(BAMACO_LOADING.LoadingSkeletons.playerCard()).join('');
+        }, async () => {
+          const data = await BAMACO_LOADING.DataFetcher.fetchWithCache('config/data.json', 'homepage-data');
+          const topGuilds = (data?.guilds || []).slice(0, 3);
+          return topGuilds.map(createGuildCard).join('');
+        });
+      }
+      
+      function loadLatestArticlesWithSkeletons() {
+        BAMACO_LOADING.DataFetcher.loadWithSkeleton('#latest-articles', () => {
+          return Array(3).fill(BAMACO_LOADING.LoadingSkeletons.articleCard()).join('');
+        }, async () => {
+          const data = await BAMACO_LOADING.DataFetcher.fetchWithCache('config/data.json', 'homepage-data');
+          const latest = (data?.articles || []).slice(0, 3);
+          return latest.map(createArticleCard).join('');
+        });
+      }
       
       // Featured Players Rendering
       window.loadFeaturedPlayers = function() {
