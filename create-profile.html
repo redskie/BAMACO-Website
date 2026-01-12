@@ -688,30 +688,33 @@
       }
 
       async createGitHubIssue(data) {
-        // Format profile data for GitHub issue
-        const profileData = `
-**Edit Key:** \`${data.editKey}\`
-**Device Fingerprint:** \`${data.fingerprint}\`
-**IGN:** ${this.apiData.ign}
-**Full Name:** ${data.fullName}
-**Nickname:** ${data.fullName === 'REDACTED' ? this.apiData.ign : data.fullName}
-**Age:** ${data.age}
-**Friend Code:** ${data.friendCode.replace(/\D/g, '')}
-**Motto:** ${data.motto || 'None'}
-**Year Started:** ${data.yearStarted}
-**Bio:** ${data.bio || 'None'}
+        // Format profile data for GitHub issue (matching workflow parser format)
+        const profileData = `## 🎮 New Player Profile Request
+
+Edit Key: \`${data.editKey}\`
+Device Fingerprint: \`${data.fingerprint}\`
+Timestamp: ${new Date().toISOString()}
+
+### Basic Information
+
+• Full Name: ${data.fullName}
+• IGN: ${this.apiData.ign}
+• Nickname: ${data.fullName === 'REDACTED' ? this.apiData.ign : data.fullName}
+• Age: ${data.age}
+
+### MaiMai Information
+
+• Friend Code: ${data.friendCode.replace(/\D/g, '')}
+• Motto: ${data.motto || 'None'}
+• Year Started: ${data.yearStarted}
+• Bio: ${data.bio || 'None'}
 
 ---
-
-**API Retrieved Data:**
-- Rating: ${this.apiData.rating}
-- Title: ${this.apiData.title || 'None'}
-- Trophy: ${this.apiData.trophy || 'None'}
-- Icon URL: ${this.apiData.icon_url || 'None'}
+*Auto-generated profile creation request. Process via GitHub Actions.*
         `.trim();
 
         // Build GitHub issue URL (opens in new tab for user to submit)
-        const title = encodeURIComponent(`[PROFILE-NEW] ${this.apiData.ign}`);
+        const title = encodeURIComponent(`[PROFILE-CREATE] ${this.apiData.ign}`);
         const body = encodeURIComponent(profileData);
         const labels = encodeURIComponent('player-profile-request');
         
