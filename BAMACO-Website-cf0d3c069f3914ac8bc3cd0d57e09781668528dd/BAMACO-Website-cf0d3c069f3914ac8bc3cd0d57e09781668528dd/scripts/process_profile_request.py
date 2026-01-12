@@ -21,18 +21,16 @@ def parse_issue_body(body):
     """Extract structured data from issue body"""
     data = {}
     
-    # Extract key-value pairs (matches **Label:** format from create-profile.html)
+    # Extract key-value pairs
     patterns = {
         'editKey': r'\*\*Edit Key:\*\*\s*`([^`]+)`',
         'fingerprint': r'\*\*Device Fingerprint:\*\*\s*`([^`]+)`',
-        'passwordHash': r'\*\*Password Hash:\*\*\s*`([^`]+)`',
         'ign': r'\*\*IGN:\*\*\s*(.+)$',
         'fullName': r'\*\*Full Name:\*\*\s*(.+)$',
         'nickname': r'\*\*Nickname:\*\*\s*(.+)$',
         'age': r'\*\*Age:\*\*\s*(.+)$',
         'friendCode': r'\*\*Friend Code:\*\*\s*(.+)$',
         'motto': r'\*\*Motto:\*\*\s*(.+)$',
-        'yearStarted': r'\*\*Year Started:\*\*\s*(.+)$',
         'bio': r'\*\*Bio:\*\*\s*(.+)$',
     }
     
@@ -53,12 +51,6 @@ def sanitize_filename(name):
     safe = safe.strip('-')
     # Convert to lowercase
     return safe.lower()
-
-def escape_quotes(text):
-    """Escape single quotes for JavaScript strings"""
-    if not text:
-        return text
-    return text.replace("'", "\\'").replace('\n', ' ').replace('\r', '')
 
 def create_player_html(data, is_update=False):
     """Generate player profile HTML file with API integration"""
@@ -131,7 +123,10 @@ def create_player_html(data, is_update=False):
             'rating': r"rating:\s*['\"]?(\d+)['\"]?",
             'rank': r"rank:\s*['\"]([^'\"]+)['\"]",
             'title': r"title:\s*['\"]([^'\"]+)['\"]",
-            'guildId': r"guildId:\s*['\"]([^'\"]*)['\"]",
+            'guildId': r"guildId:\s*['\"]([^'\"]+)['\"]",
+            'guildName': r"guildName:\s*['\"]([^'\"]+)['\"]",
+            'guildSlug': r"guildSlug:\s*['\"]([^'\"]+)['\"]",
+            'guildMotto': r"guildMotto:\s*['\"]([^'\"]+)['\"]",
         }
         
         for key, pattern in admin_patterns.items():
@@ -144,7 +139,10 @@ def create_player_html(data, is_update=False):
         'rating': data.get('api_rating', '0'),  # Use API rating as default
         'rank': 'Unranked',
         'title': data.get('trophy', 'Community Member'),  # Use trophy as title if available
-        'guildId': '',
+        'guildId': 'None',
+        'guildName': 'None',
+        'guildSlug': 'None',
+        'guildMotto': 'None',
     }
     
     # Merge defaults with extracted admin data
@@ -155,42 +153,34 @@ def create_player_html(data, is_update=False):
         "name: 'Player Name'": f"name: '{data.get('fullName', 'REDACTED')}'",
         "ign: 'PlayerIGN'": f"ign: '{data.get('ign', 'PlayerIGN')}'",
         "nickname: 'Nickname'": f"nickname: '{data.get('nickname', data.get('ign', 'Nickname'))}'",
-        "title: 'Community Member'": f"title: '{admin_data['title']}'",
+        "title: 'Special Community Title'": f"title: '{admin_data['title']}'",
         "maimaiFriendCode: '0000-0000-0000'": f"maimaiFriendCode: '{data.get('friendCode', '000000000000000')}'",
-        "rating: 'Unrated'": f"rating: '{admin_data['rating']}'",
+        "rating: 0": f"rating: {admin_data['rating']}",
         "rank: 'Unranked'": f"rank: '{admin_data['rank']}'",
         "age: '25'": f"age: '{data.get('age', '25')}'",
-        "avatarImage: ''": f"avatarImage: '{data.get('icon_url', '')}'",
-        "motto: 'Your motto here'": f"motto: '{escape_quotes(data.get('motto', 'Unknown'))}'",
-        "joined: '2025'": f"joined: '{data.get('yearStarted', datetime.now().strftime('%Y'))}'",
-        "bio: 'Write your bio here. Describe your playstyle, experience, and what makes you unique in the BAMACO community.'": f"bio: '{escape_quotes(data.get('bio', 'No bio provided'))}'",
-        "guildId: ''": f"guildId: '{admin_data['guildId']}'",
+        "avatarImage: ''": f"avatarImage: '{data.get('icon_url', '')}'",  # Add icon from API
+        "motto: 'Your motto here'": f"motto: '{data.get('motto', 'Unknown')}'",
+        "joined: 'Jan 2026'": f"joined: '{datetime.now().strftime('%b %Y')}'",
+        "bio: 'Write your bio here. Describe your playstyle, experience, and what makes you unique in the BAMACO community.'": f"bio: '{data.get('bio', 'No bio provided')}'",
+        "guildName: 'None'": f"guildName: '{admin_data['guildName']}'",
+        "guildSlug: 'None'": f"guildSlug: '{admin_data['guildSlug']}'",
+        "guildId: 'guild_slug'": f"guildId: '{admin_data['guildId']}'",
+        "guildMotto: 'None'": f"guildMotto: '{admin_data['guildMotto']}'",
     }
     
     html_content = template
     for old, new in replacements.items():
         html_content = html_content.replace(old, new)
     
-    # Add edit key and password hash to localStorage (inject before </body>)
+    # Add edit key to localStorage (inject before </body>)
     edit_key = data.get('editKey', '')
-    password_hash = data.get('passwordHash', '')
-    friend_code = data.get('friendCode', '').replace('-', '').strip()
-    
-    if edit_key or password_hash:
+    if edit_key:
         localStorage_script = f"""
-    <!-- Profile Auth Storage -->
+    <!-- Edit Key Storage -->
     <script>
-      // Store credentials for future edits
-      const profileAuth = {{
-        editKey: '{edit_key}',
-        passwordHash: '{password_hash}',
-        friendCode: '{friend_code}',
-        ign: '{data.get('ign', '')}'
-      }};
+      // Store edit key for future edits
       localStorage.setItem('profileEditKey', '{edit_key}');
-      localStorage.setItem('profilePasswordHash', '{password_hash}');
-      localStorage.setItem('profileFriendCode', '{friend_code}');
-      console.log('Profile auth stored for editing');
+      console.log('Edit key stored for profile editing');
     </script>
   </body>"""
         html_content = html_content.replace('</body>', localStorage_script)

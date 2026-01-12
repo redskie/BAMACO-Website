@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Article - BAMACO</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="container">
+        <div class="nav-brand">
+          <h1>BAMACO</h1>
+          <span class="brand-subtitle">Bataan MaiMai Community</span>
+        </div>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="players.html">Players</a></li>
+          <li><a href="guilds.html">Guilds</a></li>
+          <li><a href="articles.html">Tips & Guides</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="container">
+      <article class="article-container">
+        <div class="article-header">
+          <h1 class="article-title" id="article-title">Loading...</h1>
+          <div class="article-meta">
+            <div class="article-author" id="article-author"></div>
+            <div class="article-date" id="article-date"></div>
+            <div class="article-category" id="article-category"></div>
+          </div>
+        </div>
+
+        <div class="article-content card" id="article-content">
+          <p>Loading article content...</p>
+        </div>
+
+        <div class="article-footer">
+          <h3 class="section-title">About the Author</h3>
+          <div class="card author-card" id="author-info"></div>
+        </div>
+
+        <div class="related-articles">
+          <h3 class="section-title">Related Guides</h3>
+          <div class="card-grid" id="related-articles"></div>
+        </div>
+      </article>
+    </main>
+
+    <footer>
+      <div class="container">
+        <p>
+          &copy; 2026 BAMACO - Bataan MaiMai Community. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const articleId = new URLSearchParams(window.location.search).get('id');
+        if (articleId) {
+          loadArticle(articleId);
+        } else {
+          window.location.href = 'articles.html';
+        }
+      });
+    </script>
+  </body>
+</html>

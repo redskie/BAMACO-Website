@@ -688,26 +688,22 @@
       }
 
       async createGitHubIssue(data) {
-        // Format profile data for GitHub issue (matching workflow parser format)
+        // Format profile data for GitHub issue (matching workflow parser **Label:** format)
         const profileData = `## 🎮 New Player Profile Request
 
-Edit Key: \`${data.editKey}\`
-Device Fingerprint: \`${data.fingerprint}\`
-Timestamp: ${new Date().toISOString()}
+**Edit Key:** \`${data.editKey}\`
+**Device Fingerprint:** \`${data.fingerprint}\`
+**Password Hash:** \`${data.passwordHash}\`
+**Timestamp:** ${new Date().toISOString()}
 
-### Basic Information
-
-• Full Name: ${data.fullName}
-• IGN: ${this.apiData.ign}
-• Nickname: ${data.fullName === 'REDACTED' ? this.apiData.ign : data.fullName}
-• Age: ${data.age}
-
-### MaiMai Information
-
-• Friend Code: ${data.friendCode.replace(/\D/g, '')}
-• Motto: ${data.motto || 'None'}
-• Year Started: ${data.yearStarted}
-• Bio: ${data.bio || 'None'}
+**Full Name:** ${data.fullName}
+**IGN:** ${this.apiData.ign}
+**Nickname:** ${data.fullName === 'REDACTED' ? this.apiData.ign : data.fullName}
+**Age:** ${data.age}
+**Friend Code:** ${data.friendCode.replace(/\D/g, '')}
+**Motto:** ${data.motto || 'None'}
+**Year Started:** ${data.yearStarted}
+**Bio:** ${data.bio || 'None'}
 
 ---
 *Auto-generated profile creation request. Process via GitHub Actions.*

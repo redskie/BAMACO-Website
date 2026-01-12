@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Article - BAMACO</title>
+    <link rel="stylesheet" href="../styles.css" />
+
+    <!-- ============================================ -->
+    <!-- EDIT YOUR ARTICLE INFORMATION BELOW -->
+    <!-- ============================================ -->
+    <script>
+      const ARTICLE_INFO = {
+        // Article Details
+        title: 'Slider Basics',
+        category: 'Techniques', // e.g., Strategy, Guide, News, Tips
+        author: 'BMCMARX // GodarX', // Use the player's IGN to auto-link to their profile
+        date: 'Jan 6, 2026', // Publication date
+
+        // Article Content (use \n for line breaks in plain text, or use HTML in sections)
+        content: `
+          <p>Ever since I started to play maimai, I found the slider mechanic to be quite easy. Sliders work on a one beat delay depending on the BPM of the song. A star will appear at the start of the slider and will move to the path of the slider until it reaches the end of it.</p>
+          <p>Judgements as such is determined by the window of time where the star hits the end of the slider. When you finish the slider too fast, it's called splashing. When you finish a slider too slow, it's just skill issue. Think of it as a timer on when you clear the slider. You can differentiate sliders from regular notes by the star shaped notes indicating the start of a slider.</p>
+          <p>Usually an indicator for when the star will move is another note at the button where the star was hit or in another button entirely. They may look easy at first, but as you reach the MASTER difficulties, you'll see different patterns such as the iconic ウミユリ(Umiyuri) Pattern. </p>
+        `,
+      };
+    </script>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="container">
+        <div class="nav-brand">
+          <h1>BAMACO</h1>
+          <span class="brand-subtitle">Bataan MaiMai Community</span>
+        </div>
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../players.html">Players</a></li>
+          <li><a href="../guilds.html">Guilds</a></li>
+          <li><a href="../articles.html">Tips & Guides</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="container">
+      <article class="article-detail">
+        <header class="article-header">
+          <div class="article-category" id="article-category"></div>
+          <h1 class="article-title" id="article-title"></h1>
+          <div class="article-meta">
+            <span class="article-author" id="article-author"></span>
+            <span class="article-date" id="article-date"></span>
+          </div>
+        </header>
+
+        <div class="article-content" id="article-content"></div>
+
+        <div class="article-footer">
+          <a href="../articles.html" class="btn-secondary"
+            >← Back to Articles</a
+          >
+        </div>
+      </article>
+    </main>
+
+    <script src="../navbar.js"></script>
+    <script src="../script.js"></script>
+    <script>
+      // Populate article with ARTICLE_INFO data
+      document.addEventListener('DOMContentLoaded', function () {
+        // Update page title
+        document.title = `${ARTICLE_INFO.title} - BAMACO`;
+
+        // Populate article details
+        document.getElementById('article-category').textContent =
+          ARTICLE_INFO.category;
+        document.getElementById('article-title').textContent =
+          ARTICLE_INFO.title;
+        document.getElementById(
+          'article-author'
+        ).textContent = `By ${ARTICLE_INFO.author}`;
+        document.getElementById('article-date').textContent = ARTICLE_INFO.date;
+        document.getElementById('article-content').innerHTML =
+          ARTICLE_INFO.content;
+      });
+    </script>
+  </body>
+</html>

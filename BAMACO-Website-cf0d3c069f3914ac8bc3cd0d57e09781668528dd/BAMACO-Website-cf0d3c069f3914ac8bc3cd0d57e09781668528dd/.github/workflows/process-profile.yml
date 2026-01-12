@@ -24,9 +24,6 @@ jobs:
         with:
           python-version: '3.11'
       
-      - name: Install dependencies
-        run: pip install requests
-      
       - name: Process profile request
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}

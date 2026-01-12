@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Player Profile - BAMACO</title>
+    <link rel="stylesheet" href="../styles.css" />
+
+    <!-- ============================================ -->
+    <!-- EDIT YOUR PLAYER INFORMATION BELOW -->
+    <!-- ============================================ -->
+    <script>
+      const PLAYER_INFO = {
+        // Basic Information
+        name: 'REDACTED', // Full player name
+        ign: 'TreeSap', // In-Game Name
+        nickname: 'TS', // Preferred nickname
+        title: 'Community Member', // Role or title
+
+        // Profile Image (optional)
+        avatarImage: '', // URL or path to avatar image (PNG/JPEG). Leave empty to use first letter of IGN
+
+        // MaiMai Information
+        maimaiFriendCode: '000000000000000', // Friend code format
+        rating: 'Unrated', // MaiMai rating
+        rank: 'Unranked', // Rank (S+, S, A+, A, etc.)
+
+        // Profile Details
+        age: '20', // Age
+        motto: 'Unknown', // Personal motto
+        joined: '2025', // Join date
+        bio: 'No bio provided',
+
+        // Guild Information
+        guildName: 'Guild Name', // Your guild name
+        guildSlug: 'guild_slug', // Guild file name (without .html) - IMPORTANT: Must match the guild's HTML filename
+        guildId: 'None', // Guild ID - MUST match guild's id in GUILD_INFO (e.g., 'dragon_warriors' for dragon_warriors.html)
+        guildMotto: 'Guild motto here', // Guild's motto
+        guildEmblem: 'G', // First letter for emblem (fallback if no image)
+        guildLogo: '', // URL or path to guild logo image (PNG/JPEG). Leave empty to use first letter
+
+        // Achievements (add more objects as needed)
+        achievements: [
+        ],
+
+        // Published Articles (add more objects as needed)
+        articles: [
+          {
+            title: 'Article Title Here',
+            excerpt: 'Brief description of your article content',
+            slug: 'article_slug', // Article file name (without .html)
+            category: 'Category Name',
+          },
+        ],
+      };
+    </script>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="container">
+        <div class="nav-brand">
+          <h1>BAMACO</h1>
+          <span class="brand-subtitle">Bataan MaiMai Community</span>
+        </div>
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <ul class="nav-links">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../players.html">Players</a></li>
+          <li><a href="../guilds.html">Guilds</a></li>
+          <li><a href="../articles.html">Tips & Guides</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="container">
+      <div class="profile-header">
+        <div class="profile-avatar" id="player-avatar">
+          <span id="avatar-letter"></span>
+        </div>
+        <div class="profile-info">
+          <h2 class="profile-name" id="player-name"></h2>
+          <p class="profile-role" id="player-title"></p>
+          <div class="profile-stats">
+            <div class="profile-stat">
+              <span class="stat-label">Rating</span>
+              <span class="stat-value" id="player-rating"></span>
+            </div>
+            <div class="profile-stat">
+              <span class="stat-label">Rank</span>
+              <span class="stat-value" id="player-rank"></span>
+            </div>
+            <div class="profile-stat">
+              <span class="stat-label">Joined</span>
+              <span class="stat-value" id="player-joined"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-content">
+        <section class="content-section">
+          <h3 class="section-title">Player Information</h3>
+          <div class="card">
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+              "
+            >
+              <div>
+                <strong style="color: var(--text-secondary)">Name:</strong>
+                <p style="margin: 0.3rem 0" id="player-ign"></p>
+              </div>
+              <div>
+                <strong style="color: var(--text-secondary)"
+                  >MaiMai Friend Code:</strong
+                >
+                <p style="margin: 0.3rem 0" id="player-friend-code"></p>
+              </div>
+              <div>
+                <strong style="color: var(--text-secondary)">Nickname:</strong>
+                <p style="margin: 0.3rem 0" id="player-nickname"></p>
+              </div>
+              <div>
+                <strong style="color: var(--text-secondary)">Motto:</strong>
+                <p style="margin: 0.3rem 0" id="player-motto"></p>
+              </div>
+              <div>
+                <strong style="color: var(--text-secondary)">Age:</strong>
+                <p style="margin: 0.3rem 0" id="player-age"></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="content-section">
+          <h3 class="section-title">About</h3>
+          <div class="card">
+            <p id="player-bio"></p>
+          </div>
+        </section>
+
+        <section class="content-section">
+          <h3 class="section-title">Guild Affiliation</h3>
+          <div class="card">
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 1rem;
+              "
+            >
+              <div
+                class="card-emblem"
+                style="width: 80px; height: 80px; font-size: 2rem"
+                id="guild-emblem-container"
+              >
+                <span id="guild-emblem-letter"></span>
+              </div>
+              <div>
+                <h4 style="margin-bottom: 0.3rem">
+                  <a id="guild-link" href=""></a>
+                </h4>
+                <p
+                  class="text-muted"
+                  style="font-size: 0.9rem"
+                  id="guild-motto"
+                ></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="content-section">
+          <h3 class="section-title">Achievements</h3>
+          <div class="achievements-grid" id="achievements-container"></div>
+        </section>
+
+        <section class="content-section">
+          <h3 class="section-title">Published Guides</h3>
+          <div class="card-grid" id="articles-container"></div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <p>
+          &copy; 2026 BAMACO - Bataan MaiMai Community. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <script src="../navbar.js"></script>
+
+    <!-- ============================================ -->
+    <!-- SCRIPT TO POPULATE PAGE WITH YOUR DATA -->
+    <!-- NO NEED TO EDIT BELOW THIS LINE -->
+    <!-- ============================================ -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Populate basic information
+        document.title = PLAYER_INFO.name + ' - BAMACO';
+
+        // Handle player avatar - use image if provided, otherwise show first letter of IGN
+        const playerAvatar = document.getElementById('player-avatar');
+        const avatarLetter = document.getElementById('avatar-letter');
+
+        if (PLAYER_INFO.avatarImage && PLAYER_INFO.avatarImage.trim() !== '') {
+          // Set image as background
+          playerAvatar.style.backgroundImage = `url('${PLAYER_INFO.avatarImage}')`;
+          playerAvatar.style.backgroundSize = 'cover';
+          playerAvatar.style.backgroundPosition = 'center';
+          avatarLetter.style.display = 'none'; // Hide letter
+        } else {
+          // Show first letter of IGN
+          avatarLetter.textContent = PLAYER_INFO.ign.charAt(0);
+        }
+
+        document.getElementById('player-name').textContent = PLAYER_INFO.ign;
+        document.getElementById('player-title').textContent = PLAYER_INFO.title;
+        document.getElementById('player-rating').textContent =
+          PLAYER_INFO.rating;
+        document.getElementById('player-rank').textContent = PLAYER_INFO.rank;
+        document.getElementById('player-joined').textContent =
+          PLAYER_INFO.joined;
+
+        // Populate player information section
+        document.getElementById('player-ign').textContent = PLAYER_INFO.name;
+        document.getElementById('player-friend-code').textContent =
+          PLAYER_INFO.maimaiFriendCode;
+        document.getElementById('player-nickname').textContent =
+          PLAYER_INFO.nickname;
+        document.getElementById('player-motto').textContent = PLAYER_INFO.motto;
+        document.getElementById('player-age').textContent = PLAYER_INFO.age;
+
+        // Populate bio
+        document.getElementById('player-bio').textContent = PLAYER_INFO.bio;
+
+        // Handle guild logo - use image if provided, otherwise show first letter
+        const guildEmblemContainer = document.getElementById(
+          'guild-emblem-container'
+        );
+        const guildEmblemLetter = document.getElementById(
+          'guild-emblem-letter'
+        );
+
+        if (PLAYER_INFO.guildLogo && PLAYER_INFO.guildLogo.trim() !== '') {
+          // Set image as background
+          guildEmblemContainer.style.backgroundImage = `url('${PLAYER_INFO.guildLogo}')`;
+          guildEmblemContainer.style.backgroundSize = 'cover';
+          guildEmblemContainer.style.backgroundPosition = 'center';
+          guildEmblemLetter.style.display = 'none'; // Hide letter
+        } else {
+          // Show first letter of guild name
+          guildEmblemLetter.textContent = PLAYER_INFO.guildEmblem;
+        }
+
+        document.getElementById('guild-link').textContent =
+          PLAYER_INFO.guildName;
+        document.getElementById('guild-link').href =
+          '../guilds/' + PLAYER_INFO.guildSlug + '.html';
+        document.getElementById('guild-motto').textContent =
+          PLAYER_INFO.guildMotto;
+
+        // Populate achievements or hide section if empty
+        const achievementsSection = document.querySelector('.content-section:has(#achievements-container)');
+        const achievementsContainer = document.getElementById(
+          'achievements-container'
+        );
+        
+        if (PLAYER_INFO.achievements && PLAYER_INFO.achievements.length > 0) {
+          achievementsContainer.innerHTML = '';
+          PLAYER_INFO.achievements.forEach((achievement) => {
+            const achievementDiv = document.createElement('div');
+            achievementDiv.className = 'achievement-badge';
+            achievementDiv.innerHTML = `
+                      <div class="achievement-icon">${achievement.icon}</div>
+                      <div class="achievement-name">${achievement.name}</div>
+                      <div class="achievement-description">${achievement.description}</div>
+                  `;
+            achievementsContainer.appendChild(achievementDiv);
+          });
+        } else {
+          // No achievements - hide the section
+          if (achievementsSection) {
+            achievementsSection.style.display = 'none';
+          }
+        }
+
+        // Check if player has a guild and hide section if not
+        const guildSection = document.querySelector('.content-section:has(#guild-emblem-container)');
+        if (!PLAYER_INFO.guildId || PLAYER_INFO.guildId === 'None' || PLAYER_INFO.guildId === '' || PLAYER_INFO.guildName === 'None' || PLAYER_INFO.guildName === '') {
+          if (guildSection) {
+            guildSection.style.display = 'none';
+          }
+        }
+
+        // Load and populate articles from data.json
+        fetch('../data.json')
+          .then(response => response.json())
+          .then(data => {
+            const player = data.players.find(p => p.ign === PLAYER_INFO.ign);
+            const articlesSection = document.querySelector('.content-section:has(#articles-container)');
+            const articlesContainer = document.getElementById('articles-container');
+            
+            if (player && player.articles && player.articles.length > 0) {
+              // Player has articles - show them
+              articlesContainer.innerHTML = '';
+              player.articles.forEach((article) => {
+                const articleDiv = document.createElement('div');
+                articleDiv.className = 'article-card';
+                articleDiv.onclick = () =>
+                  (window.location.href = '../articles/' + article.id + '.html');
+                articleDiv.innerHTML = `
+                      <h3 class="article-card-title">${article.title}</h3>
+                      <p class="article-card-excerpt">${article.excerpt}</p>
+                      <div class="article-card-meta">
+                          <span>By ${PLAYER_INFO.ign}</span>
+                          <span class="article-category">${article.category}</span>
+                      </div>
+                  `;
+                articlesContainer.appendChild(articleDiv);
+              });
+            } else {
+              // No articles - hide the entire section
+              if (articlesSection) {
+                articlesSection.style.display = 'none';
+              }
+            }
+          })
+          .catch(error => {
+            console.error('Error loading articles:', error);
+            // Hide section on error
+            const articlesSection = document.querySelector('.content-section:has(#articles-container)');
+            if (articlesSection) {
+              articlesSection.style.display = 'none';
+            }
+          });
+      });
+    </script>
+  
+    <!-- Edit Key Storage -->
+    <script>
+      // Store edit key for future edits
+      localStorage.setItem('profileEditKey', 'mk3jq906-sygmh248mg8');
+      console.log('Edit key stored for profile editing');
+    </script>
+  </body>
+</html>
