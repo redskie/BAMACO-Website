@@ -48,6 +48,9 @@ jobs:
         with:
           python-version: '3.11'
       
+      - name: Install dependencies
+        run: pip install requests
+      
       - name: Process profile request
         env:
           ISSUE_BODY: ${{ github.event_name == 'workflow_dispatch' && steps.get-issue.outputs.body || github.event.issue.body }}
