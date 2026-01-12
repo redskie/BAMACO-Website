@@ -56,7 +56,12 @@
     <script src="assets/script.js"></script>
     <script src="assets/page-transitions.js"></script>
     <script src="assets/navbar.js"></script>
-    <script>
+    
+    <script type="module">
+      import { playersDB } from './assets/players-db.js';
+      
+      let allPlayers = [];
+      
       document.addEventListener('DOMContentLoaded', () => {
         loadAllPlayers();
 
@@ -66,26 +71,51 @@
         });
       });
       
-      // Override loadAllPlayers to use Tailwind classes
-      window.loadAllPlayers = function() {
-        fetch('config/data.json')
-          .then(response => response.json())
-          .then(data => {
-            window.allPlayers = data.players;
-            renderPlayers(data.players);
-          });
-      };
+      async function loadAllPlayers() {
+        const grid = document.getElementById('players-grid');
+        
+        // Show loading state
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-12">
+            <div class="w-12 h-12 border-4 border-accent-pink border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-text-secondary">Loading players...</p>
+          </div>
+        `;
+        
+        // Subscribe to real-time updates
+        playersDB.subscribeToPlayers((players) => {
+          allPlayers = players;
+          renderPlayers(players);
+        });
+      }
       
       function renderPlayers(players) {
         const grid = document.getElementById('players-grid');
+        
+        if (players.length === 0) {
+          grid.innerHTML = `
+            <div class="col-span-full text-center py-12">
+              <div class="text-5xl mb-4">🎮</div>
+              <p class="text-text-secondary text-lg">No players found</p>
+              <a href="create-profile.html" class="inline-block mt-4 bg-accent-pink hover:bg-accent-purple text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                Be the first to join!
+              </a>
+            </div>
+          `;
+          return;
+        }
+        
         grid.innerHTML = players.map((player, index) => {
-          const displayName = player.ign || player.name;
+          const displayName = player.ign || player.name || 'Unknown';
           const avatarContent = player.avatarImage && player.avatarImage.trim()
-            ? `<img src="${player.avatarImage}" alt="${displayName}" class="w-full h-full object-cover" />`
+            ? `<img src="${player.avatarImage}" alt="${displayName}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='${displayName.substring(0, 2).toUpperCase()}'" />`
             : displayName.substring(0, 2).toUpperCase();
           
+          // Link to dynamic profile page with friendCode
+          const profileUrl = `player-profile.html?id=${player.friendCode}`;
+          
           return `
-            <a href="players/${player.id}.html" 
+            <a href="${profileUrl}" 
                class="block bg-bg-card border border-border-primary rounded-xl p-6 hover-card hover-gradient-line group relative overflow-hidden animate-fade-in-up"
                style="animation-delay: ${Math.min(index * 0.05, 0.35)}s; opacity: 0;">
               <div class="absolute inset-0 h-1 top-0 bg-gradient-to-r from-accent-pink to-accent-purple scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300"></div>
@@ -102,20 +132,20 @@
                   <span class="text-text-muted">Rating</span>
                   <span class="font-semibold">${player.rating}</span>
                 </div>` : ''}
-                ${player.role || player.title || player.special_title ? `
+                ${player.title || player.motto ? `
                 <div class="px-3 py-2 bg-bg-tertiary rounded-lg text-sm">
                   <span class="text-text-muted">Title</span>
                   <div class="mt-1">
-                    ${(player.role || player.title || player.special_title || '').length >= 25 ? 
-                      `<div class="marquee-container text-xs"><span class="marquee-content">${player.role || player.title || player.special_title}</span></div>` :
-                      `<span class="font-semibold">${player.role || player.title || player.special_title}</span>`
+                    ${(player.title || player.motto || '').length >= 25 ? 
+                      `<div class="marquee-container text-xs"><span class="marquee-content">${player.title || player.motto}</span></div>` :
+                      `<span class="font-semibold">${player.title || player.motto}</span>`
                     }
                   </div>
                 </div>` : ''}
-                ${player.main_character ? `
+                ${player.guildId ? `
                 <div class="flex justify-between items-center px-3 py-2 bg-bg-tertiary rounded-lg text-sm">
-                  <span class="text-text-muted">Main</span>
-                  <span class="font-semibold truncate ml-2">${player.main_character}</span>
+                  <span class="text-text-muted">Guild</span>
+                  <span class="font-semibold truncate ml-2">${player.guildId}</span>
                 </div>` : ''}
               </div>
             </a>
@@ -124,17 +154,29 @@
       }
       
       function filterPlayers(query) {
-        if (!window.allPlayers) return;
+        if (!allPlayers.length) return;
         
-        const filtered = window.allPlayers.filter(player => {
-          const searchText = query.toLowerCase();
+        const searchText = query.toLowerCase().trim();
+        
+        if (!searchText) {
+          renderPlayers(allPlayers);
+          return;
+        }
+        
+        const filtered = allPlayers.filter(player => {
           const displayName = (player.ign || player.name || '').toLowerCase();
-          const role = (player.role || player.title || player.special_title || '').toLowerCase();
-          return displayName.includes(searchText) || role.includes(searchText);
+          const nickname = (player.nickname || '').toLowerCase();
+          const title = (player.title || player.motto || '').toLowerCase();
+          return displayName.includes(searchText) || 
+                 nickname.includes(searchText) || 
+                 title.includes(searchText);
         });
         
         renderPlayers(filtered);
       }
+      
+      // Expose to window for non-module scripts
+      window.filterPlayers = filterPlayers;
     </script>
   </body>
 </html>

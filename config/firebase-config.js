@@ -22,4 +22,25 @@ const currentlyPlayingRef = ref(database, 'currentlyPlaying');
 const gameHistoryRef = ref(database, 'gameHistory');
 const playerCreditsRef = ref(database, 'playerCredits');
 
-export { database, queueRef, currentlyPlayingRef, gameHistoryRef, playerCreditsRef, ref, onValue, set, push, remove, update, get };
+// Player database references (new migration)
+const playersRef = ref(database, 'players');
+const guildsRef = ref(database, 'guilds');
+const articlesRef = ref(database, 'articles');
+
+export { 
+  database, 
+  queueRef, 
+  currentlyPlayingRef, 
+  gameHistoryRef, 
+  playerCreditsRef,
+  playersRef,
+  guildsRef,
+  articlesRef,
+  ref, 
+  onValue, 
+  set, 
+  push, 
+  remove, 
+  update, 
+  get 
+};

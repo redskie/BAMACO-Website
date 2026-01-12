@@ -5,6 +5,8 @@
  * 
  * Complete login/registration system with Firebase integration
  * Supports: Login, Guest mode, Account creation, Password management
+ * 
+ * Now integrated with players-db.js for unified profile management
  */
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
@@ -25,6 +27,9 @@ import {
   serverTimestamp 
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
+// Import PlayersDB for profile integration
+import { playersDB } from './players-db.js';
+
 // Firebase configuration (using existing config)
 const firebaseConfig = {
   apiKey: "AIzaSyBxxxxxxxxxxxxxxxxxxxxxxxxxx",
@@ -43,6 +48,7 @@ const database = getDatabase(app);
 
 // Database references
 const usersRef = ref(database, 'users');
+const playersRef = ref(database, 'players');
 const queueRequestsRef = ref(database, 'queueRequests');
 const adminNotificationsRef = ref(database, 'adminNotifications');
 const reportsRef = ref(database, 'reports');
@@ -184,7 +190,36 @@ class BAMACOAuth {
         return { success: false, error: 'Invalid friend code format' };
       }
 
-      // Get user from Firebase
+      // First, try to authenticate against the players table (new system)
+      const player = await playersDB.getPlayer(cleanCode);
+      
+      if (player && player.passwordHash) {
+        // Verify password using players-db method
+        const isValid = await playersDB.verifyPassword(password, player.passwordHash);
+        
+        if (isValid) {
+          // Login successful via players table
+          this.currentUser = {
+            friendCode: cleanCode,
+            ign: player.ign,
+            isAdmin: player.isAdmin || false,
+            hasProfile: true
+          };
+          this.isGuest = false;
+          this.isAdmin = player.isAdmin || false;
+          
+          this.saveSession(this.currentUser, rememberMe);
+          
+          // Store edit key for profile editing
+          if (player.editKey) {
+            localStorage.setItem('profileEditKey', player.editKey);
+          }
+          
+          return { success: true, user: this.currentUser };
+        }
+      }
+
+      // Fall back to legacy users table
       const userRef = ref(database, `users/${cleanCode}`);
       const snapshot = await get(userRef);
       
@@ -199,11 +234,12 @@ class BAMACOAuth {
         return { success: false, error: 'Incorrect password' };
       }
 
-      // Login successful
+      // Login successful via users table
       this.currentUser = {
         friendCode: cleanCode,
         ign: userData.ign,
-        isAdmin: userData.isAdmin || false
+        isAdmin: userData.isAdmin || false,
+        hasProfile: !!player // Check if they also have a player profile
       };
       this.isGuest = false;
       this.isAdmin = userData.isAdmin || false;
@@ -413,7 +449,7 @@ class BAMACOAuth {
   }
 
   // ========================================================================
-  // PROFILE EDITING
+  // PROFILE EDITING (Using players-db.js)
   // ========================================================================
 
   async updateProfile(updates) {
@@ -422,6 +458,35 @@ class BAMACOAuth {
     }
 
     try {
+      // Get the edit key from localStorage
+      const editKey = localStorage.getItem('profileEditKey');
+      
+      // Try to update via playersDB (new system)
+      const player = await playersDB.getPlayer(this.currentUser.friendCode);
+      
+      if (player) {
+        // Use playersDB to update
+        const allowedFields = ['motto', 'bio', 'joined', 'name', 'nickname', 'age', 'guildId'];
+        const filteredUpdates = {};
+        
+        for (const field of allowedFields) {
+          if (updates[field] !== undefined) {
+            filteredUpdates[field] = updates[field];
+          }
+        }
+        
+        const result = await playersDB.updatePlayer(
+          this.currentUser.friendCode,
+          filteredUpdates,
+          editKey
+        );
+        
+        if (result) {
+          return { success: true };
+        }
+      }
+
+      // Fall back to legacy users table
       const allowedFields = ['motto', 'bio', 'yearStarted', 'fullName'];
       const filteredUpdates = {};
       
@@ -443,6 +508,34 @@ class BAMACOAuth {
       console.error('Update profile error:', error);
       return { success: false, error: 'Failed to update profile' };
     }
+  }
+
+  /**
+   * Get current user's player profile
+   */
+  async getMyProfile() {
+    if (this.isGuest || !this.currentUser) {
+      return null;
+    }
+    
+    return await playersDB.getPlayer(this.currentUser.friendCode);
+  }
+
+  /**
+   * Check if current user can edit a specific profile
+   */
+  canEditProfile(friendCode) {
+    if (this.isGuest || !this.currentUser) {
+      return false;
+    }
+    
+    // Admin can edit any profile
+    if (this.isAdmin) {
+      return true;
+    }
+    
+    // User can only edit their own profile
+    return this.currentUser.friendCode === friendCode;
   }
 
   // ========================================================================
