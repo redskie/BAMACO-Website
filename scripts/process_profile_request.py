@@ -23,16 +23,16 @@ def parse_issue_body(body):
     
     # Extract key-value pairs
     patterns = {
-        'editKey': r'\*\*Edit Key:\*\*\s*`([^`]+)`',
-        'fingerprint': r'\*\*Device Fingerprint:\*\*\s*`([^`]+)`',
-        'ign': r'\*\*IGN:\*\*\s*(.+)$',
-        'fullName': r'\*\*Full Name:\*\*\s*(.+)$',
-        'nickname': r'\*\*Nickname:\*\*\s*(.+)$',
-        'age': r'\*\*Age:\*\*\s*(.+)$',
-        'friendCode': r'\*\*Friend Code:\*\*\s*(.+)$',
-        'motto': r'\*\*Motto:\*\*\s*(.+)$',
-        'yearStarted': r'\*\*Year Started:\*\*\s*(.+)$',
-        'bio': r'\*\*Bio:\*\*\s*(.+)$',
+        'editKey': r'Edit Key:\s*`([^`]+)`',
+        'fingerprint': r'Device Fingerprint:\s*`([^`]+)`',
+        'ign': r'(?:•\s*)?IGN:\s*(.+)$',
+        'fullName': r'(?:•\s*)?Full Name:\s*(.+)$',
+        'nickname': r'(?:•\s*)?Nickname:\s*(.+)$',
+        'age': r'(?:•\s*)?Age:\s*(.+)$',
+        'friendCode': r'(?:•\s*)?Friend Code:\s*(.+)$',
+        'motto': r'(?:•\s*)?Motto:\s*(.+)$',
+        'yearStarted': r'(?:•\s*)?Year Started:\s*(.+)$',
+        'bio': r'(?:•\s*)?Bio:\s*(.+)$',
     }
     
     for key, pattern in patterns.items():
