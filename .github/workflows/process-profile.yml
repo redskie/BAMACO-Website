@@ -39,9 +39,14 @@ jobs:
               repo: context.repo.repo,
               issue_number: ${{ inputs.issue_number }}
             });
-            core.setOutput('body', issue.data.body);
-            core.setOutput('title', issue.data.title);
-            core.setOutput('number', issue.data.number);
+            const fs = require('fs');
+            fs.appendFileSync(process.env.GITHUB_ENV, `ISSUE_BODY<<EOF\n${issue.data.body}\nEOF\n`);
+            fs.appendFileSync(process.env.GITHUB_ENV, `ISSUE_TITLE=${issue.data.title}\n`);
+            fs.appendFileSync(process.env.GITHUB_ENV, `ISSUE_NUMBER=${issue.data.number}\n`);
+            console.log('Issue data retrieved:');
+            console.log('Title:', issue.data.title);
+            console.log('Number:', issue.data.number);
+            console.log('Body length:', issue.data.body.length);
       
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -51,39 +56,43 @@ jobs:
       - name: Install dependencies
         run: pip install requests
       
+      - name: Set issue data for issue trigger
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          echo "ISSUE_BODY<<EOF" >> $GITHUB_ENV
+          echo "${{ github.event.issue.body }}" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          echo "ISSUE_TITLE=${{ github.event.issue.title }}" >> $GITHUB_ENV
+          echo "ISSUE_NUMBER=${{ github.event.issue.number }}" >> $GITHUB_ENV
+      
       - name: Process profile request
         env:
-          ISSUE_BODY: ${{ github.event_name == 'workflow_dispatch' && steps.get-issue.outputs.body || github.event.issue.body }}
-          ISSUE_TITLE: ${{ github.event_name == 'workflow_dispatch' && steps.get-issue.outputs.title || github.event.issue.title }}
-          ISSUE_NUMBER: ${{ github.event_name == 'workflow_dispatch' && inputs.issue_number || github.event.issue.number }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "Processing issue #$ISSUE_NUMBER: $ISSUE_TITLE"
+          echo "Body length: ${#ISSUE_BODY} characters"
           python scripts/process_profile_request.py
       
       - name: Commit changes
-        env:
-          ISSUE_NUM: ${{ github.event_name == 'workflow_dispatch' && inputs.issue_number || github.event.issue.number }}
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add .
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-process profile request #$ISSUE_NUM" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-process profile request #$ISSUE_NUMBER" && git push)
       
       - name: Close issue with comment
         uses: actions/github-script@v7
-        env:
-          ISSUE_NUM: ${{ github.event_name == 'workflow_dispatch' && inputs.issue_number || github.event.issue.number }}
         with:
           script: |
-            const issueNumber = process.env.ISSUE_NUM;
-            github.rest.issues.createComment({
-              issue_number: issueNumber,
+            const issueNumber = process.env.ISSUE_NUMBER;
+            await github.rest.issues.createComment({
+              issue_number: parseInt(issueNumber),
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: '✅ Profile processed successfully! Your profile will be live in a few minutes after deployment. Check https://redskie.github.io/BAMACO-Website/'
             });
-            github.rest.issues.update({
-              issue_number: issueNumber,
+            await github.rest.issues.update({
+              issue_number: parseInt(issueNumber),
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'closed'
