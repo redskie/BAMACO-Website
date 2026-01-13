@@ -549,9 +549,8 @@
       }
 
       formatFriendCode(input) {
-        // Keep only digits, limit to 15, no separators
+        // Keep only digits; length is validated by MaiMai API
         let value = input.value.replace(/\D/g, '');
-        if (value.length > 15) value = value.substring(0, 15);
         input.value = value;
       }
 
@@ -565,13 +564,6 @@
       async validateFriendCode() {
         const input = document.getElementById('friendCode');
         const cleanCode = input.value.replace(/\D/g, '');
-
-        // Skip if empty or too short (let API validate the actual format)
-        if (cleanCode.length < 10) {
-          this.showCodeStatus('hide');
-          this.updateSubmitButton(false);
-          return;
-        }
 
         if (this.isValidatingCode) return;
         this.isValidatingCode = true;

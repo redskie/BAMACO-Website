@@ -1,5 +1,7 @@
 # 🚀 BAMACO Website - Quick Reference
 
+<!-- markdownlint-disable MD001 MD022 MD025 MD031 MD032 MD036 MD040 -->
+
 Quick commands and common tasks for the Firebase-powered BAMACO Website.
 
 ---

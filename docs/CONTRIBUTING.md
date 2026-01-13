@@ -384,7 +384,7 @@ def sanitize_filename(name: str) -> str:
 
 ### Player Profiles
 - **IGN**: Use exact in-game name with correct formatting
-- **Friend Code**: 15 digits, no dashes/spaces
+- **Friend Code**: Digits only, no dashes/spaces; length is validated by the MaiMai API
 - **Bio**: Keep it friendly, appropriate, and under 500 chars
 - **Rating**: Update when it changes significantly
 - **Achievements**: Notable accomplishments only

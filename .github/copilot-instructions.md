@@ -83,7 +83,7 @@ queue*.html                # Queue pages (Realtime Database)
 2. **Profile URL format**: `player-profile.html?id={friendCode}`
 3. **Real-time updates**: Use `subscribeToPlayers()` or `subscribeToPlayer()`
 4. **Authentication**: Password hashing with SHA-256 + salt
-5. **Friend code format**: 15 digits, no dashes/spaces (continuous numbers only)
+5. **Friend code format**: digits only, no dashes/spaces; length is validated by the MaiMai API
 
 ### Queue System (Firebase Integration)
 - **Realtime Database only**: `queue`, `currentlyPlaying`, `gameHistory`, `playerCredits`

@@ -4,16 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Edit Player Profile - BAMACO</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+
         <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/tailwind-config.js"></script>
     <script>tailwind.config = window.BAMACO_TAILWIND_CONFIG;</script>
-    
+
     <link rel="stylesheet" href="assets/styles.css" />
     <style>
       .form-container {
@@ -21,31 +21,31 @@
         margin: 2rem auto;
         padding: 2rem;
       }
-      
+
       .form-section {
         background: var(--card-bg);
         border-radius: 8px;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
       }
-      
+
       .form-section h3 {
         color: var(--accent-color);
         margin-bottom: 1rem;
         font-size: 1.2rem;
       }
-      
+
       .form-group {
         margin-bottom: 1rem;
       }
-      
+
       .form-group label {
         display: block;
         margin-bottom: 0.5rem;
         color: var(--text-secondary);
         font-weight: 500;
       }
-      
+
       .form-group input,
       .form-group textarea {
         width: 100%;
@@ -56,19 +56,19 @@
         color: var(--text-primary);
         font-family: inherit;
       }
-      
+
       .form-group textarea {
         min-height: 100px;
         resize: vertical;
       }
-      
+
       .form-group small {
         display: block;
         margin-top: 0.25rem;
         color: var(--text-muted);
         font-size: 0.85rem;
       }
-      
+
       .btn-submit {
         background: var(--accent-color);
         color: white;
@@ -81,11 +81,11 @@
         width: 100%;
         margin-top: 1rem;
       }
-      
+
       .btn-submit:hover {
         background: rgba(255, 255, 255, 0.15);
       }
-      
+
       .readonly-notice {
         background: rgba(255, 255, 255, 0.05);
         border-left: 3px solid rgba(255, 255, 255, 0.3);
@@ -93,7 +93,7 @@
         margin-bottom: 1rem;
         border-radius: 4px;
       }
-      
+
       .error-notice {
         background: rgba(100, 100, 100, 0.1);
         border-left: 3px solid rgba(100, 100, 100, 0.5);
@@ -101,7 +101,7 @@
         margin-bottom: 2rem;
         border-radius: 4px;
       }
-      
+
       .success-notice {
         background: rgba(255, 255, 255, 0.05);
         border-left: 3px solid rgba(255, 255, 255, 0.3);
@@ -109,7 +109,7 @@
         margin-bottom: 2rem;
         border-radius: 4px;
       }
-      
+
       .loading-overlay {
         display: none;
         position: fixed;
@@ -122,11 +122,11 @@
         align-items: center;
         justify-content: center;
       }
-      
+
       .loading-overlay.active {
         display: flex;
       }
-      
+
       .loading-content {
         background: var(--card-bg);
         padding: 2rem;
@@ -172,17 +172,17 @@
           <!-- Basic Information -->
           <div class="form-section">
             <h3>Basic Information</h3>
-            
+
             <div class="form-group">
               <label for="full-name">Full Name *</label>
               <input type="text" id="full-name" name="full-name" required />
             </div>
-            
+
             <div class="form-group">
               <label for="nickname">Preferred Nickname</label>
               <input type="text" id="nickname" name="nickname" />
             </div>
-            
+
             <div class="form-group">
               <label for="age">Age</label>
               <input type="number" id="age" name="age" min="1" max="120" />
@@ -192,18 +192,18 @@
           <!-- MaiMai Information -->
           <div class="form-section">
             <h3>MaiMai Information</h3>
-            
+
             <div class="form-group">
               <label for="friend-code">Friend Code *</label>
-              <input type="text" id="friend-code" name="friend-code" required placeholder="000000000000000" />
-              <small>Your 15-digit MaiMai friend code</small>
+              <input type="text" id="friend-code" name="friend-code" required placeholder="Enter your MaiMai friend code" />
+              <small>MaiMai friend code (digits only; length validated by the MaiMai API)</small>
             </div>
-            
+
             <div class="form-group">
               <label for="motto">Personal Motto</label>
               <input type="text" id="motto" name="motto" placeholder="e.g., Tap until you die" />
             </div>
-            
+
             <div class="form-group">
               <label for="bio">Biography</label>
               <textarea id="bio" name="bio" placeholder="Tell us about yourself..."></textarea>
@@ -239,19 +239,19 @@
     <script src="assets/navbar.js"></script>
     <script type="module">
       import { playersDB } from './assets/players-db.js';
-      
+
       // Check for edit key and load profile
       async function loadProfileData() {
         // Check for editKey in different localStorage locations
         const editKey = localStorage.getItem('profileEditKey') || localStorage.getItem('bamaco_edit_key');
         const session = JSON.parse(localStorage.getItem('bamaco_session') || '{}');
         const friendCode = session.user?.friendCode;
-        
+
         if (!editKey && !friendCode) {
           document.getElementById('no-profile-notice').style.display = 'block';
           return false;
         }
-        
+
         // Try to load profile from Firebase
         if (friendCode) {
           try {
@@ -262,7 +262,7 @@
               document.getElementById('current-ign').textContent = player.ign;
               document.getElementById('current-key').textContent = editKey || 'From session';
               document.getElementById('edit-form').style.display = 'block';
-              
+
               // Pre-fill form with existing data
               document.getElementById('full-name').value = player.name || '';
               document.getElementById('nickname').value = player.nickname || '';
@@ -270,14 +270,14 @@
               document.getElementById('friend-code').value = player.friendCode || '';
               document.getElementById('motto').value = player.motto || '';
               document.getElementById('bio').value = player.bio || '';
-              
+
               return { editKey, friendCode, player };
             }
           } catch (error) {
             console.error('Error loading profile:', error);
           }
         }
-        
+
         // Fallback to old method if no Firebase data
         const ign = localStorage.getItem('bamaco_profile_ign');
         if (editKey && ign) {
@@ -287,7 +287,7 @@
           document.getElementById('edit-form').style.display = 'block';
           return { editKey, ign };
         }
-        
+
         document.getElementById('no-profile-notice').style.display = 'block';
         return false;
       }
@@ -303,7 +303,7 @@
           navigator.hardwareConcurrency || 'unknown',
           navigator.platform
         ];
-        
+
         const fingerprint = components.join('|');
         const encoder = new TextEncoder();
         const data = encoder.encode(fingerprint);
@@ -316,13 +316,13 @@
       // Form submission
       document.getElementById('edit-form').addEventListener('submit', async function(e) {
         e.preventDefault();
-        
+
         const profileData = await loadProfileData();
         if (!profileData) return;
-        
+
         // Show loading
         document.getElementById('loading-overlay').classList.add('active');
-        
+
         try {
           // Collect form data
           const updates = {
@@ -332,22 +332,22 @@
             motto: document.getElementById('motto').value.trim(),
             bio: document.getElementById('bio').value.trim()
           };
-          
+
           // Get friendCode from session or form
           const session = JSON.parse(localStorage.getItem('bamaco_session') || '{}');
           const friendCode = session.user?.friendCode || document.getElementById('friend-code').value.replace(/\D/g, '');
           const editKey = localStorage.getItem('profileEditKey') || localStorage.getItem('bamaco_edit_key');
-          
+
           if (!friendCode) {
             throw new Error('No friend code found. Please log in again.');
           }
-          
+
           // Update profile in Firebase
           const result = await playersDB.updatePlayer(friendCode, updates, editKey);
-          
+
           // Hide loading
           document.getElementById('loading-overlay').classList.remove('active');
-          
+
           if (result) {
             // Show success message
             const resultDiv = document.getElementById('result-message');
@@ -366,17 +366,17 @@
                 </div>
               </div>
             `;
-            
+
             // Scroll to result
             resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
           } else {
             throw new Error('Failed to update profile. Please check your edit key.');
           }
-          
+
         } catch (error) {
           console.error('Error:', error);
           document.getElementById('loading-overlay').classList.remove('active');
-          
+
           const resultDiv = document.getElementById('result-message');
           resultDiv.style.display = 'block';
           resultDiv.innerHTML = `
@@ -390,7 +390,7 @@
           `;
         }
       });
-      
+
       // Load profile on page load
       window.addEventListener('DOMContentLoaded', function() {
         loadProfileData();

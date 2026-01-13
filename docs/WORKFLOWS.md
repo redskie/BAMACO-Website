@@ -65,7 +65,7 @@ Comprehensive reference for profile creation/editing, player/guild/article flows
 
 ## Players Module (assets/players-db.js)
 - **Firestore CRUD**: `createPlayer`, `getPlayer`, `updatePlayer`, `subscribeToPlayers`, `subscribeToPlayer`, plus assignment helpers (achievements/articles) if present.
-- **IDs**: Document ID equals `friendCode` (15-digit string).
+- **IDs**: Document ID equals `friendCode` (digits only; length validated by MaiMai API).
 
 ## Guilds Module (assets/guilds-db.js)
 - **Firestore**: `guilds/{id}` documents.
@@ -97,7 +97,7 @@ Comprehensive reference for profile creation/editing, player/guild/article flows
 ---
 
 ## Best Practices
-- Enforce 15-digit, separator-free friend codes in all new UI/logic.
+- Use digits-only friend codes (no separators); rely on MaiMai API for length/validity.
 - Keep design tokens centralized in `tailwind-config.js`; avoid inline styles.
 - Use Firestore modules for CRUD; avoid touching `config/data.json` (legacy).
 - Queue writes/read only through RTDB refs from `config/firebase-config.js`.

@@ -596,8 +596,7 @@
 
       formatFriendCode(code) {
         if (!code) return 'N/A';
-        const digits = String(code).replace(/\D/g, '');
-        return digits.substring(0, 15);
+        return String(code).replace(/\D/g, '');
       }
 
       editPlayer(friendCode) {

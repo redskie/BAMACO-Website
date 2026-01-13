@@ -52,9 +52,6 @@ try {
 const auth = getAuth(app);
 const database = getDatabase(app);
 
-// Database references
-const usersRef = ref(database, 'users');
-const playersRef = ref(database, 'players');
 const queueRequestsRef = ref(database, 'queueRequests');
 const adminNotificationsRef = ref(database, 'adminNotifications');
 const reportsRef = ref(database, 'reports');
@@ -290,70 +287,34 @@ class BAMACOAuth {
     try {
       const cleanCode = friendCode.replace(/\D/g, '');
 
-      if (cleanCode.length !== 15) {
-        return { success: false, error: 'Invalid friend code format' };
-      }
-
-      // First, try to authenticate against the players table (new system)
+      // Authenticate against Firestore players (canonical)
       const player = await playersDB.getPlayer(cleanCode);
 
       if (player && player.passwordHash) {
-        // Verify password using players-db method (Firestore canonical)
         const isValid = await playersDB.verifyPassword(cleanCode, password);
-
-        if (isValid) {
-          // Login successful via players table
-          this.currentUser = {
-            friendCode: cleanCode,
-            ign: player.ign,
-            isAdmin: player.isAdmin || false,
-            hasProfile: true
-          };
-          this.isGuest = false;
-          this.isAdmin = player.isAdmin || false;
-
-          this.saveSession(this.currentUser, rememberMe);
-
-          // Store edit key for profile editing
-          if (player.editKey) {
-            localStorage.setItem('profileEditKey', player.editKey);
-          }
-
-          return { success: true, user: this.currentUser };
+        if (!isValid) {
+          return { success: false, error: 'Incorrect password' };
         }
+
+        this.currentUser = {
+          friendCode: cleanCode,
+          ign: player.ign,
+          isAdmin: player.isAdmin || false,
+          hasProfile: true
+        };
+        this.isGuest = false;
+        this.isAdmin = player.isAdmin || false;
+
+        this.saveSession(this.currentUser, rememberMe);
+
+        if (player.editKey) {
+          localStorage.setItem('profileEditKey', player.editKey);
+        }
+
+        return { success: true, user: this.currentUser };
       }
 
-      // Fall back to legacy users table
-      const userRef = ref(database, `users/${cleanCode}`);
-      const snapshot = await get(userRef);
-
-      if (!snapshot.exists()) {
-        return { success: false, error: 'Account not found. Please create an account first.' };
-      }
-
-      const userData = snapshot.val();
-      const hashedPassword = await this.hashPassword(password);
-
-      if (userData.passwordHash !== hashedPassword) {
-        return { success: false, error: 'Incorrect password' };
-      }
-
-      // Login successful via users table
-      this.currentUser = {
-        friendCode: cleanCode,
-        ign: userData.ign,
-        isAdmin: userData.isAdmin || false,
-        hasProfile: !!player // Check if they also have a player profile
-      };
-      this.isGuest = false;
-      this.isAdmin = userData.isAdmin || false;
-
-      this.saveSession(this.currentUser, rememberMe);
-
-      // Update last login
-      await update(userRef, { lastLogin: serverTimestamp() });
-
-      return { success: true, user: this.currentUser };
+      return { success: false, error: 'Profile not found. Please create a profile first.' };
 
     } catch (error) {
       console.error('Login error:', error);
@@ -434,18 +395,18 @@ class BAMACOAuth {
         return { success: false, errors: passwordValidation.errors };
       }
 
-      const hashedPassword = await this.hashPassword(password);
-
-      const userRef = ref(database, `users/${cleanCode}`);
-      const snapshot = await get(userRef);
-
-      if (snapshot.exists()) {
-        // Update existing user
-        await update(userRef, { passwordHash: hashedPassword });
-      } else {
-        // Need to get user data from API first
-        return { success: false, error: 'Please validate your friend code first' };
+      const player = await playersDB.getPlayer(cleanCode);
+      if (!player) {
+        return { success: false, error: 'Profile not found. Please create a profile first.' };
       }
+
+      const editKey = localStorage.getItem('profileEditKey');
+      if (!editKey && this.currentUser?.friendCode !== cleanCode) {
+        return { success: false, error: 'Not authorized to change this password.' };
+      }
+
+      const hashedPassword = await playersDB.hashPassword(password);
+      await playersDB.updatePlayer(cleanCode, { passwordHash: hashedPassword }, editKey || null);
 
       return { success: true };
 
@@ -567,36 +528,15 @@ class BAMACOAuth {
     }
 
     try {
-      // Get the edit key from localStorage
       const editKey = localStorage.getItem('profileEditKey');
 
-      // Try to update via playersDB (new system)
       const player = await playersDB.getPlayer(this.currentUser.friendCode);
 
-      if (player) {
-        // Use playersDB to update
-        const allowedFields = ['motto', 'bio', 'joined', 'name', 'nickname', 'age', 'guildId'];
-        const filteredUpdates = {};
-
-        for (const field of allowedFields) {
-          if (updates[field] !== undefined) {
-            filteredUpdates[field] = updates[field];
-          }
-        }
-
-        const result = await playersDB.updatePlayer(
-          this.currentUser.friendCode,
-          filteredUpdates,
-          editKey
-        );
-
-        if (result) {
-          return { success: true };
-        }
+      if (!player) {
+        return { success: false, error: 'Profile not found. Please create a profile first.' };
       }
 
-      // Fall back to legacy users table
-      const allowedFields = ['motto', 'bio', 'yearStarted', 'fullName'];
+      const allowedFields = ['motto', 'bio', 'joined', 'name', 'nickname', 'age', 'guildId'];
       const filteredUpdates = {};
 
       for (const field of allowedFields) {
@@ -605,13 +545,17 @@ class BAMACOAuth {
         }
       }
 
-      const userRef = ref(database, `users/${this.currentUser.friendCode}`);
-      await update(userRef, {
-        ...filteredUpdates,
-        updatedAt: serverTimestamp()
-      });
+      const result = await playersDB.updatePlayer(
+        this.currentUser.friendCode,
+        filteredUpdates,
+        editKey
+      );
 
-      return { success: true };
+      if (result) {
+        return { success: true };
+      }
+
+      return { success: false, error: 'Failed to update profile' };
 
     } catch (error) {
       console.error('Update profile error:', error);

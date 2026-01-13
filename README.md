@@ -1,5 +1,7 @@
 # BAMACO Website
 
+<!-- markdownlint-disable MD022 MD024 MD026 MD031 MD032 MD036 MD040 -->
+
 ## Bataan MaiMai Community Gaming Website
 
 A modern, feature-rich website for the Bataan MaiMai Community (BAMACO) - a rhythm gaming community. This project features player profiles, guild management, community articles, and a real-time queue system powered by Firebase.
@@ -149,7 +151,7 @@ Automated player data fetching from official MaiMai servers using the MaiMai DX 
 - **Daily Updates**: All player profiles auto-update at 10:00 AM daily
 
 **How It Works:**
-1. Player enters their 15-digit friend code
+1. Player enters their friend code (digits only; length validated by the MaiMai API)
 2. System queries MaiMai API: `https://maimai-data-get.onrender.com`
 3. Fetches official IGN, rating, trophy, and icon
 4. Profile created with real-time game data
@@ -469,7 +471,7 @@ Add a new object to the `"players"` array in `data.json`:
   "id": "unique-player-id",
   "name": "Player Display Name",
   "ign": "In-Game Name",
-  "maimaiFriendCode": "000000000000000",
+  "maimaiFriendCode": "0123456789",
   "nickname": "Preferred Nickname",
   "motto": "Player's personal motto or catchphrase",
   "age": 25,
@@ -500,7 +502,7 @@ Add a new object to the `"players"` array in `data.json`:
 - `id`: Unique identifier (use lowercase, hyphens, no spaces)
 - `name`: Player's display name
 - `ign`: In-Game Name (can be same as name)
-- `maimaiFriendCode`: MaiMai friend code, 15 continuous digits (no dashes/spaces)
+- `maimaiFriendCode`: MaiMai friend code, digits only (no dashes/spaces); length validated by the MaiMai API
 - `nickname`: Preferred nickname or shortened name
 - `motto`: Personal motto, catchphrase, or quote
 - `age`: Player's age (number)

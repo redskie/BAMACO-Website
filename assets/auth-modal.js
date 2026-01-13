@@ -432,7 +432,6 @@ class AuthModal {
 
   formatFriendCode(input) {
     let value = input.value.replace(/\D/g, '');
-    if (value.length > 15) value = value.substring(0, 15);
     input.value = value;
   }
 
@@ -446,12 +445,6 @@ class AuthModal {
   async validateFriendCode() {
     const input = document.getElementById('registerFriendCode');
     const cleanCode = input.value.replace(/\D/g, '');
-
-    if (cleanCode.length !== 15) {
-      this.showCodeStatus('hide');
-      this.updateRegisterButton(false);
-      return;
-    }
 
     this.showCodeStatus('loading');
 

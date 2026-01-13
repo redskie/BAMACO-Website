@@ -11,7 +11,7 @@ All notable changes to the BAMACO Website project.
 #### Added
 - **Firebase Realtime Database Integration**
   - `assets/players-db.js` - Player CRUD operations with real-time sync
-  - `assets/guilds-db.js` - Guild management and member relationships  
+  - `assets/guilds-db.js` - Guild management and member relationships
   - `assets/articles-db.js` - Article content with HTML formatting support
   - `config/firebase-config.js` - Firebase configuration and connection
 
@@ -35,7 +35,7 @@ All notable changes to the BAMACO Website project.
 - **Complete Data Architecture Migration**
   - All data now stored in Firebase instead of static files
   - Player profiles: `/players/{friendCode}` in Firebase
-  - Guilds: `/guilds/{guildId}` in Firebase  
+  - Guilds: `/guilds/{guildId}` in Firebase
   - Articles: `/articles/{articleId}` in Firebase
 
 - **Updated Core JavaScript**
@@ -56,7 +56,7 @@ All notable changes to the BAMACO Website project.
   - Old GitHub Issues automation workflow
   - Legacy Python scripts for static file generation
 
-- **Obsolete Documentation**  
+- **Obsolete Documentation**
   - Removed 9 outdated API and migration documentation files
   - Cleaned up project structure references
 
@@ -73,7 +73,7 @@ All notable changes to the BAMACO Website project.
 ### 🚀 Major Feature - MaiMai API Integration ✅ COMPLETE
 
 **Status**: Migrated to Firebase-compatible version
-**Daily Updates**: 10:00 AM Philippine Time  
+**Daily Updates**: 10:00 AM Philippine Time
 **Success Rate**: 6/9 players (67%)
 
 #### Added
@@ -106,7 +106,7 @@ All notable changes to the BAMACO Website project.
 - **create-profile.html** - Enhanced with API integration
   - IGN field now read-only (fetched from API)
   - Added "Fetch Data from API" button
-  - Auto-fetch on 15-digit friend code entry
+  - Auto-fetch on friend code entry (digits only; length validated by MaiMai API)
   - Real-time status display during API calls
   - Form validation requires API fetch before submission
 
@@ -281,6 +281,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for how to contribute to this project.
 
 ---
 
-**Project maintained by:** BAMACO Community  
-**Primary Developer:** TriD (Red)  
+**Project maintained by:** BAMACO Community
+**Primary Developer:** TriD (Red)
 **License:** MIT

@@ -530,8 +530,7 @@ class UserMenu {
 
   formatFriendCode(code) {
     if (!code) return '---';
-    const digits = String(code).replace(/\D/g, '');
-    return digits.substring(0, 15);
+    return String(code).replace(/\D/g, '');
   }
 
   sanitizeFilename(name) {
