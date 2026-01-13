@@ -36,43 +36,45 @@ function generateNavbar() {
   const navLinks = linksToShow.map(link => {
     const isActive = isActiveLink(link.href, currentPath);
     const activeClasses = isActive
-      ? 'text-text-primary bg-green-200 bg-opacity-20 shadow-sm'
-      : 'text-text-secondary hover:text-text-primary hover:bg-green-200 hover:bg-opacity-10';
+      ? 'text-white bg-accent-pink shadow-sm'
+      : 'text-text-secondary hover:text-text-primary hover:bg-bg-secondary';
     const href = getAbsolutePath(link.href);
-    return `<li><a href="${href}" class="${activeClasses} block px-4 py-3 rounded-lg transition-all duration-300 text-center md:text-left md:py-2">${link.text}</a></li>`;
+    return `<li><a href="${href}" class="${activeClasses} block px-3 py-2 rounded-lg transition-all duration-200 text-sm font-medium">${link.text}</a></li>`;
   }).join('');
 
   // Generate mobile menu links separately for better control
   const mobileNavLinks = linksToShow.map(link => {
     const isActive = isActiveLink(link.href, currentPath);
     const activeClasses = isActive
-      ? 'text-text-primary bg-green-200 bg-opacity-20 shadow-sm font-medium'
-      : 'text-text-secondary hover:text-text-primary hover:bg-green-200 hover:bg-opacity-10';
+      ? 'text-white bg-accent-pink font-medium'
+      : 'text-text-secondary hover:text-text-primary hover:bg-bg-secondary';
     const href = getAbsolutePath(link.href);
-    return `<a href="${href}" class="${activeClasses} block px-4 py-2 rounded-lg transition-all duration-300 text-center h-10 min-h-10 flex items-center justify-center">${link.text}</a>`;
+    return `<a href="${href}" class="${activeClasses} block px-4 py-3 rounded-lg transition-all duration-200 text-center touch-target font-medium">${link.text}</a>`;
   }).join('');
 
   return `
-    <nav class="sticky top-0 z-50 bg-gradient-to-r from-bg-secondary to-bg-card border-b-2 border-border-primary shadow-lg backdrop-blur-md">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-4">
+    <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border-primary shadow-sm">
+      <div class="max-w-7xl mx-auto px-3 sm:px-6">
+        <div class="flex justify-between items-center py-3">
           <div class="nav-brand z-50">
-            <h1 class="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-accent-pink to-accent-purple bg-clip-text text-transparent">${NAVBAR_CONFIG.brand.title}</h1>
-            <span class="block text-xs text-text-secondary mt-[-4px]">${NAVBAR_CONFIG.brand.subtitle}</span>
+            <h1 class="text-lg sm:text-xl font-bold bg-gradient-to-r from-accent-pink to-accent-purple bg-clip-text text-transparent">${NAVBAR_CONFIG.brand.title}</h1>
+            <span class="hidden sm:block text-xs text-text-muted mt-[-2px]">${NAVBAR_CONFIG.brand.subtitle}</span>
           </div>
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-3">
             <div class="nav-actions flex items-center gap-2"></div>
-            <button class="nav-toggle md:hidden flex flex-col gap-1.5 p-2 z-50" aria-label="Toggle navigation">
-              <span class="w-6 h-0.5 bg-text-primary rounded transition-all duration-300"></span>
-              <span class="w-6 h-0.5 bg-text-primary rounded transition-all duration-300"></span>
-              <span class="w-6 h-0.5 bg-text-primary rounded transition-all duration-300"></span>
+            <button class="nav-toggle md:hidden touch-target p-2 z-50 rounded-lg hover:bg-bg-secondary transition-colors" aria-label="Toggle navigation">
+              <div class="w-5 h-4 relative">
+                <span class="absolute w-5 h-0.5 bg-text-primary rounded transition-all duration-200 top-0"></span>
+                <span class="absolute w-5 h-0.5 bg-text-primary rounded transition-all duration-200 top-1.5"></span>
+                <span class="absolute w-5 h-0.5 bg-text-primary rounded transition-all duration-200 top-3"></span>
+              </div>
             </button>
-            <ul class="nav-links hidden md:flex gap-4 list-none">
+            <ul class="nav-links hidden md:flex gap-1 list-none">
               ${navLinks}
             </ul>
           </div>
-          <!-- Mobile navigation menu (hidden by default) -->
-          <div class="mobile-nav-links hidden absolute top-full left-0 right-0 bg-bg-card border-b-2 border-border-primary shadow-2xl mx-4 rounded-b-xl py-2 gap-0 z-40 md:hidden">
+          <!-- Mobile navigation menu -->
+          <div class="mobile-nav-links hidden absolute top-full left-0 right-0 bg-white border-b border-border-primary shadow-lg mx-3 rounded-b-lg py-2 z-40 md:hidden">
             ${mobileNavLinks}
           </div>
         </div>

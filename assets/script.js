@@ -506,18 +506,25 @@ function createPlayerCard(player) {
 
   if (cardClass === 'player-card-enhanced') {
     return `
-      <a href="player-profile.html?id=${profileId}" class="player-card-enhanced">
-        <div class="player-avatar">${avatarContent}</div>
-        ${adminBadge}
-        <h3 class="player-name">${displayName}</h3>
-        <div class="player-meta">
-          <div class="player-stat">
-            <span class="player-stat-label">Rating</span>
-            <span class="player-stat-value">${player.rating || 'N/A'}</span>
+      <a href="player-profile.html?id=${profileId}" class="block bg-white rounded-lg border border-border-primary p-4 hover-card transition-all duration-200 card-compact">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-12 h-12 bg-bg-secondary rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+            ${avatarContent}
           </div>
-          <div class="player-stat">
-            <span class="player-stat-label">Rank</span>
-            <span class="player-stat-value">${player.rank || 'Unranked'}</span>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-sm font-semibold text-text-primary truncate">${displayName}</h3>
+            <p class="text-xs text-text-muted truncate">${playerRole}</p>
+          </div>
+          ${adminBadge}
+        </div>
+        <div class="flex gap-4 text-center">
+          <div class="flex-1">
+            <p class="text-xs text-text-muted">Rating</p>
+            <p class="text-sm font-semibold text-text-primary">${player.rating || 'N/A'}</p>
+          </div>
+          <div class="flex-1">
+            <p class="text-xs text-text-muted">Rank</p>
+            <p class="text-sm font-semibold text-text-primary">${player.rank || 'Unranked'}</p>
           </div>
         </div>
       </a>
@@ -530,19 +537,27 @@ function createPlayerCard(player) {
     : `<div class="w-full h-full flex items-center justify-center text-white font-bold">${displayName.charAt(0).toUpperCase()}</div>`;
 
   return `
-    <div class="player-card" onclick="window.location.href='player-profile.html?id=${profileId}'">
-      <div class="card-avatar">${fallbackAvatarContent}</div>
-      ${adminBadge}
-      <h3 class="card-name">${displayName}</h3>
-      ${roleContent}
-      <div class="card-stats">
-        <div class="card-stat">
-          <span class="card-stat-value">${player.rating}</span>
-          <span class="card-stat-label">Rating</span>
+    <div class="bg-white rounded-lg border border-border-primary p-4 hover-card transition-all duration-200 cursor-pointer card-compact" onclick="window.location.href='player-profile.html?id=${profileId}'">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-12 h-12 bg-bg-secondary rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+          ${fallbackAvatarContent}
         </div>
-        <div class="card-stat">
-          <span class="card-stat-value">${player.rank}</span>
-          <span class="card-stat-label">Rank</span>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-sm font-semibold text-text-primary truncate">${displayName}</h3>
+          <div class="text-xs text-text-muted truncate">
+            ${roleContent}
+          </div>
+        </div>
+        ${adminBadge}
+      </div>
+      <div class="flex gap-4 text-center">
+        <div class="flex-1">
+          <p class="text-xs text-text-muted">Rating</p>
+          <p class="text-sm font-semibold text-text-primary">${player.rating || 'N/A'}</p>
+        </div>
+        <div class="flex-1">
+          <p class="text-xs text-text-muted">Rank</p>
+          <p class="text-sm font-semibold text-text-primary">${player.rank || 'Unranked'}</p>
         </div>
       </div>
     </div>

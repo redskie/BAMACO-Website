@@ -291,14 +291,42 @@ class PlayersDB {
    * @returns {Function} - Unsubscribe function
    */
   subscribeToPlayers(callback) {
-    const unsubscribe = onSnapshot(playersRef, (snapshot) => {
-      const players = snapshot.docs
-        .map((docSnap) => docSnap.data())
-        .filter((player) => player.isPublic !== false);
-      callback(players);
-    });
+    console.log('📊 Setting up players subscription...');
 
-    return unsubscribe;
+    try {
+      const unsubscribe = onSnapshot(playersCollection,
+        (snapshot) => {
+          console.log('📊 Players snapshot received:', snapshot.docs.length, 'documents');
+          const players = snapshot.docs
+            .map((docSnap) => {
+              const data = docSnap.data();
+              return {
+                ...data,
+                id: docSnap.id // Ensure document ID is included
+              };
+            })
+            .filter((player) => player.isPublic !== false);
+
+          console.log('📊 Filtered players:', players.length);
+          players.forEach(player => {
+            console.log('👤 Player:', { ign: player.ign, friendCode: player.friendCode });
+          });
+
+          callback(players);
+        },
+        (error) => {
+          console.error('❌ Firestore subscription error:', error);
+          console.error('❌ Error details:', error.message);
+          callback([]);
+        }
+      );
+
+      return unsubscribe;
+    } catch (error) {
+      console.error('❌ Failed to set up subscription:', error);
+      callback([]);
+      return () => {}; // Return empty unsubscribe function
+    }
   }
 
   /**

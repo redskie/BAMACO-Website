@@ -21,31 +21,31 @@ window.BAMACO_TAILWIND_CONFIG = {
        * Soft pastel pink color scheme inspired by maimai.sega.jp
        */
       colors: {
-        // Background Colors - Soft pastel pink theme
-        'bg-primary': '#ffe6f0',     // Light pastel pink
-        'bg-secondary': '#ffcfe3',   // Soft pink
-        'bg-tertiary': '#ffb8d6',    // Medium pastel pink
-        'bg-card': 'rgba(255, 217, 235, 0.85)',        // Card pastel pink - translucent
-        'bg-card-hover': 'rgba(255, 194, 223, 0.9)',  // Hover pink - translucent
+        // Background Colors - Clean, mobile-optimized
+        'bg-primary': '#ffffff',     // Pure white for clarity
+        'bg-secondary': '#fafafa',   // Very light gray
+        'bg-tertiary': '#f5f5f5',    // Light gray
+        'bg-card': 'rgba(255, 255, 255, 0.95)',        // Clean white cards
+        'bg-card-hover': 'rgba(248, 250, 252, 1)',     // Subtle hover
         
-        // Text Colors - Dark for contrast on light background
-        'text-primary': '#2d1b2e',   // Dark purple for readability
-        'text-secondary': '#5a3d5c', // Medium purple
-        'text-muted': '#8b6f8d',     // Muted purple
+        // Text Colors - Improved mobile readability
+        'text-primary': '#1f2937',   // Dark gray for excellent readability
+        'text-secondary': '#4b5563', // Medium gray
+        'text-muted': '#9ca3af',     // Light gray for less important text
         
-        // Accent Colors - Vibrant!
-        'accent-pink': '#ff6b9d',     // Bright pink (maimai signature)
-        'accent-purple': '#a855f7',   // Vibrant purple
-        'accent-blue': '#60a5fa',     // Bright blue
-        'accent-cyan': '#22d3ee',     // Cyan
-        'accent-yellow': '#fef08a',   // Pastel Yellow (for buttons)
-        'accent-green': '#bbf7d0',    // Pastel Green (for buttons)
-        'accent-primary': '#bbf7d0',  // Compatibility - Pastel Green
-        'accent-secondary': '#fef08a',// Compatibility - Pastel Yellow
+        // Accent Colors - Refined and mobile-friendly
+        'accent-pink': '#ec4899',     // Toned down pink
+        'accent-purple': '#8b5cf6',   // Softer purple
+        'accent-blue': '#3b82f6',     // Clear blue
+        'accent-cyan': '#06b6d4',     // Professional cyan
+        'accent-yellow': '#f59e0b',   // Warm yellow
+        'accent-green': '#10b981',    // Clean green
+        'accent-primary': '#10b981',  // Compatibility - Green
+        'accent-secondary': '#f59e0b',// Compatibility - Yellow
         
-        // Border Colors
-        'border-primary': '#ffadd2',  // Pastel pink border
-        'border-glow': '#ff6b9d',     // Pink glow
+        // Border Colors - Subtle and clean
+        'border-primary': '#e5e7eb',  // Light gray border
+        'border-glow': '#ec4899',     // Pink accent
         
         // Admin Badge Colors
         'admin-owner': '#ffd700',     // Gold for Owner
@@ -55,50 +55,61 @@ window.BAMACO_TAILWIND_CONFIG = {
       
       /**
        * ========================================================================
-       * TYPOGRAPHY
+       * TYPOGRAPHY - Mobile-first readability
        * ========================================================================
        */
       fontFamily: {
         'sans': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
+      fontSize: {
+        'xs': ['0.75rem', '1rem'],     // 12px, tight for mobile
+        'sm': ['0.875rem', '1.25rem'],  // 14px, compact
+        'base': ['1rem', '1.5rem'],     // 16px, standard mobile
+        'lg': ['1.125rem', '1.75rem'],  // 18px, larger mobile headers
+        'xl': ['1.25rem', '1.875rem'],  // 20px, section headers
+        '2xl': ['1.5rem', '2rem'],      // 24px, main headers
+        '3xl': ['1.875rem', '2.25rem'], // 30px, max mobile size
+      },
       
       /**
        * ========================================================================
-       * SPACING
+       * SPACING - Mobile-optimized with compact design
        * ========================================================================
        */
       spacing: {
-        'xs': '0.5rem',
-        'sm': '1rem',
-        'md': '1.5rem',
-        'lg': '2rem',
-        'xl': '3rem',
+        'xs': '0.25rem',  // 4px - very tight
+        'sm': '0.5rem',   // 8px - compact
+        'md': '0.75rem',  // 12px - standard mobile
+        'lg': '1rem',     // 16px - comfortable
+        'xl': '1.25rem',  // 20px - spacious
+        '2xl': '1.5rem',  // 24px - section spacing
+        '3xl': '2rem',    // 32px - large spacing
       },
       
       /**
        * ========================================================================
-       * ANIMATIONS
+       * ANIMATIONS - Subtle, mobile-friendly
        * ========================================================================
        */
       animation: {
-        'pulse-slow': 'pulse 2s infinite',
-        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
-        'grid-move': 'gridMove 20s linear infinite',
-        'shimmer': 'shimmer 3s infinite',
-        'rotate-slow': 'rotateSlow 30s linear infinite',
-        'rotate-medium': 'rotateMedium 20s linear infinite',
-        'rotate-fast': 'rotateFast 15s linear infinite',
-        'popup-random': 'popupRandom 8s ease-in-out infinite',
+        'pulse-slow': 'pulse 3s infinite',
+        'fade-in': 'fadeIn 0.5s ease-out forwards',
+        'slide-up': 'slideUp 0.4s ease-out forwards',
+        'bounce-gentle': 'bounceGentle 1s ease-out',
       },
       
       keyframes: {
-        fadeInUp: {
-          '0%': { opacity: '0', transform: 'translateY(30px)' },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideUp: {
+          '0%': { opacity: '0', transform: 'translateY(1rem)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
-        gridMove: {
-          '0%': { transform: 'translate(0, 0)' },
-          '100%': { transform: 'translate(50px, 50px)' },
+        bounceGentle: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-0.25rem)' },
         },
         shimmer: {
           '0%': { left: '-100%' },
@@ -168,35 +179,35 @@ if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function() {
     const style = document.createElement('style');
     style.textContent = `
-      /* Unified Card Hover Effect */
+      /* Mobile-First Card Hover Effect */
       .hover-card {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       }
       .hover-card:hover {
-        transform: translateY(-0.5rem);
-        border-color: #fef08a;
-        box-shadow: 0 20px 40px rgba(252, 211, 77, 0.3);
+        transform: translateY(-0.125rem);
+        border-color: #e5e7eb;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
       
-      /* Unified Primary Button Hover */
+      /* Clean Primary Button Hover */
       .hover-btn-primary {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       }
       .hover-btn-primary:hover {
-        transform: translateY(-0.25rem);
-        box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
+        transform: translateY(-0.0625rem);
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
       }
       
-      /* Unified Secondary Button Hover */
+      /* Clean Secondary Button Hover */
       .hover-btn-secondary {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       }
       .hover-btn-secondary:hover {
-        border-color: #bbf7d0;
-        transform: translateY(-0.25rem);
+        border-color: #d1d5db;
+        background-color: #f9fafb;
       }
       
-      /* Unified Subtle Hover (for stats, info boxes) */
+      /* Subtle Hover for Small Elements */
       .hover-subtle {
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }

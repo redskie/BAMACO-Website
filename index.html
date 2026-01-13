@@ -46,38 +46,38 @@
     </header>
 
     <!-- Stats Section -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 -mt-16 mb-12 relative z-20">
-      <div class="grid grid-cols-2 gap-4 sm:gap-6" id="stats-container">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 -mt-12 mb-8 relative z-20">
+      <div class="grid grid-cols-2 gap-3 sm:gap-4" id="stats-container">
         <!-- Loading skeletons will be replaced by real content -->
-        <div class="bg-bg-card border border-border-primary rounded-xl p-6 text-center hover-card animate-pulse">
-          <div class="w-16 h-16 bg-bg-tertiary rounded mx-auto mb-2"></div>
-          <div class="h-4 bg-bg-tertiary rounded w-20 mx-auto"></div>
+        <div class="bg-white border border-border-primary rounded-lg p-4 text-center hover-card animate-pulse card-compact">
+          <div class="w-10 h-10 bg-bg-secondary rounded-lg mx-auto mb-2"></div>
+          <div class="h-3 bg-bg-secondary rounded w-16 mx-auto"></div>
         </div>
-        <div class="bg-bg-card border border-border-primary rounded-xl p-6 text-center hover-card animate-pulse">
-          <div class="w-16 h-16 bg-bg-tertiary rounded mx-auto mb-2"></div>
-          <div class="h-4 bg-bg-tertiary rounded w-20 mx-auto"></div>
+        <div class="bg-white border border-border-primary rounded-lg p-4 text-center hover-card animate-pulse card-compact">
+          <div class="w-10 h-10 bg-bg-secondary rounded-lg mx-auto mb-2"></div>
+          <div class="h-3 bg-bg-secondary rounded w-16 mx-auto"></div>
         </div>
       </div>
     </div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 pb-28 sm:pb-16">
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 pb-20 sm:pb-16">
       <!-- Bento Grid Layout -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mb-8">
-        <!-- Large: Queue Status (8 columns) -->
-        <div class="lg:col-span-8 bg-bg-card border border-border-primary rounded-xl p-6 sm:p-8 transition-all duration-300 hover-btn-secondary relative overflow-hidden">
-          <div class="inline-flex items-center gap-2 bg-bg-tertiary px-4 py-2 rounded-full mb-4 border border-border-primary">
-            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse-slow"></div>
-            <span class="text-sm font-semibold">LIVE</span>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 mb-6">
+        <!-- Large: Queue Status -->
+        <div class="lg:col-span-8 bg-white border border-border-primary rounded-lg p-4 sm:p-6 transition-all duration-200 hover-card card-compact">
+          <div class="inline-flex items-center gap-2 bg-bg-secondary px-3 py-1.5 rounded-full mb-3 border border-border-primary">
+            <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse-slow"></div>
+            <span class="text-xs font-medium">LIVE</span>
           </div>
-          <h3 class="text-2xl sm:text-3xl font-bold mb-6">Queue Status</h3>
+          <h3 class="text-lg sm:text-xl font-bold mb-4">Queue Status</h3>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            <div class="bg-bg-tertiary border border-border-primary p-4 sm:p-5 rounded-lg text-center transition-all duration-300 hover-subtle">
-              <div class="text-3xl sm:text-4xl font-black text-text-primary" id="queueCount">0</div>
-              <div class="text-text-muted text-xs uppercase tracking-wider mt-1">In Queue</div>
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="bg-bg-secondary border border-border-primary p-3 rounded-lg text-center transition-all duration-200 hover-subtle">
+              <div class="text-xl sm:text-2xl font-bold text-text-primary" id="queueCount">0</div>
+              <div class="text-text-muted text-xs tracking-wide mt-1">In Queue</div>
             </div>
 
-            <div class="bg-bg-tertiary border border-border-primary p-4 sm:p-5 rounded-lg text-center transition-all duration-300 hover-subtle">
+            <div class="bg-bg-secondary border border-border-primary p-3 rounded-lg text-center transition-all duration-200 hover-subtle">
               <div class="text-base sm:text-lg font-bold text-text-primary min-h-[2rem] flex items-center justify-center" id="currentlyPlaying">
                 No one playing
               </div>
@@ -150,7 +150,7 @@
       </section>
     </main>
 
-    <footer class="border-t border-border-primary py-8 mt-16 bg-gradient-to-r from-bg-card to-bg-secondary shadow-lg">
+    <footer class="border-t border-border-primary py-6 mt-12 bg-bg-secondary">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-text-muted">
         <p>&copy; 2026 BAMACO - Bataan MaiMai Community. All rights reserved.</p>
       </div>

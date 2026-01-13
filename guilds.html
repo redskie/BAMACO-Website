@@ -4,16 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Guilds - BAMACO</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+
         <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/tailwind-config.js"></script>
     <script>tailwind.config = window.BAMACO_TAILWIND_CONFIG;</script>
-    
+
     <!-- Keep original styles as fallback -->
     <link rel="stylesheet" href="assets/styles.css" />
     <style>
@@ -26,7 +26,7 @@
         position: relative;
         overflow: hidden;
       }
-      
+
       .page-header-enhanced::before {
         content: '';
         position: absolute;
@@ -37,11 +37,11 @@
         background: linear-gradient(90deg, transparent, rgba(255,107,157,0.05), transparent);
         animation: shimmer 3s infinite;
       }
-      
+
       @keyframes shimmer {
         to { left: 100%; }
       }
-      
+
       .page-title-enhanced {
         font-size: clamp(2rem, 6vw, 3rem);
         font-weight: 800;
@@ -53,20 +53,20 @@
         position: relative;
         z-index: 1;
       }
-      
+
       .page-description-enhanced {
         font-size: clamp(1rem, 3vw, 1.25rem);
         color: var(--text-secondary);
         position: relative;
         z-index: 1;
       }
-      
+
       .search-bar-enhanced {
         max-width: 600px;
         margin: 0 auto 2rem;
         position: relative;
       }
-      
+
       .search-bar-enhanced input {
         width: 100%;
         padding: clamp(0.75rem, 3vw, 1rem) clamp(1rem, 4vw, 1.5rem);
@@ -78,14 +78,14 @@
         font-size: clamp(0.875rem, 3vw, 1rem);
         transition: var(--transition-smooth);
       }
-      
+
       .search-bar-enhanced input:focus {
         outline: none;
         border-color: var(--text-secondary);
         box-shadow: 0 8px 24px rgba(0,0,0,0.3);
         transform: translateY(-2px);
       }
-      
+
       .search-bar-enhanced::before {
         content: '🔍';
         position: absolute;
@@ -95,13 +95,13 @@
         font-size: clamp(1rem, 4vw, 1.25rem);
         pointer-events: none;
       }
-      
+
       .guilds-grid-enhanced {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(clamp(250px, 45vw, 300px), 1fr));
         gap: clamp(1rem, 3vw, 1.5rem);
       }
-      
+
       .guild-card-enhanced {
         background: var(--bg-card);
         border: 1px solid var(--border-color);
@@ -117,7 +117,7 @@
         opacity: 0;
         animation: fadeInUp 0.6s ease-out forwards;
       }
-      
+
       .guild-card-enhanced::after {
         content: '';
         position: absolute;
@@ -130,17 +130,17 @@
         transform-origin: left;
         transition: transform 0.3s ease;
       }
-      
+
       .guild-card-enhanced:hover::after {
         transform: scaleX(1);
       }
-      
+
       .guild-card-enhanced:hover {
         transform: translateY(-8px);
         border-color: var(--text-secondary);
         box-shadow: 0 20px 40px rgba(0,0,0,0.4);
       }
-      
+
       .guild-emblem {
         width: clamp(60px, 15vw, 80px);
         height: clamp(60px, 15vw, 80px);
@@ -155,19 +155,19 @@
         border: 3px solid var(--border-color);
         transition: var(--transition-smooth);
       }
-      
+
       .guild-card-enhanced:hover .guild-emblem {
         border-color: var(--text-secondary);
         transform: scale(1.1) rotate(-5deg);
       }
-      
+
       .guild-name {
         font-size: clamp(1rem, 4vw, 1.25rem);
         font-weight: 700;
         margin-bottom: 0.5rem;
         text-align: center;
       }
-      
+
       .guild-motto {
         font-size: clamp(0.75rem, 3vw, 0.875rem);
         color: var(--text-muted);
@@ -175,12 +175,12 @@
         margin-bottom: 1rem;
         min-height: 2.5em;
       }
-      
+
       .guild-stats {
         display: flex;
         gap: clamp(0.5rem, 2vw, 0.75rem);
       }
-      
+
       .guild-stat {
         flex: 1;
         background: var(--bg-tertiary);
@@ -188,14 +188,14 @@
         border-radius: var(--radius-sm);
         text-align: center;
       }
-      
+
       .guild-stat-value {
         display: block;
         font-size: clamp(1rem, 4vw, 1.25rem);
         font-weight: 700;
         color: var(--text-primary);
       }
-      
+
       .guild-stat-label {
         display: block;
         font-size: clamp(0.625rem, 2.5vw, 0.75rem);
@@ -203,12 +203,12 @@
         text-transform: uppercase;
         letter-spacing: 0.05em;
       }
-      
+
       @keyframes fadeInUp {
         from { opacity: 0; transform: translateY(30px); }
         to { opacity: 1; transform: translateY(0); }
       }
-      
+
       .guild-card-enhanced:nth-child(1) { animation-delay: 0.05s; }
       .guild-card-enhanced:nth-child(2) { animation-delay: 0.1s; }
       .guild-card-enhanced:nth-child(3) { animation-delay: 0.15s; }
@@ -216,13 +216,13 @@
       .guild-card-enhanced:nth-child(5) { animation-delay: 0.25s; }
       .guild-card-enhanced:nth-child(6) { animation-delay: 0.3s; }
       .guild-card-enhanced:nth-child(n+7) { animation-delay: 0.35s; }
-      
+
       @media (max-width: 768px) {
         .guilds-grid-enhanced {
           grid-template-columns: repeat(auto-fill, minmax(clamp(140px, 40vw, 200px), 1fr));
         }
       }
-      
+
       @media (max-width: 480px) {
         .guilds-grid-enhanced {
           grid-template-columns: 1fr;
@@ -244,10 +244,10 @@
 
       <div class="max-w-2xl mx-auto mb-8 relative">
         <div class="absolute left-4 top-1/2 -translate-y-1/2 text-xl pointer-events-none">🔍</div>
-        <input 
-          type="text" 
-          id="guild-search" 
-          placeholder="Search guilds..." 
+        <input
+          type="text"
+          id="guild-search"
+          placeholder="Search guilds..."
           class="w-full py-3 sm:py-4 pl-12 pr-4 sm:pl-14 sm:pr-6 bg-bg-card border-2 border-border-primary rounded-lg text-text-primary transition-all duration-300 focus:outline-none focus:border-text-secondary focus:-translate-y-1 focus:shadow-[0_8px_24px_rgba(0,0,0,0.3)]"
         />
       </div>
@@ -255,7 +255,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" id="guilds-grid"></div>
     </main>
 
-    <footer class="border-t border-border-primary py-8 mt-12 bg-gradient-to-r from-bg-card to-bg-secondary shadow-lg">
+    <footer class="border-t border-border-primary py-6 mt-12 bg-bg-secondary">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
         <p class="text-text-muted">
           &copy; 2026 BAMACO - Bataan MaiMai Community. All rights reserved.
