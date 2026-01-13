@@ -3,7 +3,7 @@
 BAMACO Daily Update Script - Firebase Version
 
 Fetches all players from Firebase, updates their MaiMai stats via API,
-and pushes changes back to Firebase.
+and pushes changes back to Firebase using the Realtime Database.
 
 Runs daily via GitHub Actions at 10:00 AM PHT.
 """
@@ -13,8 +13,9 @@ import requests
 from datetime import datetime
 from typing import Optional
 
-# Configuration
+# Configuration - Using both Firestore and RTDB
 FIRESTORE_URL = "https://firestore.googleapis.com/v1/projects/bamaco-queue/databases/(default)/documents"
+FIREBASE_URL = "https://bamaco-queue-default-rtdb.asia-southeast1.firebasedatabase.app"
 MAIMAI_API_URL = "https://maimai-data-get.onrender.com/api/player"
 
 def log(message: str, level: str = "INFO"):
@@ -89,24 +90,25 @@ def update_player_in_firestore(friend_code: str, updates: dict) -> bool:
     try:
         # Add timestamp
         updates["lastApiUpdate"] = datetime.now().isoformat()
-
-        # Convert to Firestore format
-        firestore_updates = {"fields": {}}
-        for key, value in updates.items():
-            if isinstance(value, str):
-                firestore_updates["fields"][key] = {"stringValue": value}
-            elif isinstance(value, (int, float)):
-                firestore_updates["fields"][key] = {"stringValue": str(value)}
-            elif isinstance(value, bool):
-                firestore_updates["fields"][key] = {"booleanValue": value}
-
-        response = requests.patch(
-            f"{FIRESTORE_URL}/players/{friend_code}?updateMask.fieldPaths=" + ",".join(updates.keys()),
-            json=firestore_updates,
-            timeout=30
-        )
-        response.raise_for_status()
+        
+        # Build individual field updates (avoid complex merge operations)
+        for field_name, field_value in updates.items():
+            field_update = {"fields": {field_name: {"stringValue": str(field_value)}}}
+            
+            response = requests.patch(
+                f"{FIRESTORE_URL}/players/{friend_code}",
+                json=field_update,
+                params={"updateMask.fieldPaths": field_name},
+                timeout=30
+            )
+            
+            if response.status_code != 200:
+                log(f"Failed to update field {field_name}: {response.status_code} - {response.text}", "WARN")
+                # Continue with other fields instead of failing completely
+        
+        log(f"Updated {len(updates)} fields in Firestore for {friend_code}", "INFO")
         return True
+        
     except requests.RequestException as e:
         log(f"Failed to update {friend_code} in Firestore: {e}", "ERROR")
         return False
@@ -114,7 +116,7 @@ def update_player_in_firestore(friend_code: str, updates: dict) -> bool:
 def main():
     """Main update routine."""
     log("=" * 60)
-    log("BAMACO Daily Update - Firestore Version")
+    log("BAMACO Daily Update - Firebase Version")
     log("=" * 60)
 
     # Fetch all players

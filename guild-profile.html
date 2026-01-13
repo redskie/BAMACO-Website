@@ -4,16 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Guild Profile - BAMACO</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/tailwind-config.js"></script>
     <script>tailwind.config = window.BAMACO_TAILWIND_CONFIG;</script>
-    
+
     <link rel="stylesheet" href="assets/styles.css" />
   </head>
   <body class="bg-bg-primary text-text-primary font-sans antialiased overflow-x-hidden">
@@ -102,7 +102,7 @@
         try {
           // Load guild data
           const guild = await guildsDB.getGuild(guildId);
-          
+
           if (!guild) {
             showError();
             return;
@@ -113,7 +113,7 @@
           const guildMembers = allPlayers.filter(player => player.guildId === guildId);
 
           displayGuild(guild, guildMembers);
-          
+
         } catch (error) {
           console.error('Error loading guild:', error);
           showError();
@@ -151,15 +151,15 @@
       function createMemberCard(member) {
         const profileId = member.friendCode || member.id;
         const displayName = member.ign || member.name;
-        const avatarContent = member.avatarImage && member.avatarImage.trim() 
-          ? `<img src="${member.avatarImage}" alt="${displayName}" class="w-full h-full object-cover" />`
-          : displayName.substring(0, 2).toUpperCase();
+        const avatarContent = member.avatarImage && member.avatarImage.trim()
+          ? `<img src="${member.avatarImage}" alt="${displayName}" class="w-full h-full object-cover rounded-full" onerror="this.style.display='none'; this.nextSibling.style.display='flex';" /><div class="w-full h-full rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-white font-bold" style="display:none;">${displayName.substring(0, 2).toUpperCase()}</div>`
+          : `<div class="w-full h-full rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-white font-bold">${displayName.substring(0, 2).toUpperCase()}</div>`;
 
         return `
-          <a href="player-profile.html?id=${profileId}" 
+          <a href="player-profile.html?id=${profileId}"
              class="block bg-bg-secondary border border-border-primary rounded-lg p-4 hover-card hover:shadow-lg transition-all duration-300">
             <div class="flex items-center gap-3 mb-2">
-              <div class="w-12 h-12 bg-bg-tertiary rounded-lg flex items-center justify-center font-bold text-sm flex-shrink-0 overflow-hidden">
+              <div class="w-12 h-12 bg-bg-tertiary rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 overflow-hidden border-2 border-accent-pink/20">
                 ${avatarContent}
               </div>
               <div class="flex-1 min-w-0">

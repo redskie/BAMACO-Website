@@ -12,9 +12,9 @@ function createAdminBadge(adminRole = 'admin') {
     'admin': { icon: '⭐', label: 'ADMIN', class: 'admin-badge-admin' },
     'moderator': { icon: '🛡️', label: 'MOD', class: 'admin-badge-mod' }
   };
-  
+
   const badge = badges[adminRole.toLowerCase()] || badges['admin'];
-  
+
   return `
     <div class="admin-badge ${badge.class}">
       <span class="admin-badge-icon">${badge.icon}</span>
@@ -37,35 +37,35 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 // Load data from Firebase with caching
 async function loadData() {
   const now = Date.now();
-  
+
   // Return cached data if still valid
   if (cachedData && cacheTime && (now - cacheTime) < CACHE_DURATION) {
     data = cachedData;
     return data;
   }
-  
+
   try {
     console.log('🔄 Loading fresh data from Firebase...');
-    
+
     // Load all data from Firebase in parallel
     const [players, guilds, articles] = await Promise.all([
       playersDB.getAllPlayers(),
       guildsDB.getAllGuilds(),
       articlesIdDB.getAllArticles()
     ]);
-    
+
     data = { players, guilds, articles };
-    
+
     // Cache the data
     cachedData = { ...data }; // Create a copy
     cacheTime = now;
-    
+
     console.log('✅ Data loaded from Firebase and cached successfully');
     console.log(`📊 Loaded: ${players.length} players, ${guilds.length} guilds, ${articles.length} articles`);
     return data;
   } catch (error) {
     console.error('❌ Error loading data from Firebase:', error);
-    
+
     // Return cached data if available, otherwise empty structure
     if (cachedData) {
       console.log('⚠️ Using cached data due to Firebase error');
@@ -185,7 +185,7 @@ function filterGuilds(searchTerm) {
 async function loadAllArticles() {
   await loadData();
   const container = document.getElementById('articles-grid');
-  
+
   if (data.articles.length === 0) {
     container.innerHTML = `
       <div class="col-span-full text-center py-12">
@@ -196,7 +196,7 @@ async function loadAllArticles() {
     `;
     return;
   }
-  
+
   container.innerHTML = data.articles
     .map((article) => createArticleCard(article))
     .join('');
@@ -213,7 +213,7 @@ function filterArticles(searchTerm) {
       article.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (article.excerpt && article.excerpt.toLowerCase().includes(searchTerm.toLowerCase()))
   );
-  
+
   if (filtered.length === 0) {
     container.innerHTML = `
       <div class="col-span-full text-center py-12">
@@ -224,7 +224,7 @@ function filterArticles(searchTerm) {
     `;
     return;
   }
-  
+
   container.innerHTML = filtered
     .map((article) => createArticleCard(article))
     .join('');
@@ -443,11 +443,11 @@ function createMarqueeElement(text, threshold = 25) {
   if (text.length >= threshold) {
     const container = document.createElement('div');
     container.className = 'marquee-container';
-    
+
     const content = document.createElement('span');
     content.className = 'marquee-content';
     content.textContent = text;
-    
+
     container.appendChild(content);
     return container;
   } else {
@@ -462,13 +462,13 @@ function applyMarqueeToElement(element, text, threshold = 25) {
   if (text.length >= threshold) {
     const container = document.createElement('div');
     container.className = 'marquee-container';
-    
+
     const content = document.createElement('span');
     content.className = 'marquee-content';
     content.textContent = text;
-    
+
     container.appendChild(content);
-    
+
     element.innerHTML = '';
     element.appendChild(container);
   } else {
@@ -483,27 +483,27 @@ function applyMarqueeToElement(element, text, threshold = 25) {
 function createPlayerCard(player) {
   const displayName = player.ign || player.name;
   const playerSlug = player.id;
-  
+
   // Use friendCode if available, otherwise fall back to id
   const profileId = player.friendCode || player.id;
-  
+
   // Check if enhanced styles are available (players page)
   const cardClass = document.querySelector('.players-grid-enhanced') ? 'player-card-enhanced' : 'player-card';
-  
-  // Create avatar HTML with image or fallback to initials
-  const avatarContent = player.avatarImage && player.avatarImage.trim() 
-    ? `<img src="${player.avatarImage}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover;" />`
-    : displayName.substring(0, 2).toUpperCase();
-  
+
+  // Create avatar HTML with consistent framing and image source
+  const avatarContent = player.avatarImage && player.avatarImage.trim()
+    ? `<img src="${player.avatarImage}" alt="${displayName}" class="w-full h-full object-cover rounded-full" onerror="this.style.display='none'; this.nextSibling.style.display='flex';" /><div class="w-full h-full rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-white font-bold" style="display:none;">${displayName.substring(0, 2).toUpperCase()}</div>`
+    : `<div class="w-full h-full rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-white font-bold">${displayName.substring(0, 2).toUpperCase()}</div>`;
+
   // Handle marquee for long titles using centralized function
   const playerRole = player.role || player.title || player.special_title || 'Player';
-  const roleContent = playerRole.length >= 25 
+  const roleContent = playerRole.length >= 25
     ? `<div class="marquee-container text-xs"><span class="marquee-content">${playerRole}</span></div>`
     : `<p class="card-role">${playerRole}</p>`;
-  
+
   // Create admin badge if user is admin
   const adminBadge = player.isAdmin ? createAdminBadge(player.adminRole || 'admin') : '';
-  
+
   if (cardClass === 'player-card-enhanced') {
     return `
       <a href="player-profile.html?id=${profileId}" class="player-card-enhanced">
@@ -523,12 +523,12 @@ function createPlayerCard(player) {
       </a>
     `;
   }
-  
-  // Fallback to original card style for other pages with avatar support
+
+  // Fallback to original card style for other pages with consistent avatar framing
   const fallbackAvatarContent = player.avatarImage && player.avatarImage.trim()
-    ? `<img src="${player.avatarImage}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover;" />`
-    : displayName.charAt(0);
-    
+    ? `<img src="${player.avatarImage}" alt="${displayName}" class="w-full h-full object-cover rounded-full" onerror="this.style.display='none'; this.nextSibling.style.display='flex';" /><div class="w-full h-full rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-white font-bold" style="display:none;">${displayName.charAt(0).toUpperCase()}</div>`
+    : `<div class="w-full h-full rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-white font-bold">${displayName.charAt(0).toUpperCase()}</div>`;
+
   return `
     <div class="player-card" onclick="window.location.href='player-profile.html?id=${profileId}'">
       <div class="card-avatar">${fallbackAvatarContent}</div>
@@ -551,20 +551,20 @@ function createPlayerCard(player) {
 
 function createGuildCard(guild) {
   const guildId = guild.id;
-  
+
   return `
     <a href="guild-profile.html?id=${guildId}" class="block bg-bg-card border border-border-primary rounded-xl p-6 hover-card hover-gradient-line group">
       <!-- Guild Emblem -->
       <div class="w-16 h-16 rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-3xl font-black text-white mb-4 transform group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
         ${guild.name.charAt(0)}
       </div>
-      
+
       <!-- Guild Name -->
       <h3 class="text-xl font-bold text-text-primary mb-2 group-hover:text-accent-pink transition-colors">${guild.name}</h3>
-      
+
       <!-- Guild Description -->
       <p class="text-text-secondary text-sm mb-4 line-clamp-2">${guild.description || guild.motto || 'No description available'}</p>
-      
+
       <!-- Guild Stats -->
       <div class="flex gap-4">
         <div class="flex-1 bg-bg-tertiary rounded-lg p-3 text-center">
@@ -585,15 +585,15 @@ function createArticleCard(article) {
   const author = data.players.find((p) => p.friendCode === article.authorId || p.id === article.authorId || p.ign === article.author);
   const authorIGN = author ? (author.ign || author.name) : (article.author || article.authorId?.replace(/_/g, ' ') || 'Anonymous');
   const articleId = article.id;
-  
+
   return `
     <a href="article.html?id=${articleId}" class="block bg-bg-card border border-border-primary rounded-xl p-6 hover-card hover-gradient-line group">
       <!-- Article Title -->
       <h3 class="text-xl font-bold text-text-primary mb-3 group-hover:text-accent-purple transition-colors line-clamp-2">${article.title}</h3>
-      
+
       <!-- Article Excerpt -->
       <p class="text-text-secondary text-sm mb-4 line-clamp-3 leading-relaxed">${article.excerpt || article.description || 'No description available'}</p>
-      
+
       <!-- Article Meta -->
       <div class="flex justify-between items-center gap-2 text-sm">
         <span class="text-text-muted">By ${authorIGN}</span>
