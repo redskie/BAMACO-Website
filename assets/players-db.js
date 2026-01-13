@@ -2,10 +2,10 @@
  * ============================================================================
  * BAMACO PLAYERS DATABASE MODULE
  * ============================================================================
- * 
+ *
  * Firebase Firestore operations for player profiles
  * Replaces the old static HTML file system
- * 
+ *
  * Database Structure:
  * /players/{friendCode}
  *   - friendCode: string (primary key)
@@ -62,6 +62,93 @@ class PlayersDB {
     this.listeners = new Map();
   }
 
+  // ------------------------------------------------------------------------
+  // CRYPTO HELPERS (with fallback for non-secure contexts)
+  // ------------------------------------------------------------------------
+
+  getSubtleCrypto() {
+    if (typeof crypto !== 'undefined') {
+      return crypto.subtle || crypto.webkitSubtle || (crypto.msCrypto && crypto.msCrypto.subtle);
+    }
+    if (typeof window !== 'undefined' && window.crypto) {
+      return window.crypto.subtle || window.crypto.webkitSubtle || (window.crypto.msCrypto && window.crypto.msCrypto.subtle);
+    }
+    return null;
+  }
+
+  async sha256Hex(message) {
+    // Lightweight SHA-256 fallback (returns hex string)
+    const utf8 = new TextEncoder().encode(message);
+    const rightRotate = (value, amount) => (value >>> amount) | (value << (32 - amount));
+
+    const h = [
+      0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+      0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+    ];
+
+    const k = [
+      0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+      0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+      0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+      0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+      0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+      0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+      0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+      0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+    ];
+
+    const withOne = new Uint8Array(((utf8.length + 9 + 63) >> 6) << 6);
+    withOne.set(utf8);
+    withOne[utf8.length] = 0x80;
+    const bitLen = utf8.length * 8;
+    const view = new DataView(withOne.buffer);
+    view.setUint32(withOne.length - 4, bitLen);
+
+    const w = new Uint32Array(64);
+
+    for (let i = 0; i < withOne.length; i += 64) {
+      for (let j = 0; j < 16; j++) {
+        w[j] = view.getUint32(i + j * 4);
+      }
+      for (let j = 16; j < 64; j++) {
+        const s0 = rightRotate(w[j - 15], 7) ^ rightRotate(w[j - 15], 18) ^ (w[j - 15] >>> 3);
+        const s1 = rightRotate(w[j - 2], 17) ^ rightRotate(w[j - 2], 19) ^ (w[j - 2] >>> 10);
+        w[j] = (w[j - 16] + s0 + w[j - 7] + s1) >>> 0;
+      }
+
+      let [a, b, c, d, e, f, g, h0] = h;
+
+      for (let j = 0; j < 64; j++) {
+        const S1 = rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25);
+        const ch = (e & f) ^ (~e & g);
+        const temp1 = (h0 + S1 + ch + k[j] + w[j]) >>> 0;
+        const S0 = rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22);
+        const maj = (a & b) ^ (a & c) ^ (b & c);
+        const temp2 = (S0 + maj) >>> 0;
+
+        h0 = g;
+        g = f;
+        f = e;
+        e = (d + temp1) >>> 0;
+        d = c;
+        c = b;
+        b = a;
+        a = (temp1 + temp2) >>> 0;
+      }
+
+      h[0] = (h[0] + a) >>> 0;
+      h[1] = (h[1] + b) >>> 0;
+      h[2] = (h[2] + c) >>> 0;
+      h[3] = (h[3] + d) >>> 0;
+      h[4] = (h[4] + e) >>> 0;
+      h[5] = (h[5] + f) >>> 0;
+      h[6] = (h[6] + g) >>> 0;
+      h[7] = (h[7] + h0) >>> 0;
+    }
+
+    return h.map(x => x.toString(16).padStart(8, '0')).join('');
+  }
+
   // ========================================================================
   // CREATE
   // ========================================================================
@@ -73,7 +160,7 @@ class PlayersDB {
    */
   async createPlayer(playerData) {
     const friendCode = this.sanitizeFriendCode(playerData.friendCode);
-    
+
     if (!friendCode) {
       throw new Error('Friend code is required');
     }
@@ -118,10 +205,10 @@ class PlayersDB {
 
     const playerDoc = doc(playersRef, friendCode);
     await setDoc(playerDoc, player);
-    
+
     // Clear cache
     this.cache.delete(friendCode);
-    
+
     console.log(`✅ Player created: ${player.ign} (${friendCode})`);
     return player;
   }
@@ -132,7 +219,7 @@ class PlayersDB {
 
   /**
    * Get a single player by friend code
-   * @param {string} friendCode 
+   * @param {string} friendCode
    * @returns {Promise<Object|null>}
    */
   async getPlayer(friendCode) {
@@ -170,7 +257,7 @@ class PlayersDB {
 
   /**
    * Search players by IGN or name
-   * @param {string} searchTerm 
+   * @param {string} searchTerm
    * @returns {Promise<Array>}
    */
   async searchPlayers(searchTerm) {
@@ -178,19 +265,19 @@ class PlayersDB {
     if (!term) return this.getAllPlayers();
 
     const allPlayers = await this.getAllPlayers(500);
-    
+
     return allPlayers.filter(player => {
       const ign = (player.ign || '').toLowerCase();
       const name = (player.name || '').toLowerCase();
       const nickname = (player.nickname || '').toLowerCase();
-      
+
       return ign.includes(term) || name.includes(term) || nickname.includes(term);
     });
   }
 
   /**
    * Get players by guild
-   * @param {string} guildId 
+   * @param {string} guildId
    * @returns {Promise<Array>}
    */
   async getPlayersByGuild(guildId) {
@@ -216,8 +303,8 @@ class PlayersDB {
 
   /**
    * Subscribe to a single player's updates
-   * @param {string} friendCode 
-   * @param {Function} callback 
+   * @param {string} friendCode
+   * @param {Function} callback
    * @returns {Function} - Unsubscribe function
    */
   subscribeToPlayer(friendCode, callback) {
@@ -237,7 +324,7 @@ class PlayersDB {
 
   /**
    * Update a player's profile
-   * @param {string} friendCode 
+   * @param {string} friendCode
    * @param {Object} updates - Fields to update
    * @param {string} editKey - Required for verification (unless admin)
    * @returns {Promise<Object>}
@@ -245,7 +332,7 @@ class PlayersDB {
   async updatePlayer(friendCode, updates, editKey = null) {
     const sanitized = this.sanitizeFriendCode(friendCode);
     const player = await this.getPlayer(sanitized);
-    
+
     if (!player) {
       throw new Error('Player not found');
     }
@@ -264,17 +351,17 @@ class PlayersDB {
 
     const playerDoc = doc(playersRef, sanitized);
     await updateDoc(playerDoc, updates);
-    
+
     // Clear cache
     this.cache.delete(sanitized);
-    
+
     console.log(`✅ Player updated: ${player.ign} (${sanitized})`);
     return { ...player, ...updates };
   }
 
   /**
    * Update player rating from MaiMai API
-   * @param {string} friendCode 
+   * @param {string} friendCode
    * @param {Object} apiData - Data from MaiMai API
    */
   async updateFromAPI(friendCode, apiData) {
@@ -295,13 +382,13 @@ class PlayersDB {
 
   /**
    * Delete a player profile
-   * @param {string} friendCode 
+   * @param {string} friendCode
    * @param {string} editKey - Required for verification
    */
   async deletePlayer(friendCode, editKey) {
     const sanitized = this.sanitizeFriendCode(friendCode);
     const player = await this.getPlayer(sanitized);
-    
+
     if (!player) {
       throw new Error('Player not found');
     }
@@ -313,14 +400,14 @@ class PlayersDB {
 
     const playerDoc = doc(playersRef, sanitized);
     await deleteDoc(playerDoc);
-    
+
     // Clear cache and listeners
     this.cache.delete(sanitized);
     if (this.listeners.has(sanitized)) {
       this.listeners.get(sanitized)();
       this.listeners.delete(sanitized);
     }
-    
+
     console.log(`🗑️ Player deleted: ${player.ign} (${sanitized})`);
   }
 
@@ -330,8 +417,8 @@ class PlayersDB {
 
   /**
    * Verify password for a player
-   * @param {string} friendCode 
-   * @param {string} password 
+   * @param {string} friendCode
+   * @param {string} password
    * @returns {Promise<boolean>}
    */
   async verifyPassword(friendCode, password) {
@@ -340,13 +427,13 @@ class PlayersDB {
 
     const [salt, hash] = player.passwordHash.split(':');
     const inputHash = await this.hashPassword(password, salt);
-    
+
     return inputHash === player.passwordHash;
   }
 
   /**
    * Hash a password with salt
-   * @param {string} password 
+   * @param {string} password
    * @param {string} salt - Optional, generates new if not provided
    * @returns {Promise<string>} - Format: salt:hash
    */
@@ -354,19 +441,28 @@ class PlayersDB {
     if (!salt) {
       salt = this.generateSalt();
     }
-    
-    const encoder = new TextEncoder();
-    const data = encoder.encode(salt + password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    
+
+    const subtle = this.getSubtleCrypto();
+    const message = salt + password;
+
+    if (subtle && typeof subtle.digest === 'function') {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(message);
+      const hashBuffer = await subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      return `${salt}:${hash}`;
+    }
+
+    // Fallback (non-secure contexts)
+    const hash = await this.sha256Hex(message);
+
     return `${salt}:${hash}`;
   }
 
   /**
    * Check if a friend code has a profile
-   * @param {string} friendCode 
+   * @param {string} friendCode
    * @returns {Promise<boolean>}
    */
   async hasProfile(friendCode) {
@@ -404,10 +500,10 @@ class PlayersDB {
    */
   async getStats() {
     const players = await this.getAllPlayers(1000);
-    
+
     const totalRating = players.reduce((sum, p) => sum + (parseInt(p.rating) || 0), 0);
     const avgRating = players.length > 0 ? Math.round(totalRating / players.length) : 0;
-    
+
     return {
       totalPlayers: players.length,
       averageRating: avgRating,

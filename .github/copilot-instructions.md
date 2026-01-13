@@ -4,6 +4,11 @@
 
 BAMACO is a **static website with Firebase backend** serving a MaiMai rhythm game community. The key principle: **All design changes happen in ONE file** (`/assets/tailwind-config.js`) to maintain consistency across HTML files.
 
+**Custom Syntax for This Project**
+- $h = the whole project is involved
+- $w = only the web frontend (HTML/CSS/JS)
+- $b = only the backend (Python scripts, Firebase functions)
+
 **Environment guardrails**
 - Do **not** run npm/npx/yarn or other Node-based commands here; rely on Python tooling (for example `python -m http.server`) and edit code directly.
 - Keep everything in vanilla HTML/CSS/JS; no bundlers or build steps.

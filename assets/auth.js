@@ -298,8 +298,8 @@ class BAMACOAuth {
       const player = await playersDB.getPlayer(cleanCode);
 
       if (player && player.passwordHash) {
-        // Verify password using players-db method
-        const isValid = await playersDB.verifyPassword(password, player.passwordHash);
+        // Verify password using players-db method (Firestore canonical)
+        const isValid = await playersDB.verifyPassword(cleanCode, password);
 
         if (isValid) {
           // Login successful via players table
@@ -371,45 +371,50 @@ class BAMACOAuth {
         return { success: false, errors: passwordValidation.errors };
       }
 
-      // Check if user already exists
-      const userRef = ref(database, `users/${cleanCode}`);
-      const snapshot = await get(userRef);
-
-      if (snapshot.exists()) {
+      // Ensure friend code is unique in Firestore (canonical)
+      const existing = await playersDB.getPlayer(cleanCode);
+      if (existing) {
         return { success: false, error: 'Account already exists. Please login instead.' };
       }
 
-      // Hash password
-      const hashedPassword = await this.hashPassword(password);
+      // Hash password using players DB format (salt:hash)
+      const passwordHash = await playersDB.hashPassword(password);
 
-      // Create user account
-      const userData = {
+      // Create player profile in Firestore (same as create-profile flow)
+      const playerData = {
         friendCode: cleanCode,
-        ign: apiData.ign,
-        rating: apiData.rating,
-        title: apiData.title || null,
-        trophy: apiData.trophy || null,
-        iconUrl: apiData.icon_url || null,
-        passwordHash: hashedPassword,
+        ign: apiData?.ign || 'Unknown',
+        name: apiData?.ign || '',
+        nickname: apiData?.ign || '',
+        title: apiData?.title || '',
+        avatarImage: apiData?.icon_url || apiData?.iconUrl || '',
+        rating: apiData?.rating || '0',
+        trophy: apiData?.trophy || '',
+        passwordHash,
         isAdmin: false,
-        createdAt: serverTimestamp(),
-        lastLogin: serverTimestamp()
+        adminRole: null,
+        isPublic: true
       };
 
-      await set(userRef, userData);
+      const player = await playersDB.createPlayer(playerData);
 
       // Set profile cookie
-      this.setProfileCookie(cleanCode, apiData.ign);
+      this.setProfileCookie(cleanCode, player.ign);
 
       // Auto login after registration
       this.currentUser = {
         friendCode: cleanCode,
-        ign: apiData.ign,
-        isAdmin: false
+        ign: player.ign,
+        isAdmin: false,
+        hasProfile: true
       };
       this.isGuest = false;
+      this.isAdmin = false;
 
       this.saveSession(this.currentUser, true);
+      if (player.editKey) {
+        localStorage.setItem('profileEditKey', player.editKey);
+      }
 
       return { success: true, user: this.currentUser };
 
