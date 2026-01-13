@@ -2,7 +2,7 @@
  * ============================================================================
  * BAMACO AUTH MODAL COMPONENT
  * ============================================================================
- * 
+ *
  * Renders the authentication modal on page load
  * Handles: Login, Guest mode, Create Account, Password setup
  */
@@ -13,7 +13,7 @@ class AuthModal {
     this.currentView = 'main'; // main, login, register, setPassword
     this.apiData = null;
     this.validFriendCode = false;
-    
+
     this.init();
   }
 
@@ -62,10 +62,10 @@ class AuthModal {
       <div id="authModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 transition-all duration-300">
         <!-- Backdrop -->
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-        
+
         <!-- Modal Container -->
         <div class="relative bg-bg-card border-2 border-border-primary rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300">
-          
+
           <!-- Main View: Choose Action -->
           <div id="authMainView" class="p-6 sm:p-8">
             <!-- Header -->
@@ -80,11 +80,11 @@ class AuthModal {
               <button onclick="authModal.showLoginView()" class="w-full px-6 py-4 bg-accent-pink text-white font-semibold rounded-xl hover-btn-primary flex items-center justify-center gap-3 text-lg">
                 <span>🔑</span> Login
               </button>
-              
+
               <button onclick="authModal.showRegisterView()" class="w-full px-6 py-4 bg-accent-purple text-white font-semibold rounded-xl hover-btn-primary flex items-center justify-center gap-3 text-lg">
                 <span>✨</span> Create Account
               </button>
-              
+
               <button onclick="authModal.continueAsGuest()" class="w-full px-6 py-4 bg-bg-secondary border-2 border-border-primary text-text-primary font-semibold rounded-xl hover-btn-secondary flex items-center justify-center gap-3 text-lg">
                 <span>👤</span> Continue as Guest
               </button>
@@ -112,8 +112,8 @@ class AuthModal {
                 <label class="block text-sm font-semibold text-text-primary mb-2">
                   MaiMai Friend Code
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   id="loginFriendCode"
                   placeholder="000-000-000-000-000"
                   maxlength="19"
@@ -127,8 +127,8 @@ class AuthModal {
                   Password
                 </label>
                 <div class="relative">
-                  <input 
-                    type="password" 
+                  <input
+                    type="password"
                     id="loginPassword"
                     placeholder="Enter your password"
                     class="w-full px-4 py-3 border border-border-primary rounded-lg bg-bg-secondary focus:outline-none focus:ring-2 focus:ring-accent-pink transition-all pr-12"
@@ -159,7 +159,7 @@ class AuthModal {
             </form>
 
             <p class="mt-4 text-center text-sm text-text-muted">
-              Don't have an account? 
+              Don't have an account?
               <button onclick="authModal.showRegisterView()" class="text-accent-pink hover:underline font-semibold">Create one</button>
             </p>
           </div>
@@ -178,8 +178,8 @@ class AuthModal {
                 <label class="block text-sm font-semibold text-text-primary mb-2">
                   MaiMai Friend Code <span class="text-red-500">*</span>
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   id="registerFriendCode"
                   placeholder="000-000-000-000-000"
                   maxlength="19"
@@ -204,8 +204,8 @@ class AuthModal {
                   Password <span class="text-red-500">*</span>
                 </label>
                 <div class="relative">
-                  <input 
-                    type="password" 
+                  <input
+                    type="password"
                     id="registerPassword"
                     placeholder="Create a strong password"
                     class="w-full px-4 py-3 border border-border-primary rounded-lg bg-bg-secondary focus:outline-none focus:ring-2 focus:ring-accent-pink transition-all pr-12"
@@ -227,8 +227,8 @@ class AuthModal {
                 <label class="block text-sm font-semibold text-text-primary mb-2">
                   Confirm Password <span class="text-red-500">*</span>
                 </label>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   id="registerPasswordConfirm"
                   placeholder="Confirm your password"
                   class="w-full px-4 py-3 border border-border-primary rounded-lg bg-bg-secondary focus:outline-none focus:ring-2 focus:ring-accent-pink transition-all"
@@ -250,7 +250,7 @@ class AuthModal {
             </form>
 
             <p class="mt-4 text-center text-sm text-text-muted">
-              Already have an account? 
+              Already have an account?
               <button onclick="authModal.showLoginView()" class="text-accent-pink hover:underline font-semibold">Login</button>
             </p>
           </div>
@@ -273,8 +273,8 @@ class AuthModal {
                 <label class="block text-sm font-semibold text-text-primary mb-2">
                   Create Password
                 </label>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   id="setPassword"
                   placeholder="Create a strong password"
                   class="w-full px-4 py-3 border border-border-primary rounded-lg bg-bg-secondary focus:outline-none focus:ring-2 focus:ring-accent-pink transition-all"
@@ -292,8 +292,8 @@ class AuthModal {
                 <label class="block text-sm font-semibold text-text-primary mb-2">
                   Confirm Password
                 </label>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   id="setPasswordConfirm"
                   placeholder="Confirm password"
                   class="w-full px-4 py-3 border border-border-primary rounded-lg bg-bg-secondary focus:outline-none focus:ring-2 focus:ring-accent-pink transition-all"
@@ -417,9 +417,9 @@ class AuthModal {
   showSetPasswordView(profileData) {
     this.currentView = 'setPassword';
     this.profileData = profileData;
-    
+
     document.getElementById('setPasswordIgn').textContent = profileData.ign;
-    
+
     document.getElementById('authMainView')?.classList.add('hidden');
     document.getElementById('authLoginView')?.classList.add('hidden');
     document.getElementById('authRegisterView')?.classList.add('hidden');
@@ -433,9 +433,7 @@ class AuthModal {
   formatFriendCode(input) {
     let value = input.value.replace(/\D/g, '');
     if (value.length > 15) value = value.substring(0, 15);
-    if (value.length > 0) {
-      input.value = value.match(/.{1,3}/g).join('-');
-    }
+    input.value = value;
   }
 
   debouncedValidate() {
@@ -448,7 +446,7 @@ class AuthModal {
   async validateFriendCode() {
     const input = document.getElementById('registerFriendCode');
     const cleanCode = input.value.replace(/\D/g, '');
-    
+
     if (cleanCode.length !== 15) {
       this.showCodeStatus('hide');
       this.updateRegisterButton(false);
@@ -494,7 +492,7 @@ class AuthModal {
   checkPasswordStrength(prefix) {
     const password = document.getElementById(prefix === 'register' ? 'registerPassword' : 'setPassword').value;
     const pre = prefix === 'register' ? 'pass' : 'setPass';
-    
+
     const checks = {
       length: password.length >= 8,
       upper: /[A-Z]/.test(password),
@@ -504,13 +502,13 @@ class AuthModal {
 
     document.getElementById(`${pre}Length`).innerHTML = checks.length ? '✅ At least 8 characters' : '○ At least 8 characters';
     document.getElementById(`${pre}Length`).className = checks.length ? 'text-green-600' : 'text-text-muted';
-    
+
     document.getElementById(`${pre}Upper`).innerHTML = checks.upper ? '✅ One uppercase letter' : '○ One uppercase letter';
     document.getElementById(`${pre}Upper`).className = checks.upper ? 'text-green-600' : 'text-text-muted';
-    
+
     document.getElementById(`${pre}Number`).innerHTML = checks.number ? '✅ One number' : '○ One number';
     document.getElementById(`${pre}Number`).className = checks.number ? 'text-green-600' : 'text-text-muted';
-    
+
     document.getElementById(`${pre}Special`).innerHTML = checks.special ? '✅ One special character' : '○ One special character (!@#$%^&*)';
     document.getElementById(`${pre}Special`).className = checks.special ? 'text-green-600' : 'text-text-muted';
 
@@ -521,9 +519,9 @@ class AuthModal {
 
   isPasswordValid() {
     const password = document.getElementById('registerPassword')?.value || '';
-    return password.length >= 8 && 
-           /[A-Z]/.test(password) && 
-           /[0-9]/.test(password) && 
+    return password.length >= 8 &&
+           /[A-Z]/.test(password) &&
+           /[0-9]/.test(password) &&
            /[!@#$%^&*(),.?":{}|<>]/.test(password);
   }
 
@@ -531,7 +529,7 @@ class AuthModal {
     const password = document.getElementById('registerPassword').value;
     const confirm = document.getElementById('registerPasswordConfirm').value;
     const matchDiv = document.getElementById('passwordMatch');
-    
+
     if (confirm.length > 0) {
       matchDiv.classList.remove('hidden');
       if (password === confirm) {
@@ -549,7 +547,7 @@ class AuthModal {
   updateRegisterButton(enabled) {
     const btn = document.getElementById('registerBtn');
     const text = document.getElementById('registerBtnText');
-    
+
     btn.disabled = !enabled;
     text.textContent = enabled ? '✨ Create Account' : 'Complete All Fields';
   }
@@ -579,7 +577,7 @@ class AuthModal {
 
     try {
       const result = await this.authSystem.login(friendCode, password, rememberMe);
-      
+
       if (result.success) {
         this.hideModal();
         window.location.reload();
@@ -624,7 +622,7 @@ class AuthModal {
     try {
       const friendCode = document.getElementById('registerFriendCode').value;
       const result = await this.authSystem.register(friendCode, password, this.apiData);
-      
+
       if (result.success) {
         this.hideModal();
         window.location.reload();
@@ -653,7 +651,7 @@ class AuthModal {
 
     try {
       const result = await this.authSystem.setPassword(this.profileData.friendCode, password);
-      
+
       if (result.success) {
         alert('Password set successfully! You can now login.');
         this.showLoginView();
@@ -682,7 +680,7 @@ class StandaloneAuth {
     // Simplified login without Firebase
     const cleanCode = friendCode.replace(/\D/g, '');
     const users = JSON.parse(localStorage.getItem('bamaco_users') || '{}');
-    
+
     if (!users[cleanCode]) {
       return { success: false, error: 'Account not found' };
     }
@@ -734,7 +732,7 @@ class StandaloneAuth {
   async setPassword(friendCode, password) {
     const cleanCode = friendCode.replace(/\D/g, '');
     const users = JSON.parse(localStorage.getItem('bamaco_users') || '{}');
-    
+
     if (!users[cleanCode]) {
       return { success: false, error: 'Profile not found' };
     }

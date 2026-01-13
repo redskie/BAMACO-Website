@@ -1,6 +1,6 @@
 # BAMACO Website - Deployment Guide
 
-Complete guide for deploying the BAMACO Website to production environments.
+Complete guide for deploying the Firebase-powered BAMACO Website to production environments.
 
 ---
 
@@ -8,6 +8,7 @@ Complete guide for deploying the BAMACO Website to production environments.
 
 - [Quick Start](#quick-start)
 - [GitHub Pages Deployment](#github-pages-deployment)
+- [Firebase Configuration](#firebase-configuration)
 - [Other Hosting Options](#other-hosting-options)
 - [Production Checklist](#production-checklist)
 - [Post-Deployment](#post-deployment)
@@ -20,11 +21,17 @@ Complete guide for deploying the BAMACO Website to production environments.
 ### Prerequisites
 - Git installed
 - GitHub account
-- Firebase project (for queue system)
+- Firebase project with Realtime Database
 - Text editor
 
-### Recommended Deployment: GitHub Pages
-Free, fast, and integrated with your repository.
+### Architecture Overview
+- **Frontend**: Static HTML/CSS/JS hosted on GitHub Pages
+- **Database**: Firebase Realtime Database for all data
+- **API**: External MaiMai API for player stats
+- **Automation**: GitHub Actions for daily updates
+
+### Recommended Deployment: GitHub Pages + Firebase
+Free, scalable, and real-time data synchronization.
 
 ---
 
@@ -39,12 +46,12 @@ Free, fast, and integrated with your repository.
    git push origin main
    ```
 
-2. **Verify data.json is up-to-date**
+2. **Verify Firebase connectivity**
    ```bash
-   python generate_data.py
-   git add data.json
-   git commit -m "Update data.json"
-   git push origin main
+   # Test locally first
+   python -m http.server 8080
+   # Visit http://localhost:8080
+   # Check browser console for Firebase connection errors
    ```
 
 ### Step 2: Enable GitHub Pages
@@ -66,12 +73,59 @@ Free, fast, and integrated with your repository.
 
 Visit your site and check:
 - [ ] Homepage loads correctly
-- [ ] Player profiles display
-- [ ] Guild pages work
-- [ ] Articles load
-- [ ] Queue system connects to Firebase
+- [ ] Firebase connection works (check browser console)
+- [ ] Player profiles load dynamically
+- [ ] Guild pages display correctly
+- [ ] Articles render properly
+- [ ] Queue system real-time updates work
 - [ ] Search functions work
-- [ ] Mobile responsive
+- [ ] Mobile responsive design
+- [ ] All Firebase modules load without errors
+
+---
+
+## 🔥 Firebase Configuration
+
+### Database Setup
+
+1. **Create Firebase Project**
+   - Go to [Firebase Console](https://console.firebase.google.com/)
+   - Create new project
+   - Enable Realtime Database
+
+2. **Configure Database Rules**
+   ```json
+   {
+     "rules": {
+       ".read": true,
+       ".write": true,
+       "players": {
+         ".indexOn": ["ign", "guild", "rating"]
+       },
+       "guilds": {
+         ".indexOn": ["name"]
+       },
+       "articles": {
+         ".indexOn": ["date", "author"]
+       }
+     }
+   }
+   ```
+
+3. **Update Firebase Config**
+   - Copy your config from Firebase Console
+   - Update `config/firebase-config.js` with your credentials
+
+4. **Populate Initial Data**
+   ```javascript
+   // Use Firebase Console to import initial data
+   // Or use the create-profile.html form to add players
+   ```
+
+### Security Considerations
+- **Database Rules**: Restrict write access for production
+- **API Keys**: Firebase config can be public for web apps
+- **Admin Access**: Ensure queue admin panel is properly protected
 
 ---
 
@@ -79,7 +133,7 @@ Visit your site and check:
 
 ### Option 1: Netlify
 
-**Pros:** Easy setup, automatic deployments, custom domains, SSL
+**Pros:** Easy setup, automatic deployments, custom domains, SSL, great for static sites
 
 1. **Sign up at** [netlify.com](https://www.netlify.com)
 2. Click **"New site from Git"**
@@ -89,14 +143,11 @@ Visit your site and check:
    - Publish directory: `/`
 5. Click **Deploy site**
 
-**Custom Domain:**
-- Go to **Domain settings**
-- Click **Add custom domain**
-- Follow DNS configuration instructions
+**Firebase Compatibility:** ✅ Works perfectly with Firebase client-side
 
 ### Option 2: Vercel
 
-**Pros:** Excellent performance, automatic deployments, free SSL
+**Pros:** Excellent performance, automatic deployments, free SSL, edge functions
 
 1. **Sign up at** [vercel.com](https://vercel.com)
 2. Click **"Import Project"**
@@ -107,9 +158,11 @@ Visit your site and check:
    - Output Directory: (leave empty)
 5. Click **Deploy**
 
+**Firebase Compatibility:** ✅ Full Firebase support
+
 ### Option 3: Firebase Hosting
 
-**Pros:** Integrated with Firebase backend, fast CDN
+**Pros:** Integrated with Firebase backend, fast CDN, perfect integration
 
 ```bash
 # Install Firebase CLI
@@ -124,27 +177,45 @@ firebase init hosting
 
 # Configure:
 # - Public directory: .
-# - Single-page app: No
+# - Single-page app: No  
 # - Overwrites: No
 
 # Deploy
 firebase deploy --only hosting
 ```
 
-### Option 4: Custom Server
-
-**Requirements:** Server with web server software (Apache, Nginx)
-
-1. **Upload files via FTP/SFTP**
-2. **Configure web server** to serve static files
-3. **Ensure proper MIME types** for .html, .css, .js, .json
-4. **Set up SSL certificate** (Let's Encrypt recommended)
+**Benefits:** Best integration with Firebase database, automatic SSL, global CDN
 
 ---
 
 ## ✅ Production Checklist
 
 ### Before Deployment
+
+**Firebase Setup:**
+- [ ] Firebase project created and configured
+- [ ] Database rules properly set
+- [ ] Initial data populated (players, guilds, articles)
+- [ ] Queue system tested
+- [ ] Config file updated with production credentials
+
+**Code Quality:**
+- [ ] All JavaScript modules use proper ES6 imports
+- [ ] No console.log statements in production code
+- [ ] Error handling implemented for Firebase operations
+- [ ] Loading states implemented for data fetching
+
+**Content Verification:**
+- [ ] All player profiles load correctly
+- [ ] Guild information displays properly
+- [ ] Articles render with proper formatting
+- [ ] Dynamic URLs work (player-profile.html?id=, etc.)
+
+**Performance & Security:**
+- [ ] Firebase indexes configured for queries
+- [ ] Admin panel password protection works
+- [ ] No hardcoded sensitive information
+- [ ] Image assets optimized
 
 - [ ] All HTML files validated
 - [ ] CSS works across browsers

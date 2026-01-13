@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Queue Admin Panel - BAMACO</title>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  
+
       <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/tailwind-config.js"></script>
     <script>tailwind.config = window.BAMACO_TAILWIND_CONFIG;</script>
-  
+
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body class="bg-bg-primary text-text-primary font-sans antialiased">
@@ -27,9 +27,9 @@
       <p class="text-text-muted text-center mb-6">Enter password to access queue management</p>
       <form id="loginForm">
         <div class="mb-6">
-          <input 
-            type="password" 
-            id="adminPassword" 
+          <input
+            type="password"
+            id="adminPassword"
             placeholder="Admin Password"
             class="w-full px-4 py-3 bg-bg-secondary border border-border-primary rounded-lg text-text-primary text-base focus:outline-none focus:border-text-secondary transition-all duration-300"
             required
@@ -69,15 +69,15 @@
       <div class="bg-bg-card border border-border-primary rounded-xl p-6 sm:p-8 mb-6">
         <h2 class="text-xl sm:text-2xl font-bold mb-6">Credits Management</h2>
         <div class="flex flex-col sm:flex-row gap-3 mb-6">
-          <input 
-            type="text" 
-            id="creditPlayerName" 
+          <input
+            type="text"
+            id="creditPlayerName"
             placeholder="Player name"
             class="flex-1 px-4 py-3 bg-bg-secondary border border-border-primary rounded-lg text-text-primary focus:outline-none focus:border-text-secondary transition-all duration-300"
           >
-          <input 
-            type="number" 
-            id="creditAmount" 
+          <input
+            type="number"
+            id="creditAmount"
             placeholder="Credits"
             min="0"
             value="1"
@@ -86,7 +86,7 @@
           <button onclick="addCredits()" class="px-6 py-3 bg-yellow-200 text-yellow-800 font-semibold rounded-lg hover-btn-primary transition-all duration-300">Add Credits</button>
           <button onclick="removeCredits()" class="px-6 py-3 bg-bg-secondary border border-border-primary font-semibold rounded-lg hover-btn-secondary">Remove Credits</button>
         </div>
-        
+
         <h3 class="text-lg font-bold mb-3">Current Credits</h3>
         <div id="creditsDisplay" class="grid gap-2 max-h-48 overflow-y-auto">
           <p class="text-text-muted text-center py-6">
@@ -108,9 +108,9 @@
 
       <!-- Add Player -->
       <div class="flex flex-col sm:flex-row gap-3 mb-6">
-        <input 
-          type="text" 
-          id="newPlayerName" 
+        <input
+          type="text"
+          id="newPlayerName"
           placeholder="Enter player name"
           class="flex-1 px-4 py-3 bg-bg-secondary border border-border-primary rounded-lg text-text-primary focus:outline-none focus:border-text-secondary transition-all duration-300"
         >
@@ -153,7 +153,7 @@
 
   <script src="assets/page-transitions.js"></script>
   <script src="assets/navbar.js"></script>
-  
+
   <script>
     // Move the main login logic outside of the module to prevent Firebase import blocking the login
     const ADMIN_PASSWORD = 'Nachi';
@@ -168,10 +168,10 @@
       document.getElementById('loginForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const password = document.getElementById('adminPassword').value;
-        
+
         console.log('Password entered:', password); // Debug log
         console.log('Expected password:', ADMIN_PASSWORD); // Debug log
-        
+
         if (password === ADMIN_PASSWORD) {
           localStorage.setItem('bamaco_admin_auth', 'true');
           console.log('Login successful!'); // Debug log
@@ -200,14 +200,14 @@
     window.loadQueueRequests = function() {
       const requests = JSON.parse(localStorage.getItem('bamaco_queue_requests') || '[]');
       const pendingRequests = requests.filter(r => r.status === 'pending');
-      
+
       const container = document.getElementById('queueRequestsDisplay');
       const badge = document.getElementById('requestsBadge');
-      
+
       if (pendingRequests.length > 0) {
         badge.textContent = pendingRequests.length;
         badge.classList.remove('hidden');
-        
+
         container.innerHTML = pendingRequests.map(req => `
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-bg-secondary border border-border-primary rounded-lg">
             <div class="flex items-center gap-3">
@@ -247,18 +247,18 @@
         requests[index].status = 'approved';
         localStorage.setItem('bamaco_queue_requests', JSON.stringify(requests));
       }
-      
+
       // Remove from admin notifications
       const notifications = JSON.parse(localStorage.getItem('bamaco_admin_notifications') || '[]');
       const filtered = notifications.filter(n => n.requestId !== requestId);
       localStorage.setItem('bamaco_admin_notifications', JSON.stringify(filtered));
-      
+
       // Add player to actual queue
       document.getElementById('newPlayerName').value = playerName;
       if (typeof window.addPlayer === 'function') {
         window.addPlayer();
       }
-      
+
       loadQueueRequests();
       alert(`✅ ${playerName} has been added to the queue!`);
     };
@@ -271,25 +271,26 @@
         requests[index].status = 'denied';
         localStorage.setItem('bamaco_queue_requests', JSON.stringify(requests));
       }
-      
+
       // Remove from admin notifications
       const notifications = JSON.parse(localStorage.getItem('bamaco_admin_notifications') || '[]');
       const filtered = notifications.filter(n => n.requestId !== requestId);
       localStorage.setItem('bamaco_admin_notifications', JSON.stringify(filtered));
-      
+
       loadQueueRequests();
     };
 
     function formatFriendCode(code) {
       if (!code) return '---';
-      return code.match(/.{1,3}/g)?.join('-') || code;
+      const digits = String(code).replace(/\D/g, '');
+      return digits.substring(0, 15);
     }
 
     function timeAgo(dateString) {
       if (!dateString) return 'Unknown';
       const date = new Date(dateString);
       const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-      
+
       if (seconds < 60) return 'Just now';
       if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
       if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
@@ -310,7 +311,7 @@
     console.log('Firebase modules imported successfully');
     console.log('Database:', database);
     console.log('Queue ref:', queueRef);
-    
+
     // Test if we can read from Firebase
     try {
       const testRef = ref(database, 'test');
@@ -323,7 +324,7 @@
     } catch (error) {
       console.error('Firebase initialization error:', error);
     }
-    
+
     let queue = [];
     let currentlyPlaying = [];
     let playerCredits = {};
@@ -337,7 +338,7 @@
     document.getElementById('loginForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const password = document.getElementById('adminPassword').value;
-      
+
       if (password === ADMIN_PASSWORD) {
         localStorage.setItem('bamaco_admin_auth', 'true');
         showAdminPanel();
@@ -389,7 +390,7 @@
     function renderQueue() {
       const display = document.getElementById('queueDisplay');
       const count = document.getElementById('queueCount');
-      
+
       count.textContent = queue.length;
 
       if (queue.length === 0) {
@@ -425,7 +426,7 @@
 
     function renderCurrentlyPlaying() {
       const display = document.getElementById('currentlyPlaying');
-      
+
       if (currentlyPlaying.length === 0) {
         display.innerHTML = '<span>No one playing</span>';
       } else {
@@ -435,7 +436,7 @@
 
     function renderCredits() {
       const display = document.getElementById('creditsDisplay');
-      
+
       if (Object.keys(playerCredits).length === 0) {
         display.innerHTML = '<p class="text-text-muted text-center py-6">No credits assigned</p>';
         return;
@@ -456,17 +457,17 @@
     window.addPlayer = async function() {
       const input = document.getElementById('newPlayerName');
       const name = input.value.trim();
-      
+
       if (!name) return;
 
       // Check if player already in queue
       const existingPlayer = queue.find(p => p.name.toLowerCase() === name.toLowerCase());
-      
+
       if (existingPlayer) {
         // Player already in queue - add 1 credit instead
         const currentCredits = playerCredits[name] || 0;
         await set(ref(database, `playerCredits/${name}`), currentCredits + 1);
-        
+
         // Show feedback
         input.value = '';
         input.placeholder = `+1 Credit added to ${name}`;
@@ -496,12 +497,12 @@
       const amountInput = document.getElementById('creditAmount');
       const name = nameInput.value.trim();
       const amount = parseInt(amountInput.value) || 1;
-      
+
       if (!name) return;
 
       const currentCredits = playerCredits[name] || 0;
       await set(ref(database, `playerCredits/${name}`), currentCredits + amount);
-      
+
       nameInput.value = '';
       amountInput.value = '1';
     };
@@ -511,18 +512,18 @@
       const amountInput = document.getElementById('creditAmount');
       const name = nameInput.value.trim();
       const amount = parseInt(amountInput.value) || 1;
-      
+
       if (!name) return;
 
       const currentCredits = playerCredits[name] || 0;
       const newCredits = Math.max(0, currentCredits - amount);
-      
+
       if (newCredits === 0) {
         await remove(ref(database, `playerCredits/${name}`));
       } else {
         await set(ref(database, `playerCredits/${name}`), newCredits);
       }
-      
+
       nameInput.value = '';
       amountInput.value = '1';
     };
@@ -551,7 +552,7 @@
     // Delete top pair
     window.deleteTopPair = async function() {
       if (queue.length === 0) return;
-      
+
       if (confirm('Delete top 2 players from queue?')) {
         const toDelete = queue.slice(0, 2);
         for (const player of toDelete) {
@@ -601,7 +602,7 @@
       }
 
       const pair = queue.slice(0, 2);
-      
+
       // If there are currently playing players, finish their game first
       if (currentlyPlaying.length > 0) {
         await finishCurrentGame();
@@ -615,7 +616,7 @@
         // Reduce 1 credit (moving from queue to playing)
         const currentCredits = playerCredits[player.name] || 0;
         const newCredits = Math.max(0, currentCredits - 1);
-        
+
         if (newCredits === 0) {
           await remove(ref(database, `playerCredits/${player.name}`));
         } else {
@@ -628,7 +629,7 @@
       }
     };
 
-    // Next solo playing with credit logic  
+    // Next solo playing with credit logic
     window.nextSoloPlaying = async function() {
       if (queue.length < 1) {
         alert('No players in queue');
@@ -636,7 +637,7 @@
       }
 
       const soloPlayer = queue[0];
-      
+
       // If there are currently playing players, finish their game first
       if (currentlyPlaying.length > 0) {
         await finishCurrentGame();
@@ -648,7 +649,7 @@
       // Process credits for the player
       const currentCredits = playerCredits[soloPlayer.name] || 0;
       const newCredits = Math.max(0, currentCredits - 1);
-      
+
       if (newCredits === 0) {
         await remove(ref(database, `playerCredits/${soloPlayer.name}`));
       } else {
@@ -673,7 +674,7 @@
       // Auto-requeue players with remaining credits
       for (const player of currentlyPlaying) {
         const remainingCredits = playerCredits[player.name] || 0;
-        
+
         if (remainingCredits > 0) {
           // Add back to end of queue
           await push(queueRef, {

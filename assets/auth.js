@@ -32,17 +32,23 @@ import { playersDB } from './players-db.js';
 
 // Firebase configuration (using existing config)
 const firebaseConfig = {
-  apiKey: "AIzaSyBxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  apiKey: "AIzaSyCQ5eunqdZcHJx1Leaw7IYZdH3PkPjbctg",
   authDomain: "bamaco-queue.firebaseapp.com",
   databaseURL: "https://bamaco-queue-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "bamaco-queue",
-  storageBucket: "bamaco-queue.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef123456"
+  storageBucket: "bamaco-queue.firebasestorage.app",
+  messagingSenderId: "683913605188",
+  appId: "1:683913605188:web:2842c6031ea68dc5da8c11"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase (handle already initialized case)
+let app;
+try {
+  app = initializeApp(firebaseConfig);
+} catch (e) {
+  // Already initialized, use named app
+  app = initializeApp(firebaseConfig, 'bamaco-auth');
+}
 const auth = getAuth(app);
 const database = getDatabase(app);
 

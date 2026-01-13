@@ -42,7 +42,7 @@ BAMACO Website is a comprehensive web platform designed to:
 - **Community Content** - Player-written tips, guides, and strategies
 - **Author Linking** - Articles automatically link to author profiles
 - **Categories** - Organized by type (Guide, Techniques, Tips, etc.)
-- **Dynamic Loading** - Content pulled from data.json
+- **Dynamic Loading** - Content pulled from Firestore (articles collection)
 
 ### ⏱️ Queue System (Firebase)
 - **Real-Time Queue** - Live player queue for arcade sessions
@@ -69,40 +69,30 @@ BAMACO-Website/
 ├── queue-history.html              # Game history viewer
 ├── create-profile.html             # Profile creation form
 ├── edit-profile.html               # Profile editing form
+├── guild-profile.html              # Dynamic guild profile viewer
+├── article.html                    # Dynamic article viewer
+├── player-profile.html             # Dynamic player profile viewer
 ├── styles.css                      # Main stylesheet
 ├── enhanced-styles.css             # Enhanced UI/UX styles
-├── script.js                       # Core JavaScript
+├── script.js                       # Core JavaScript (Firebase integration)
 ├── navbar.js                       # Navigation component
-├── firebase-config.js              # Firebase configuration
-├── data.json                       # Site data (players, guilds, articles)
-├── generate_data.py                # Data generator script
-├── content_editor.py               # Content management tool
 │
-├── players/                        # Individual player HTML files
-│   ├── playerprofiletemplate.html
-│   ├── bmcmarx_godarx.html
-│   ├── hayate.html
-│   └── ... (more player files)
+├── assets/                         # Core JavaScript modules
+│   ├── players-db.js               # Player database operations
+│   ├── guilds-db.js                # Guild database operations
+│   └── articles-db.js              # Article database operations
 │
-├── guilds/                         # Individual guild HTML files
-│   ├── guildtemplate.html
-│   ├── godarx.html
-│   └── ... (more guild files)
+├── config/                         # Configuration files
+│   └── firebase-config.js          # Firebase database configuration
 │
-├── articles/                       # Individual article HTML files
-│   ├── articletemplate.html
-│   ├── A001.html
-│   └── ... (more article files)
-│
-├── scripts/                        # Python automation scripts
-│   └── process_profile_request.py # GitHub Issues processor
+├── scripts/                        # Utility scripts
+│   ├── daily_update_firebase.py    # Daily stats update via Firebase
+│   └── maimai_api.py               # MaiMai API integration
 │
 ├── .github/                        # GitHub automation
 │   ├── workflows/
-│   │   └── process-profile.yml    # Profile automation workflow
-│   └── ISSUE_TEMPLATE/
-│       ├── player-profile-request.yml
-│       └── player-profile-update.yml
+│   │   └── daily-update.yml       # Daily stats update workflow
+│   └── copilot-instructions.md    # AI coding assistant guide
 │
 ├── LICENSE                         # Project license
 └── README.md                       # This file
@@ -112,52 +102,43 @@ BAMACO-Website/
 
 ## 🚀 How Everything Works
 
-### 1. **Static Website Core**
-The site is built with vanilla HTML, CSS, and JavaScript - no frameworks required. The main data source is `data.json`, which contains all players, guilds, and articles. JavaScript dynamically loads and renders this data across all pages.
+### 1. **Firebase Data Layer**
+- **Firestore (canonical)**: `players`, `guilds`, `articles`, `achievements` collections
+- **Realtime Database (queue-only)**: `queue`, `currentlyPlaying`, `gameHistory`, `playerCredits`
 
-### 2. **Data Generation System**
-`generate_data.py` scans the `players/`, `guilds/`, and `articles/` directories, extracts data from HTML files, and generates `data.json`. This ensures the homepage and listing pages always show current content.
+### 2. **Dynamic Content System**
+- **Player Profiles**: `player-profile.html?id={friendCode}` loads from Firestore
+- **Guild Profiles**: `guild-profile.html?id={guildId}` loads from Firestore
+- **Articles**: `article.html?id={articleId}` loads from Firestore
 
-**How it works:**
-- Reads JavaScript object literals from HTML files (e.g., `const PLAYER_INFO = {...}`)
-- Parses player stats, guild memberships, achievements, and articles
-- Automatically selects top 3 rated players as "featured"
-- Sorts articles by date to show latest content
-- Outputs formatted JSON with all site data
+### 3. **Firebase Modules**
+```javascript
+// Example: Loading player data
+import { playersDB } from './assets/players-db.js';
 
-**Run it:**
+// Get single player
+const player = await playersDB.getPlayer(friendCode);
+
+// Real-time subscription
+playersDB.subscribeToPlayers((players) => {
+  renderPlayerList(players);
+});
+```
+The site is built with vanilla HTML, CSS, and JavaScript - no frameworks required. The main data source is Firestore; JavaScript dynamically loads and renders this data across all pages.
+
+### 4. **Content Management**
+
+**Adding New Content:**
+- **Players**: Use `create-profile.html` form or add directly to Firestore `players/{friendCode}`
+- **Guilds**: Add to Firestore `guilds/{guildId}` with proper structure
+- **Articles**: Add to Firestore `articles/{articleId}` with HTML content support
+
+**Daily Updates:**
 ```bash
-python generate_data.py
+python scripts/daily_update_firebase.py
 ```
 
-### 3. **Automated Profile System (GitHub Integration)**
-
-The website includes a sophisticated automated profile creation system using GitHub Issues and Actions.
-
-**User Flow:**
-1. User visits `create-profile.html` and fills out their info
-2. System generates a unique edit key and device fingerprint
-3. User clicks "Create GitHub Issue" which opens a pre-filled issue template
-4. Upon issue submission, GitHub Actions automatically triggers
-5. `process_profile_request.py` parses the issue body
-6. Script generates HTML file in `players/` directory
-7. Changes are committed and pushed
-8. Issue is closed with confirmation comment
-9. User can update their profile later using the same edit key
-
-**Why GitHub Issues?**
-- No backend server required
-- Built-in authentication and security
-- Free automation with GitHub Actions
-- Issue tracking provides audit trail
-- Easy moderation by repository maintainers
-
-**Scripts involved:**
-- `scripts/process_profile_request.py` - Main processor
-- `.github/workflows/process-profile.yml` - GitHub Actions workflow
-- `.github/ISSUE_TEMPLATE/` - Issue form templates
-
-### 4. **MaiMai API Integration** 🆕
+### 5. **MaiMai API Integration** 🆕
 
 Automated player data fetching from official MaiMai servers using the MaiMai DX Player Data API.
 
@@ -184,7 +165,7 @@ Automated player data fetching from official MaiMai servers using the MaiMai DX 
 **Automated Updates:**
 - **Schedule**: Daily at 10:00 AM Philippine Time (2:00 AM UTC)
 - **Updates**: IGN, Rating, Trophy, Avatar Icon
-- **Script**: `scripts/daily_update.py`
+- **Script**: `scripts/daily_update_firebase.py`
 - **Workflow**: `.github/workflows/daily-update.yml`
 - **Success Rate**: 6/9 players (67%)
 
@@ -194,7 +175,7 @@ Automated player data fetching from official MaiMai servers using the MaiMai DX 
 python scripts/maimai_api.py
 
 # Run daily update manually
-python scripts/daily_update.py
+python scripts/daily_update_firebase.py
 
 # Check API health
 python test_api_health.py
@@ -202,9 +183,9 @@ python test_api_health.py
 
 **Note**: API requires active backend session. If player data endpoints return 500 errors, the API maintainer needs to renew authentication. See [API_STATUS.md](API_STATUS.md) for current status.
 
-### 5. **Queue System (Firebase)**
+### 6. **Queue System (Firebase)**
 
-Real-time queue management for arcade gaming sessions powered by Firebase Realtime Database.
+Real-time queue management for arcade gaming sessions powered by Firebase Realtime Database (queue-only).
 
 **Features:**
 - **Add to Queue**: Players join with name and optional credits
@@ -245,25 +226,26 @@ bamaco-queue/
 - Edit the `GUILD_INFO` JavaScript object
 - Link members by setting their `guildId`
 
-**For Articles:**
-- Use templates in `articles/articletemplate.html`
-- Edit the `ARTICLE_INFO` JavaScript object
-- Articles auto-link to author profiles by IGN
-
-**After editing any HTML file, regenerate data:**
-```bash
-python generate_data.py
-```
-
 ---
 
 ## 🛠️ Setup & Development
 
 ### Prerequisites
 - **Web Browser** (Chrome, Firefox, Edge, Safari)
-- **Python 3.7+** (for data generation scripts)
+- **Python 3.7+** (for API integration scripts)
 - **Text Editor** (VS Code recommended)
 - **Git** (for version control)
+- **Firebase Project** (for database operations)
+- **Node.js + npm** (only if you want to run Prettier formatting locally)
+
+### Formatting & Linting
+- Code style: `.editorconfig` and `.prettierrc.json` (2-space indent, 100-char width, semicolons)
+- Run Prettier (requires Node):
+  ```bash
+  npm install --save-dev prettier
+  npx prettier --write "**/*.{js,css,html,md,json}"
+  ```
+- If Node/npm is unavailable, skip running the formatter; configs remain for future use.
 
 ### Local Development
 
@@ -273,57 +255,37 @@ python generate_data.py
    cd BAMACO-Website
    ```
 
-2. **Open in browser**
-   - Simply open `index.html` in your browser
-   - Or use a local server for better development experience:
-   
+2. **Start local server**
    **Python:**
    ```bash
-   python -m http.server 8000
+   python -m http.server 8080
    ```
-   
+
    **Node.js:**
    ```bash
-   npx http-server
+   npx http-server -p 8080
    ```
-   
+
+3. **Access the site**
+   - Open `http://localhost:8080` in your browser
+   - Firebase modules work automatically with configured database
+
+### Firebase Setup
+The project uses Firebase Realtime Database with the configuration in [config/firebase-config.js](config/firebase-config.js). The database is already set up and populated with:
+   ```
+
    **VS Code:**
-   - Install "Live Server" extension
-   - Right-click `index.html` → "Open with Live Server"
+- **6 Players** with profiles, ratings, and social links
+- **1 Guild** (GODARX) with member relationships
+- **2 Articles** with formatted content and metadata
 
-3. **Make changes**
-   - Edit HTML/CSS/JS files as needed
-   - Add/modify player, guild, or article files
-   - Update `firebase-config.js` if using your own Firebase project
+### Development Workflow
 
-4. **Regenerate data**
-   ```bash
-   python generate_data.py
-   ```
-
-5. **Test thoroughly**
-   - Check all pages load correctly
-   - Verify responsive design on mobile
-   - Test search and filter functions
-   - Ensure Firebase queue system works
-
-### Firebase Setup (Optional)
-
-If you want to use your own Firebase project:
-
-1. Create a Firebase project at [firebase.google.com](https://firebase.google.com)
-2. Enable Realtime Database
-3. Set database rules to allow read/write:
-   ```json
-   {
-     "rules": {
-       ".read": true,
-       ".write": true
-     }
-   }
-   ```
-4. Copy your config from Firebase Console
-5. Update `firebase-config.js` with your credentials
+1. **Make changes to HTML/CSS/JS files**
+2. **Test locally** at `http://localhost:8080`
+3. **For player data**: Use create/edit profile forms or Firebase console
+4. **For guilds/articles**: Add directly to Firebase database
+5. **Daily updates**: Automated via GitHub Actions using `daily_update_firebase.py`
 
 ---
 
@@ -373,40 +335,40 @@ If you want to use your own Firebase project:
 
 ### Manual Testing Checklist
 - [ ] Homepage loads with correct stats
-- [ ] Player cards display IGNs correctly
+- [ ] Player profiles load from Firebase
 - [ ] Search/filter functions work
 - [ ] Guild pages show correct members
-- [ ] Articles link to author profiles
-- [ ] Queue system adds/removes players
+- [ ] Articles display with proper formatting
+- [ ] Queue system real-time updates work
 - [ ] Admin panel requires password
 - [ ] Mobile responsive design works
 - [ ] All navigation links function
-- [ ] Firebase real-time updates work
+- [ ] Firebase database connectivity works
 
-### Python Scripts
+### API Testing
 ```bash
-# Test data generation
-python generate_data.py
+# Test MaiMai API integration
+python scripts/maimai_api.py
 
-# Test profile processor (requires issue data)
-python scripts/process_profile_request.py
+# Test daily Firebase updates
+python scripts/daily_update_firebase.py
 ```
 
 ---
 
 ## 🐛 Known Issues & Fixes
 
-### Issue: Data not updating
-**Fix:** Run `python generate_data.py` after editing HTML files
+### Issue: Player data not loading
+**Fix:** Check Firebase database connectivity and verify data exists at `/players/{friendCode}`
 
 ### Issue: Queue not working
-**Fix:** Check Firebase credentials in `firebase-config.js`
+**Fix:** Verify Firebase configuration in [config/firebase-config.js](config/firebase-config.js)
+
+### Issue: MaiMai API returns 500 errors
+**Fix:** Backend session expired - contact API maintainer for renewal
 
 ### Issue: Profile creation fails
-**Fix:** Ensure GitHub Actions has write permissions in repo settings
-
-### Issue: Search returns no results
-**Fix:** Check that `data.json` is loaded and contains data
+**Fix:** Check Firebase write permissions and form validation
 
 ---
 
@@ -414,9 +376,9 @@ python scripts/process_profile_request.py
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/YourFeature`)
-3. Make your changes
-4. Run `python generate_data.py` to update data
-5. Test thoroughly
+3. Make your changes (Firebase integration supported)
+4. Test locally with `python -m http.server 8080`
+5. Ensure Firebase data flows correctly
 6. Commit with clear messages (`git commit -m 'Add: New feature'`)
 7. Push to your fork (`git push origin feature/YourFeature`)
 8. Open a Pull Request
@@ -431,8 +393,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Credits
 
-**Developer:** TriD (Red)  
-**Community:** Bataan MaiMai Community (BAMACO)  
+**Developer:** TriD (Red)
+**Community:** Bataan MaiMai Community (BAMACO)
 **Contributors:** All BAMACO members who submitted profiles and articles
 
 ---
@@ -458,7 +420,7 @@ MaiMai is a popular arcade rhythm game where players tap, hold, and slide on a c
 
 ## ➕ Adding New Content
 
-**IMPORTANT:** This website uses an **automated data generation system**. 
+**IMPORTANT:** This website uses an **automated data generation system**.
 - Content is managed through HTML files, not by manually editing `data.json`
 - Run `python generate_data.py` after adding or modifying any content
 - See [DATA_MANAGEMENT.md](DATA_MANAGEMENT.md) for detailed instructions
@@ -507,7 +469,7 @@ Add a new object to the `"players"` array in `data.json`:
   "id": "unique-player-id",
   "name": "Player Display Name",
   "ign": "In-Game Name",
-  "maimaiFriendCode": "0000-0000-0000",
+  "maimaiFriendCode": "000000000000000",
   "nickname": "Preferred Nickname",
   "motto": "Player's personal motto or catchphrase",
   "age": 25,
@@ -538,7 +500,7 @@ Add a new object to the `"players"` array in `data.json`:
 - `id`: Unique identifier (use lowercase, hyphens, no spaces)
 - `name`: Player's display name
 - `ign`: In-Game Name (can be same as name)
-- `maimaiFriendCode`: MaiMai friend code in format "0000-0000-0000"
+- `maimaiFriendCode`: MaiMai friend code, 15 continuous digits (no dashes/spaces)
 - `nickname`: Preferred nickname or shortened name
 - `motto`: Personal motto, catchphrase, or quote
 - `age`: Player's age (number)

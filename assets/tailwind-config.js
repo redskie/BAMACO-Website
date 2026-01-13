@@ -46,6 +46,11 @@ window.BAMACO_TAILWIND_CONFIG = {
         // Border Colors
         'border-primary': '#ffadd2',  // Pastel pink border
         'border-glow': '#ff6b9d',     // Pink glow
+        
+        // Admin Badge Colors
+        'admin-owner': '#ffd700',     // Gold for Owner
+        'admin-admin': '#ff6b9d',     // Pink for Admin
+        'admin-mod': '#60a5fa',       // Blue for Moderator
       },
       
       /**
@@ -477,6 +482,49 @@ if (typeof document !== 'undefined') {
       
       .maimai-popup-character.char2 {
         background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjYTg1NWY3IiByeD0iMTAiLz4KPHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgeD0iMTAiIHk9IjEwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+CjxnIGZpbGw9IiNmZmZmZmYiPgo8Y2lyY2xlIGN4PSI1NSIgY3k9IjY1IiByPSI2Ii8+CjxjaXJjbGUgY3g9IjEyNSIgY3k9IjY1IiByPSI2Ii8+CjxwYXRoIGQ9Im01NSA5NXEzNSAyNSA3MCAwaS0zNSAxNS03MCAweiIvPgo8L2c+Cjwvc3ZnPgo8L3N2Zz4=');
+      }
+      
+      /* Admin Badge Styles */
+      .admin-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: bold;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        z-index: 10;
+      }
+      
+      .admin-badge-owner {
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        border: 1px solid #ffc107;
+      }
+      
+      .admin-badge-admin {
+        background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+        border: 1px solid #ff6b9d;
+      }
+      
+      .admin-badge-mod {
+        background: linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%);
+        border: 1px solid #60a5fa;
+      }
+      
+      .admin-badge-icon {
+        font-size: 12px;
+        line-height: 1;
+      }
+      
+      .admin-badge-label {
+        font-size: 9px;
+        letter-spacing: 0.5px;
       }
     `;
     document.head.appendChild(style);

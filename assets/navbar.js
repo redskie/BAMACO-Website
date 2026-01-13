@@ -23,7 +23,17 @@ const NAVBAR_CONFIG = {
 function generateNavbar() {
   const currentPath = getCurrentPagePath();
   
-  const navLinks = NAVBAR_CONFIG.links.map(link => {
+  // Check if user is admin
+  const session = JSON.parse(localStorage.getItem('bamaco_session') || 'null');
+  const isAdmin = session && session.user && session.user.isAdmin;
+  
+  // Create links array with conditional admin link
+  const linksToShow = [...NAVBAR_CONFIG.links];
+  if (isAdmin) {
+    linksToShow.push({ href: 'admin-content-manager.html', text: '👑 Admin', id: 'admin' });
+  }
+  
+  const navLinks = linksToShow.map(link => {
     const isActive = isActiveLink(link.href, currentPath);
     const activeClasses = isActive 
       ? 'text-text-primary bg-green-200 bg-opacity-20 shadow-sm' 
@@ -33,7 +43,7 @@ function generateNavbar() {
   }).join('');
 
   // Generate mobile menu links separately for better control
-  const mobileNavLinks = NAVBAR_CONFIG.links.map(link => {
+  const mobileNavLinks = linksToShow.map(link => {
     const isActive = isActiveLink(link.href, currentPath);
     const activeClasses = isActive 
       ? 'text-text-primary bg-green-200 bg-opacity-20 shadow-sm font-medium' 
@@ -80,6 +90,7 @@ function getCurrentPagePath() {
   if (pathname.includes('/articles/')) return 'articles.html';
   if (pathname.includes('calculator')) return 'calculator.html';
   if (pathname.includes('queue')) return 'queue.html';
+  if (pathname.includes('admin-content-manager')) return 'admin-content-manager.html';
   
   return filename;
 }
@@ -97,6 +108,7 @@ function isActiveLink(linkHref, currentPath) {
   if (linkFile === 'articles.html' && pathname.includes('/articles/')) return true;
   if (linkFile === 'calculator.html' && (pathname.includes('calculator') || currentFile.includes('calculator'))) return true;
   if (linkFile === 'queue.html' && (pathname.includes('queue') || currentFile.includes('queue'))) return true;
+  if (linkFile === 'admin-content-manager.html' && pathname.includes('admin-content-manager')) return true;
   
   return linkFile === currentFile;
 }

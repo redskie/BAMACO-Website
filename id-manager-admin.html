@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID Manager - BAMACO Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="assets/tailwind-config.js"></script>
+    <style>
+        /* Apply BAMACO configuration */
+        body { opacity: 0; transition: opacity 0.3s; }
+    </style>
+    <script type="module">
+        // Apply Tailwind config when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.BAMACO_TAILWIND_CONFIG) {
+                tailwind.config = window.BAMACO_TAILWIND_CONFIG;
+                document.body.style.opacity = '1';
+            }
+        });
+    </script>
+</head>
+<body class="bg-background text-text">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-5xl font-bold mb-4 text-accent-yellow">
+                🆔 ID Manager
+            </h1>
+            <p class="text-text-secondary text-lg">
+                Manage Achievement and Article ID assignments
+            </p>
+            <div class="mt-4 p-4 bg-card rounded-lg border border-border">
+                <p class="text-sm text-text-secondary">
+                    ⚠️ <strong>Admin Tool:</strong> Each ID can only be assigned to one player
+                </p>
+            </div>
+        </div>
+
+        <!-- Authentication -->
+        <div id="auth-section" class="max-w-md mx-auto mb-8">
+            <div class="bg-card p-6 rounded-lg border border-border">
+                <h3 class="text-xl font-bold mb-4 text-center">Admin Authentication</h3>
+                <input 
+                    type="password" 
+                    id="admin-password" 
+                    placeholder="Enter admin password"
+                    class="w-full p-3 border border-border rounded-lg bg-input text-text focus:border-accent-blue focus:outline-none mb-4"
+                />
+                <button 
+                    id="auth-btn"
+                    class="w-full bg-accent-blue text-white py-3 rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                    Access ID Manager
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Interface (Hidden until authenticated) -->
+        <div id="main-interface" style="display: none;">
+            
+            <!-- Stats Dashboard -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-card p-6 rounded-lg border border-border text-center">
+                    <h3 class="text-xl font-bold text-accent-yellow mb-2">Achievements</h3>
+                    <div id="achievement-stats" class="space-y-2">
+                        <div class="text-3xl font-bold text-accent-green" id="total-achievements">-</div>
+                        <div class="text-sm text-text-secondary" id="available-achievements">- available</div>
+                    </div>
+                </div>
+                
+                <div class="bg-card p-6 rounded-lg border border-border text-center">
+                    <h3 class="text-xl font-bold text-accent-pink mb-2">Articles</h3>
+                    <div id="article-stats" class="space-y-2">
+                        <div class="text-3xl font-bold text-accent-blue" id="total-articles">-</div>
+                        <div class="text-sm text-text-secondary" id="available-articles">- available</div>
+                    </div>
+                </div>
+                
+                <div class="bg-card p-6 rounded-lg border border-border text-center">
+                    <h3 class="text-xl font-bold text-accent-purple mb-2">Players</h3>
+                    <div id="player-stats" class="space-y-2">
+                        <div class="text-3xl font-bold text-accent-orange" id="total-players">-</div>
+                        <div class="text-sm text-text-secondary">total players</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="mb-8">
+                <div class="flex border-b border-border">
+                    <button class="tab-btn active px-6 py-3 text-accent-blue border-b-2 border-accent-blue" data-tab="assign">
+                        Assign IDs
+                    </button>
+                    <button class="tab-btn px-6 py-3 text-text-secondary hover:text-accent-pink" data-tab="create">
+                        Create New
+                    </button>
+                    <button class="tab-btn px-6 py-3 text-text-secondary hover:text-accent-green" data-tab="manage">
+                        Manage Existing
+                    </button>
+                    <button class="tab-btn px-6 py-3 text-text-secondary hover:text-accent-purple" data-tab="migrate">
+                        Migration Tools
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Content: Assign IDs -->
+            <div id="tab-assign" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    
+                    <!-- Player Selection -->
+                    <div class="bg-card p-6 rounded-lg border border-border">
+                        <h3 class="text-xl font-bold mb-4 text-accent-yellow">Select Player</h3>
+                        <div class="mb-4">
+                            <select id="player-select" class="w-full p-3 border border-border rounded-lg bg-input text-text focus:border-accent-blue focus:outline-none">
+                                <option value="">Loading players...</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Player Info -->
+                        <div id="player-info" class="hidden">
+                            <div class="bg-background p-4 rounded-lg border border-border">
+                                <h4 class="font-bold text-accent-pink mb-2">Current Assignments</h4>
+                                <div class="space-y-2">
+                                    <div>
+                                        <span class="text-sm text-text-secondary">Achievements:</span>
+                                        <span id="player-achievement-count" class="font-bold text-accent-green">0</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-sm text-text-secondary">Articles:</span>
+                                        <span id="player-article-count" class="font-bold text-accent-blue">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Assignment Actions -->
+                    <div class="bg-card p-6 rounded-lg border border-border">
+                        <h3 class="text-xl font-bold mb-4 text-accent-pink">Assign Items</h3>
+                        
+                        <!-- Achievement Assignment -->
+                        <div class="mb-6">
+                            <h4 class="text-lg font-bold mb-2 text-accent-green">Achievements</h4>
+                            <select id="achievement-select" class="w-full p-3 border border-border rounded-lg bg-input text-text focus:border-accent-green focus:outline-none mb-2">
+                                <option value="">Select achievement...</option>
+                            </select>
+                            <button id="assign-achievement-btn" class="w-full bg-accent-green text-white py-2 rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50" disabled>
+                                Assign Achievement
+                            </button>
+                        </div>
+                        
+                        <!-- Article Assignment -->
+                        <div class="mb-6">
+                            <h4 class="text-lg font-bold mb-2 text-accent-blue">Articles</h4>
+                            <select id="article-select" class="w-full p-3 border border-border rounded-lg bg-input text-text focus:border-accent-blue focus:outline-none mb-2">
+                                <option value="">Select article...</option>
+                            </select>
+                            <button id="assign-article-btn" class="w-full bg-accent-blue text-white py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50" disabled>
+                                Assign Article
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Assignment Results -->
+                <div id="assignment-results" class="mt-8 hidden">
+                    <div class="bg-card p-6 rounded-lg border border-border">
+                        <h3 class="text-lg font-bold mb-4 text-accent-yellow">Assignment Results</h3>
+                        <div id="assignment-log" class="space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Create New (Hidden by default) -->
+            <div id="tab-create" class="tab-content hidden">
+                <div class="max-w-2xl mx-auto">
+                    <div class="bg-card p-6 rounded-lg border border-border">
+                        <h3 class="text-xl font-bold mb-4 text-accent-yellow">Create New Items</h3>
+                        <p class="text-text-secondary mb-4">
+                            Create new achievement or article templates. Each template can have multiple instances.
+                        </p>
+                        
+                        <!-- Type Selection -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-bold mb-2">Type</label>
+                            <select id="create-type" class="w-full p-3 border border-border rounded-lg bg-input text-text focus:border-accent-yellow focus:outline-none">
+                                <option value="achievement">Achievement</option>
+                                <option value="article">Article</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Creation Form (Dynamic based on type) -->
+                        <div id="creation-form">
+                            <!-- Form fields will be populated by JavaScript -->
+                        </div>
+                        
+                        <button id="create-btn" class="w-full bg-accent-yellow text-black py-3 rounded-lg hover:bg-yellow-500 transition-colors font-bold">
+                            Create Template
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Manage Existing (Hidden by default) -->
+            <div id="tab-manage" class="tab-content hidden">
+                <div class="space-y-6">
+                    <div class="bg-card p-6 rounded-lg border border-border">
+                        <h3 class="text-xl font-bold mb-4 text-accent-pink">Search and Manage</h3>
+                        
+                        <!-- Search -->
+                        <div class="mb-4">
+                            <input 
+                                type="text" 
+                                id="search-input" 
+                                placeholder="Search achievements and articles..."
+                                class="w-full p-3 border border-border rounded-lg bg-input text-text focus:border-accent-pink focus:outline-none"
+                            />
+                        </div>
+                        
+                        <!-- Search Results -->
+                        <div id="search-results" class="space-y-4">
+                            <p class="text-text-secondary text-center">Enter a search term to find available items</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Migration Tools (Hidden by default) -->
+            <div id="tab-migrate" class="tab-content hidden">
+                <div class="max-w-2xl mx-auto">
+                    <div class="bg-card p-6 rounded-lg border border-border">
+                        <h3 class="text-xl font-bold mb-4 text-accent-purple">Migration Tools</h3>
+                        <p class="text-text-secondary mb-6">
+                            Migrate existing players from the old system to the new ID-based system.
+                        </p>
+                        
+                        <div class="space-y-4">
+                            <button id="migrate-single-btn" class="w-full bg-accent-blue text-white py-3 rounded-lg hover:bg-blue-600 transition-colors">
+                                Migrate Selected Player
+                            </button>
+                            
+                            <button id="migrate-all-btn" class="w-full bg-accent-purple text-white py-3 rounded-lg hover:bg-purple-600 transition-colors">
+                                Migrate All Players
+                            </button>
+                        </div>
+                        
+                        <!-- Migration Results -->
+                        <div id="migration-results" class="mt-6 hidden">
+                            <div class="bg-background p-4 rounded-lg border border-border">
+                                <h4 class="font-bold mb-2">Migration Results</h4>
+                                <div id="migration-log" class="text-sm space-y-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-card p-8 rounded-lg border border-border text-center">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-blue mx-auto mb-4"></div>
+            <p class="text-text">Processing...</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script type="module">
+        import { idManager } from './assets/id-manager.js';
+        import { playersDB } from './assets/players-db.js';
+
+        class IdManagerUI {
+            constructor() {
+                this.currentPlayer = null;
+                this.isAuthenticated = false;
+                this.init();
+            }
+
+            async init() {
+                this.setupAuthentication();
+                this.setupTabs();
+                this.setupEventListeners();
+            }
+
+            setupAuthentication() {
+                const authBtn = document.getElementById('auth-btn');
+                const passwordInput = document.getElementById('admin-password');
+
+                const authenticate = () => {
+                    const password = passwordInput.value;
+                    if (password === 'admin123' || password === 'bamaco-admin') {
+                        this.isAuthenticated = true;
+                        document.getElementById('auth-section').style.display = 'none';
+                        document.getElementById('main-interface').style.display = 'block';
+                        this.loadData();
+                    } else {
+                        alert('Invalid password');
+                        passwordInput.value = '';
+                    }
+                };
+
+                authBtn.addEventListener('click', authenticate);
+                passwordInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') authenticate();
+                });
+            }
+
+            setupTabs() {
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const tabId = btn.dataset.tab;
+                        this.switchTab(tabId);
+                    });
+                });
+            }
+
+            switchTab(tabId) {
+                // Update tab buttons
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('active', 'text-accent-blue', 'border-accent-blue');
+                    btn.classList.add('text-text-secondary');
+                });
+                
+                const activeBtn = document.querySelector(`[data-tab="${tabId}"]`);
+                activeBtn.classList.add('active', 'text-accent-blue', 'border-b-2', 'border-accent-blue');
+
+                // Update tab content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+                // Load tab-specific data
+                if (tabId === 'assign' && this.isAuthenticated) {
+                    this.loadAssignmentData();
+                }
+            }
+
+            setupEventListeners() {
+                // Player selection
+                document.getElementById('player-select').addEventListener('change', (e) => {
+                    this.selectPlayer(e.target.value);
+                });
+
+                // Assignment buttons
+                document.getElementById('assign-achievement-btn').addEventListener('click', () => {
+                    this.assignAchievement();
+                });
+
+                document.getElementById('assign-article-btn').addEventListener('click', () => {
+                    this.assignArticle();
+                });
+
+                // Search
+                document.getElementById('search-input').addEventListener('input', (e) => {
+                    this.searchItems(e.target.value);
+                });
+
+                // Migration buttons
+                document.getElementById('migrate-single-btn').addEventListener('click', () => {
+                    this.migrateSinglePlayer();
+                });
+
+                document.getElementById('migrate-all-btn').addEventListener('click', () => {
+                    this.migrateAllPlayers();
+                });
+            }
+
+            async loadData() {
+                this.showLoading(true);
+                try {
+                    // Load stats
+                    const stats = await idManager.getSystemStats();
+                    this.updateStats(stats);
+
+                    // Load players
+                    await this.loadPlayers();
+
+                    // Load available items
+                    await this.loadAvailableItems();
+
+                } catch (error) {
+                    console.error('Failed to load data:', error);
+                    alert('Failed to load data. Please refresh the page.');
+                }
+                this.showLoading(false);
+            }
+
+            updateStats(stats) {
+                document.getElementById('total-achievements').textContent = stats.achievements.total || 0;
+                document.getElementById('available-achievements').textContent = `${stats.achievements.available || 0} available`;
+                
+                document.getElementById('total-articles').textContent = stats.articles.total || 0;
+                document.getElementById('available-articles').textContent = `${stats.articles.available || 0} available`;
+                
+                document.getElementById('total-players').textContent = stats.players || 0;
+            }
+
+            async loadPlayers() {
+                const players = await playersDB.getAllPlayers();
+                const select = document.getElementById('player-select');
+                
+                select.innerHTML = '<option value="">Select a player...</option>';
+                players.forEach(player => {
+                    const option = document.createElement('option');
+                    option.value = player.friendCode;
+                    option.textContent = `${player.ign} (${player.friendCode})`;
+                    select.appendChild(option);
+                });
+            }
+
+            async loadAvailableItems() {
+                // Load achievements
+                const achievements = await idManager.getAvailableAchievements();
+                const achievementSelect = document.getElementById('achievement-select');
+                achievementSelect.innerHTML = '<option value="">Select achievement...</option>';
+                
+                achievements.forEach(achievement => {
+                    const option = document.createElement('option');
+                    option.value = achievement.id;
+                    option.textContent = `${achievement.title} (${achievement.category})`;
+                    achievementSelect.appendChild(option);
+                });
+
+                // Load articles
+                const articles = await idManager.getAvailableArticles();
+                const articleSelect = document.getElementById('article-select');
+                articleSelect.innerHTML = '<option value="">Select article...</option>';
+                
+                articles.forEach(article => {
+                    const option = document.createElement('option');
+                    option.value = article.id;
+                    option.textContent = `${article.title} (${article.category})`;
+                    articleSelect.appendChild(option);
+                });
+            }
+
+            async selectPlayer(friendCode) {
+                if (!friendCode) {
+                    document.getElementById('player-info').classList.add('hidden');
+                    document.getElementById('assign-achievement-btn').disabled = true;
+                    document.getElementById('assign-article-btn').disabled = true;
+                    this.currentPlayer = null;
+                    return;
+                }
+
+                this.currentPlayer = friendCode;
+                
+                try {
+                    const achievements = await idManager.getPlayerAchievements(friendCode);
+                    const articles = await idManager.getPlayerArticles(friendCode);
+                    
+                    document.getElementById('player-achievement-count').textContent = achievements.length;
+                    document.getElementById('player-article-count').textContent = articles.length;
+                    document.getElementById('player-info').classList.remove('hidden');
+                    
+                    // Enable assignment buttons
+                    document.getElementById('assign-achievement-btn').disabled = false;
+                    document.getElementById('assign-article-btn').disabled = false;
+                    
+                } catch (error) {
+                    console.error('Failed to load player data:', error);
+                }
+            }
+
+            async assignAchievement() {
+                const achievementId = document.getElementById('achievement-select').value;
+                if (!achievementId || !this.currentPlayer) return;
+
+                this.showLoading(true);
+                try {
+                    const success = await idManager.assignAchievement(this.currentPlayer, achievementId);
+                    if (success) {
+                        this.showAssignmentResult('Achievement assigned successfully!', 'success');
+                        await this.selectPlayer(this.currentPlayer); // Refresh player data
+                        await this.loadAvailableItems(); // Refresh available items
+                        await this.loadData(); // Refresh stats
+                    } else {
+                        this.showAssignmentResult('Failed to assign achievement', 'error');
+                    }
+                } catch (error) {
+                    this.showAssignmentResult(`Error: ${error.message}`, 'error');
+                }
+                this.showLoading(false);
+            }
+
+            async assignArticle() {
+                const articleId = document.getElementById('article-select').value;
+                if (!articleId || !this.currentPlayer) return;
+
+                this.showLoading(true);
+                try {
+                    const success = await idManager.assignArticle(this.currentPlayer, articleId);
+                    if (success) {
+                        this.showAssignmentResult('Article assigned successfully!', 'success');
+                        await this.selectPlayer(this.currentPlayer); // Refresh player data
+                        await this.loadAvailableItems(); // Refresh available items
+                        await this.loadData(); // Refresh stats
+                    } else {
+                        this.showAssignmentResult('Failed to assign article', 'error');
+                    }
+                } catch (error) {
+                    this.showAssignmentResult(`Error: ${error.message}`, 'error');
+                }
+                this.showLoading(false);
+            }
+
+            showAssignmentResult(message, type) {
+                const resultsDiv = document.getElementById('assignment-results');
+                const logDiv = document.getElementById('assignment-log');
+                
+                const result = document.createElement('div');
+                result.className = `p-3 rounded-lg ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+                result.innerHTML = `
+                    <span class="text-sm">${new Date().toLocaleTimeString()}</span>: ${message}
+                `;
+                
+                logDiv.appendChild(result);
+                resultsDiv.classList.remove('hidden');
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    result.remove();
+                    if (logDiv.children.length === 0) {
+                        resultsDiv.classList.add('hidden');
+                    }
+                }, 5000);
+            }
+
+            async searchItems(searchTerm) {
+                const resultsDiv = document.getElementById('search-results');
+                
+                if (!searchTerm.trim()) {
+                    resultsDiv.innerHTML = '<p class="text-text-secondary text-center">Enter a search term to find available items</p>';
+                    return;
+                }
+
+                const results = await idManager.searchAvailableIds(searchTerm);
+                
+                resultsDiv.innerHTML = '';
+                
+                if (results.achievements.length === 0 && results.articles.length === 0) {
+                    resultsDiv.innerHTML = '<p class="text-text-secondary text-center">No items found</p>';
+                    return;
+                }
+
+                // Display achievements
+                if (results.achievements.length > 0) {
+                    const achievementsDiv = document.createElement('div');
+                    achievementsDiv.innerHTML = `
+                        <h4 class="text-lg font-bold text-accent-green mb-2">Achievements (${results.achievements.length})</h4>
+                        <div class="space-y-2">
+                            ${results.achievements.map(a => `
+                                <div class="p-3 bg-background rounded border border-border">
+                                    <div class="font-bold">${a.title}</div>
+                                    <div class="text-sm text-text-secondary">${a.description}</div>
+                                    <div class="text-xs text-accent-green mt-1">ID: ${a.id} | Category: ${a.category}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    resultsDiv.appendChild(achievementsDiv);
+                }
+
+                // Display articles
+                if (results.articles.length > 0) {
+                    const articlesDiv = document.createElement('div');
+                    articlesDiv.className = 'mt-6';
+                    articlesDiv.innerHTML = `
+                        <h4 class="text-lg font-bold text-accent-blue mb-2">Articles (${results.articles.length})</h4>
+                        <div class="space-y-2">
+                            ${results.articles.map(a => `
+                                <div class="p-3 bg-background rounded border border-border">
+                                    <div class="font-bold">${a.title}</div>
+                                    <div class="text-sm text-text-secondary">${a.excerpt}</div>
+                                    <div class="text-xs text-accent-blue mt-1">ID: ${a.id} | Category: ${a.category}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    resultsDiv.appendChild(articlesDiv);
+                }
+            }
+
+            async migrateSinglePlayer() {
+                if (!this.currentPlayer) {
+                    alert('Please select a player first');
+                    return;
+                }
+
+                this.showLoading(true);
+                try {
+                    const wasMigrated = await idManager.migratePlayer(this.currentPlayer);
+                    const message = wasMigrated ? 'Player migrated successfully!' : 'Player already using ID system';
+                    this.showMigrationResult(message);
+                } catch (error) {
+                    this.showMigrationResult(`Migration failed: ${error.message}`);
+                }
+                this.showLoading(false);
+            }
+
+            async migrateAllPlayers() {
+                if (!confirm('Are you sure you want to migrate all players? This cannot be undone.')) {
+                    return;
+                }
+
+                this.showLoading(true);
+                try {
+                    const results = await idManager.migrateAllPlayers();
+                    this.showMigrationResult(`
+                        Migration complete:
+                        - ${results.migrated} players migrated
+                        - ${results.skipped} players skipped (already using ID system)
+                        - ${results.failed.length} players failed
+                    `);
+                } catch (error) {
+                    this.showMigrationResult(`Migration failed: ${error.message}`);
+                }
+                this.showLoading(false);
+            }
+
+            showMigrationResult(message) {
+                const resultsDiv = document.getElementById('migration-results');
+                const logDiv = document.getElementById('migration-log');
+                
+                logDiv.innerHTML = `<div class="p-3 bg-accent-green bg-opacity-20 rounded">${message}</div>`;
+                resultsDiv.classList.remove('hidden');
+            }
+
+            showLoading(show) {
+                document.getElementById('loading-overlay').classList.toggle('hidden', !show);
+            }
+
+            async loadAssignmentData() {
+                await this.loadPlayers();
+                await this.loadAvailableItems();
+            }
+        }
+
+        // Initialize the UI
+        new IdManagerUI();
+
+    </script>
+</body>
+</html>

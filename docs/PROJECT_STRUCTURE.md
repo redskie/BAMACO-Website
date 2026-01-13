@@ -1,53 +1,126 @@
-# BAMACO Project Structure - Complete Organization
+# BAMACO Project Structure - Firebase Architecture
 
 ## 📊 Project Overview
 
-BAMACO (Bataan MaiMai Community) is a community website with a **centralized design system** and **organized file structure** for optimal maintainability.
+BAMACO (Bataan MaiMai Community) is a community website built with **Firebase Realtime Database**, **centralized design system**, and **dynamic content loading** for optimal performance and maintainability.
 
 ---
 
-## 📁 Complete Directory Structure
+## 🏗️ Architecture Principles
+
+### 1. **Firebase-First Data Storage**
+- All data stored in Firebase Realtime Database
+- Real-time synchronization across all clients
+- No static JSON files or manual data generation
+
+### 2. **Dynamic Content System**
+- Single HTML files serve all content (player-profile.html?id=, guild-profile.html?id=)
+- Content loaded dynamically from Firebase
+- URL-based routing without page reloads
+
+### 3. **Centralized Design System**
+- Single source of truth: `/assets/tailwind-config.js`
+- All colors, spacing, animations defined once
+- Consistent styling across all pages
+
+---
+
+## 📁 Current Directory Structure
 
 ```
 BAMACO-Website/
 │
-├── 📄 .cursorrules                    # AI Assistant Instructions (MUST READ)
 ├── 📄 .gitignore                      # Git ignore rules
 ├── 📄 README.md                       # Main project documentation
 ├── 📄 LICENSE                         # Project license
 │
-├── 📄 index.html                      # 🏠 Homepage
-├── 📄 players.html                    # Players listing page
-├── 📄 guilds.html                     # Guilds listing page
-├── 📄 articles.html                   # Articles/guides listing
-
-├── 📄 queue.html                      # Queue management
-├── 📄 queue-history.html              # Queue history
-├── 📄 queue-admin.html                # Queue admin panel
-├── 📄 create-profile.html             # Create profile form
-├── 📄 edit-profile.html               # Edit profile form
-├── 📄 player-profile.html             # Player profile template
-├── 📄 guild-profile.html              # Guild profile template
-├── 📄 article.html                    # Article template
+├── 📄 index.html                      # 🏠 Homepage (Firebase integration)
+├── 📄 players.html                    # Players listing (Firebase)
+├── 📄 guilds.html                     # Guilds listing (Firebase)
+├── 📄 articles.html                   # Articles listing (Firebase)
 │
-├── 📂 assets/                         # ✨ CORE ASSETS - Design & Functionality
-│   ├── tailwind-config.js             # 🔥 SINGLE SOURCE OF TRUTH - All design tokens
-│   ├── styles.css                     # Legacy/fallback styles (navbar CSS)
-│   ├── enhanced-styles.css            # Enhanced styling (legacy)
-│   ├── styles-tailwind.css            # Tailwind utilities (legacy)
-│   ├── script.js                      # Main JavaScript functionality
-│   ├── navbar.js                      # Centralized navigation system
-│   ├── page-transitions.js            # Page transition animations
-│   └── design-system.js               # Additional design utilities
+├── 📄 queue.html                      # Real-time queue management
+├── 📄 queue-history.html              # Queue history viewer
+├── 📄 queue-admin.html                # Admin panel (password protected)
 │
-├── 📂 config/                         # ⚙️ CONFIGURATION FILES
-│   ├── data.json                      # Player/guild/article database
-│   ├── firebase-config.js             # Firebase configuration
-│   └── tailwind.config.js             # Tailwind build config (for CLI)
+├── 📄 create-profile.html             # Profile creation form
+├── 📄 edit-profile.html               # Profile editing form
+├── 📄 player-profile.html             # Dynamic player viewer
+├── 📄 guild-profile.html              # Dynamic guild viewer
+├── 📄 article.html                    # Dynamic article viewer
+│
+├── 📄 calculator.html                 # MaiMai calculator tool
+├── 📄 offline.html                    # PWA offline page
+├── 📄 sw.js                           # Service Worker
+│
+├── 📂 assets/                         # ✨ CORE MODULES & DESIGN
+│   ├── tailwind-config.js             # 🔥 DESIGN SYSTEM - All tokens
+│   ├── script.js                      # Core functions (Firebase integration)
+│   ├── navbar.js                      # Navigation component
+│   ├── players-db.js                  # 🔥 Player Firebase CRUD
+│   ├── guilds-db.js                   # 🔥 Guild Firebase CRUD
+│   ├── articles-db.js                 # 🔥 Article Firebase CRUD
+│   └── auth.js                        # Authentication utilities
+│
+├── 📂 config/                         # ⚙️ CONFIGURATION
+│   └── firebase-config.js             # Firebase database setup
+│
+├── 📂 scripts/                        # 🐍 AUTOMATION SCRIPTS
+│   ├── daily_update_firebase.py       # Daily stats update (Firebase)
+│   └── maimai_api.py                  # MaiMai API integration
 │
 ├── 📂 docs/                           # 📚 DOCUMENTATION
-│   ├── API_INTEGRATION_GUIDE.md       # API integration guide
-│   ├── API_STATUS.md                  # API status & endpoints
+│   ├── CHANGELOG.md                   # Version history
+│   ├── CONTRIBUTING.md                # Contribution guidelines
+│   ├── DEPLOYMENT.md                  # Deployment instructions
+│   ├── PROJECT_STRUCTURE.md           # This file
+│   └── QUICK_REFERENCE.md             # Quick commands reference
+│
+└── 📂 .github/                        # 🤖 GITHUB AUTOMATION
+    ├── workflows/
+    │   └── daily-update.yml           # Daily Firebase sync
+    └── copilot-instructions.md        # AI coding guidelines
+```
+
+---
+
+## 🔥 Critical Files (Edit These)
+
+### Design System
+- **`/assets/tailwind-config.js`** - ONLY file for design changes
+- **`/assets/script.js`** - Core functions and Firebase integration
+
+### Firebase Modules
+- **`/assets/players-db.js`** - Player CRUD operations
+- **`/assets/guilds-db.js`** - Guild CRUD operations
+- **`/assets/articles-db.js`** - Article CRUD operations
+- **`/config/firebase-config.js`** - Database configuration
+
+### Dynamic Pages
+- **`player-profile.html`** - Loads any player via ?id= parameter
+- **`guild-profile.html`** - Loads any guild via ?id= parameter
+- **`article.html`** - Loads any article via ?id= parameter
+
+---
+
+## 🚫 Obsolete Patterns (Don't Use)
+
+### ❌ Files That No Longer Exist
+- `config/data.json` - Replaced by Firebase
+- `generate_data.py` - Replaced by Firebase real-time sync
+- `players/*.html` - Replaced by dynamic player-profile.html
+- `guilds/*.html` - Replaced by dynamic guild-profile.html
+- `articles/*.html` - Replaced by dynamic article.html
+
+### ❌ Deprecated Patterns
+```javascript
+// OLD: Static data loading
+fetch('./config/data.json')
+
+// NEW: Firebase real-time loading
+import { playersDB } from './assets/players-db.js';
+const players = await playersDB.getAllPlayers();
+```
 │   ├── CHANGELOG.md                   # Version history
 │   ├── CONTRIBUTING.md                # Contribution guidelines
 │   ├── DEPLOYMENT.md                  # Deployment instructions
@@ -279,7 +352,7 @@ hover-gradient-line  → Gradient top line on hover
 
 ---
 
-**Last Updated**: January 12, 2026  
-**Organization Complete**: ✅  
-**Files Organized**: 13+ docs, 8+ scripts, 8+ assets, 3+ configs, 26+ HTML pages  
+**Last Updated**: January 12, 2026
+**Organization Complete**: ✅
+**Files Organized**: 13+ docs, 8+ scripts, 8+ assets, 3+ configs, 26+ HTML pages
 **Centralization Status**: 100% Complete

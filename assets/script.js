@@ -1,5 +1,27 @@
 // BAMACO Website JavaScript
-// Data management and dynamic content loading
+// Data management and dynamic content loading from Firebase
+
+import { playersDB } from './players-db.js';
+import { guildsDB } from './guilds-db.js';
+import { articlesIdDB } from './articles-id-db.js';
+
+// Create admin badge based on admin role
+function createAdminBadge(adminRole = 'admin') {
+  const badges = {
+    'owner': { icon: '👑', label: 'OWNER', class: 'admin-badge-owner' },
+    'admin': { icon: '⭐', label: 'ADMIN', class: 'admin-badge-admin' },
+    'moderator': { icon: '🛡️', label: 'MOD', class: 'admin-badge-mod' }
+  };
+  
+  const badge = badges[adminRole.toLowerCase()] || badges['admin'];
+  
+  return `
+    <div class="admin-badge ${badge.class}">
+      <span class="admin-badge-icon">${badge.icon}</span>
+      <span class="admin-badge-label">${badge.label}</span>
+    </div>
+  `;
+}
 
 let data = {
   players: [],
@@ -12,7 +34,7 @@ let cachedData = null;
 let cacheTime = null;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-// Load data from JSON file with caching
+// Load data from Firebase with caching
 async function loadData() {
   const now = Date.now();
   
@@ -23,22 +45,30 @@ async function loadData() {
   }
   
   try {
-    console.log('🔄 Loading fresh data from config/data.json...');
-    const response = await fetch('config/data.json');
-    data = await response.json();
+    console.log('🔄 Loading fresh data from Firebase...');
+    
+    // Load all data from Firebase in parallel
+    const [players, guilds, articles] = await Promise.all([
+      playersDB.getAllPlayers(),
+      guildsDB.getAllGuilds(),
+      articlesIdDB.getAllArticles()
+    ]);
+    
+    data = { players, guilds, articles };
     
     // Cache the data
     cachedData = { ...data }; // Create a copy
     cacheTime = now;
     
-    console.log('✅ Data loaded and cached successfully');
+    console.log('✅ Data loaded from Firebase and cached successfully');
+    console.log(`📊 Loaded: ${players.length} players, ${guilds.length} guilds, ${articles.length} articles`);
     return data;
   } catch (error) {
-    console.error('❌ Error loading data:', error);
+    console.error('❌ Error loading data from Firebase:', error);
     
     // Return cached data if available, otherwise empty structure
     if (cachedData) {
-      console.log('⚠️ Using cached data due to fetch error');
+      console.log('⚠️ Using cached data due to Firebase error');
       data = cachedData;
     } else {
       console.log('⚠️ No cached data available, using empty structure');
@@ -69,7 +99,9 @@ async function loadStats() {
 async function loadFeaturedPlayers() {
   await loadData();
   const container = document.getElementById('featured-players');
-  const featured = data.players.slice(0, 3);
+  const featured = [...data.players]
+    .sort((a, b) => (parseFloat(b.rating) || 0) - (parseFloat(a.rating) || 0))
+    .slice(0, 3);
 
   container.innerHTML = featured
     .map((player) => createPlayerCard(player))
@@ -137,7 +169,9 @@ function filterGuilds(searchTerm) {
   const filtered = data.guilds.filter(
     (guild) =>
       guild.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      guild.motto.toLowerCase().includes(searchTerm.toLowerCase())
+      (guild.description && guild.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (guild.motto && guild.motto.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (guild.tag && guild.tag.toLowerCase().includes(searchTerm.toLowerCase()))
   );
   container.innerHTML = filtered
     .map((guild) => createGuildCard(guild))
@@ -151,10 +185,25 @@ function filterGuilds(searchTerm) {
 async function loadAllArticles() {
   await loadData();
   const container = document.getElementById('articles-grid');
+  
+  if (data.articles.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full text-center py-12">
+        <div class="text-6xl mb-4">📝</div>
+        <h3 class="text-xl font-bold text-text-secondary mb-2">No Articles Found</h3>
+        <p class="text-text-muted">Check back later for new tips and guides!</p>
+      </div>
+    `;
+    return;
+  }
+  
   container.innerHTML = data.articles
     .map((article) => createArticleCard(article))
     .join('');
 }
+
+// Make globally accessible
+window.loadAllArticles = loadAllArticles;
 
 function filterArticles(searchTerm) {
   const container = document.getElementById('articles-grid');
@@ -162,12 +211,27 @@ function filterArticles(searchTerm) {
     (article) =>
       article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       article.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      article.excerpt.toLowerCase().includes(searchTerm.toLowerCase())
+      (article.excerpt && article.excerpt.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+  
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full text-center py-12">
+        <div class="text-6xl mb-4">🔍</div>
+        <h3 class="text-xl font-bold text-text-secondary mb-2">No Articles Found</h3>
+        <p class="text-text-muted">Try searching for different keywords</p>
+      </div>
+    `;
+    return;
+  }
+  
   container.innerHTML = filtered
     .map((article) => createArticleCard(article))
     .join('');
 }
+
+// Make globally accessible
+window.filterArticles = filterArticles;
 
 // ============================================
 // Player Profile Page Functions
@@ -324,8 +388,9 @@ async function loadArticle(articleId) {
   // Find author
   const author = data.players.find((p) => p.id === article.authorId);
   if (author) {
+    const authorProfileId = author.friendCode || author.id;
     document.getElementById('article-author').innerHTML = `
-            By <a href="player-profile.html?id=${author.id}">${author.ign}</a>
+            By <a href="player-profile.html?id=${authorProfileId}">${author.ign}</a>
         `;
   }
 
@@ -339,11 +404,12 @@ async function loadArticle(articleId) {
 
   // Update author info
   if (author) {
+    const authorProfileId = author.friendCode || author.id;
     document.getElementById('author-info').innerHTML = `
             <div class="author-avatar">${author.ign.charAt(0)}</div>
             <div class="author-details">
                 <div class="author-name">
-                    <a href="player-profile.html?id=${author.id}">${
+                    <a href="player-profile.html?id=${authorProfileId}">${
       author.ign
     }</a>
                 </div>
@@ -418,6 +484,9 @@ function createPlayerCard(player) {
   const displayName = player.ign || player.name;
   const playerSlug = player.id;
   
+  // Use friendCode if available, otherwise fall back to id
+  const profileId = player.friendCode || player.id;
+  
   // Check if enhanced styles are available (players page)
   const cardClass = document.querySelector('.players-grid-enhanced') ? 'player-card-enhanced' : 'player-card';
   
@@ -432,10 +501,14 @@ function createPlayerCard(player) {
     ? `<div class="marquee-container text-xs"><span class="marquee-content">${playerRole}</span></div>`
     : `<p class="card-role">${playerRole}</p>`;
   
+  // Create admin badge if user is admin
+  const adminBadge = player.isAdmin ? createAdminBadge(player.adminRole || 'admin') : '';
+  
   if (cardClass === 'player-card-enhanced') {
     return `
-      <a href="players/${playerSlug}.html" class="player-card-enhanced">
+      <a href="player-profile.html?id=${profileId}" class="player-card-enhanced">
         <div class="player-avatar">${avatarContent}</div>
+        ${adminBadge}
         <h3 class="player-name">${displayName}</h3>
         <div class="player-meta">
           <div class="player-stat">
@@ -457,8 +530,9 @@ function createPlayerCard(player) {
     : displayName.charAt(0);
     
   return `
-    <div class="player-card" onclick="window.location.href='players/${playerSlug}.html'">
+    <div class="player-card" onclick="window.location.href='player-profile.html?id=${profileId}'">
       <div class="card-avatar">${fallbackAvatarContent}</div>
+      ${adminBadge}
       <h3 class="card-name">${displayName}</h3>
       ${roleContent}
       <div class="card-stats">
@@ -476,10 +550,10 @@ function createPlayerCard(player) {
 }
 
 function createGuildCard(guild) {
-  const guildSlug = guild.id;
+  const guildId = guild.id;
   
   return `
-    <a href="guilds/${guildSlug}.html" class="block bg-bg-card border border-border-primary rounded-xl p-6 hover-card hover-gradient-line group">
+    <a href="guild-profile.html?id=${guildId}" class="block bg-bg-card border border-border-primary rounded-xl p-6 hover-card hover-gradient-line group">
       <!-- Guild Emblem -->
       <div class="w-16 h-16 rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-3xl font-black text-white mb-4 transform group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
         ${guild.name.charAt(0)}
@@ -488,13 +562,13 @@ function createGuildCard(guild) {
       <!-- Guild Name -->
       <h3 class="text-xl font-bold text-text-primary mb-2 group-hover:text-accent-pink transition-colors">${guild.name}</h3>
       
-      <!-- Guild Motto -->
-      <p class="text-text-secondary text-sm mb-4 line-clamp-2">${guild.motto}</p>
+      <!-- Guild Description -->
+      <p class="text-text-secondary text-sm mb-4 line-clamp-2">${guild.description || guild.motto || 'No description available'}</p>
       
       <!-- Guild Stats -->
       <div class="flex gap-4">
         <div class="flex-1 bg-bg-tertiary rounded-lg p-3 text-center">
-          <div class="text-2xl font-bold text-accent-pink">${guild.memberCount || 0}</div>
+          <div class="text-2xl font-bold text-accent-pink">${guild.members ? guild.members.length : (guild.memberCount || 0)}</div>
           <div class="text-xs text-text-muted uppercase tracking-wide">Members</div>
         </div>
         <div class="flex-1 bg-bg-tertiary rounded-lg p-3 text-center">
@@ -507,17 +581,18 @@ function createGuildCard(guild) {
 }
 
 function createArticleCard(article) {
-  const author = data.players.find((p) => p.id === article.authorId);
-  const authorIGN = author ? (author.ign || author.name) : article.authorId.replace(/_/g, ' ');
-  const articleFilename = article.id;
+  // Look up author by friendCode (primary key) or fallback to id
+  const author = data.players.find((p) => p.friendCode === article.authorId || p.id === article.authorId || p.ign === article.author);
+  const authorIGN = author ? (author.ign || author.name) : (article.author || article.authorId?.replace(/_/g, ' ') || 'Anonymous');
+  const articleId = article.id;
   
   return `
-    <a href="articles/${articleFilename}.html" class="block bg-bg-card border border-border-primary rounded-xl p-6 hover-card hover-gradient-line group">
+    <a href="article.html?id=${articleId}" class="block bg-bg-card border border-border-primary rounded-xl p-6 hover-card hover-gradient-line group">
       <!-- Article Title -->
       <h3 class="text-xl font-bold text-text-primary mb-3 group-hover:text-accent-purple transition-colors line-clamp-2">${article.title}</h3>
       
       <!-- Article Excerpt -->
-      <p class="text-text-secondary text-sm mb-4 line-clamp-3 leading-relaxed">${article.excerpt}</p>
+      <p class="text-text-secondary text-sm mb-4 line-clamp-3 leading-relaxed">${article.excerpt || article.description || 'No description available'}</p>
       
       <!-- Article Meta -->
       <div class="flex justify-between items-center gap-2 text-sm">
@@ -527,3 +602,10 @@ function createArticleCard(article) {
     </a>
   `;
 }
+
+// Export functions for use in other modules
+window.loadData = loadData;
+window.data = data;
+window.createPlayerCard = createPlayerCard;
+window.createGuildCard = createGuildCard;
+window.createArticleCard = createArticleCard;

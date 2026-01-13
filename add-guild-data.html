@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Guild Data</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { padding: 10px 20px; margin: 5px; background: #ff6b9d; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        #output { background: #f5f5f5; padding: 15px; margin-top: 20px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Add Guild Data to Firebase</h1>
+    <button onclick="addGuildData()">Add GODARX Guild</button>
+    <button onclick="checkGuilds()">Check Current Guilds</button>
+    <div id="output">Click a button to start...</div>
+
+    <script type="module">
+        import { guildsDB } from './assets/guilds-db.js';
+        
+        window.addGuildData = async function() {
+            const output = document.getElementById('output');
+            output.innerHTML = 'Adding guild data...';
+            
+            try {
+                const guildData = {
+                    id: 'godarx',
+                    name: 'GODARX',
+                    tag: '[GX]',
+                    description: 'Premier MaiMai guild in Bataan region',
+                    members: ['bmcmarx'],
+                    founded: '2024-01-15',
+                    logo: 'https://via.placeholder.com/150x150/FF6B9D/FFFFFF?text=GX'
+                };
+                
+                const result = await guildsDB.createGuild(guildData);
+                
+                if (result) {
+                    output.innerHTML = '✅ Guild added successfully!<br><pre>' + JSON.stringify(guildData, null, 2) + '</pre>';
+                } else {
+                    output.innerHTML = '❌ Failed to add guild';
+                }
+            } catch (error) {
+                output.innerHTML = '❌ Error: ' + error.message;
+                console.error('Error adding guild:', error);
+            }
+        };
+        
+        window.checkGuilds = async function() {
+            const output = document.getElementById('output');
+            output.innerHTML = 'Checking guilds...';
+            
+            try {
+                const guilds = await guildsDB.getAllGuilds();
+                output.innerHTML = `📊 Found ${guilds.length} guilds:<br><pre>${JSON.stringify(guilds, null, 2)}</pre>`;
+            } catch (error) {
+                output.innerHTML = '❌ Error: ' + error.message;
+                console.error('Error checking guilds:', error);
+            }
+        };
+    </script>
+</body>
+</html>

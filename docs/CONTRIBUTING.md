@@ -1,6 +1,6 @@
 # Contributing to BAMACO Website
 
-Thank you for considering contributing to the BAMACO Website! This document provides guidelines and instructions for contributing to the project.
+Thank you for considering contributing to the BAMACO Website! This document provides guidelines for contributing to our Firebase-powered community platform.
 
 ---
 
@@ -9,6 +9,7 @@ Thank you for considering contributing to the BAMACO Website! This document prov
 - [Code of Conduct](#code-of-conduct)
 - [How Can I Contribute?](#how-can-i-contribute)
 - [Development Setup](#development-setup)
+- [Firebase Integration](#firebase-integration)
 - [Contribution Workflow](#contribution-workflow)
 - [Style Guidelines](#style-guidelines)
 - [Content Guidelines](#content-guidelines)
@@ -44,10 +45,12 @@ Found a bug? Help us fix it!
 **Before submitting:**
 - Check existing issues to avoid duplicates
 - Test on multiple browsers if possible
+- Check Firebase connectivity in browser dev tools
 - Gather reproduction steps
 
 **Submit via GitHub Issues with:**
 - Clear, descriptive title
+- Browser and device information
 - Steps to reproduce
 - Expected vs. actual behavior
 - Screenshots if applicable
@@ -63,46 +66,54 @@ Have an idea? We'd love to hear it!
 - Examples from other sites (if applicable)
 
 ### 3. Adding Player Profiles
-**Option A: Automated (Recommended)**
-1. Visit `create-profile.html`
-2. Fill out your information
-3. Click "Create GitHub Issue"
-4. Submit the pre-filled issue
-5. Wait for automation to process
+**Option A: Web Form (Recommended)**
+1. Visit `create-profile.html` on the website
+2. Fill out profile information
+3. Form automatically saves to Firebase
+4. Profile instantly available at `player-profile.html?id={friendCode}`
 
-**Option B: Manual**
-1. Copy `players/playerprofiletemplate.html`
-2. Rename to `yourign.html` (lowercase, no special chars)
-3. Edit the `PLAYER_INFO` object
-4. Run `python generate_data.py`
-5. Submit a pull request
+**Option B: Direct Firebase**
+1. Add player data directly to Firebase at `/players/{friendCode}`
+2. Use the structure from existing players
+3. Profile automatically available
 
 ### 4. Writing Articles/Guides
-1. Copy `articles/articletemplate.html`
-2. Rename to `A###.html` (e.g., A003.html)
-3. Edit the `ARTICLE_INFO` object
-4. Write your content
-5. Run `python generate_data.py`
-6. Submit a pull request
+1. Add article to Firebase at `/articles/{articleId}` with structure:
+   ```json
+   {
+     "id": "A###",
+     "title": "Article Title",
+     "description": "Brief description",
+     "content": "Full content (HTML supported)",
+     "date": "YYYY-MM-DD",
+     "author": "Your IGN"
+   }
+   ```
+2. Article instantly available at `article.html?id={articleId}`
 
 ### 5. Creating Guild Pages
-1. Copy `guilds/guildtemplate.html`
-2. Rename to your guild slug (e.g., `dragon_warriors.html`)
-3. Edit the `GUILD_INFO` object
-4. Update player files with `guildId` matching your guild
-5. Run `python generate_data.py`
-6. Submit a pull request
+1. Add guild to Firebase at `/guilds/{guildId}` with structure:
+   ```json
+   {
+     "id": "guild-slug",
+     "name": "Guild Name",
+     "tag": "[TAG]",
+     "description": "Guild description",
+     "members": ["friendCode1", "friendCode2"]
+   }
+   ```
+2. Guild page instantly available at `guild-profile.html?id={guildId}`
 
 ### 6. Code Contributions
 Contributing code? Awesome!
 
 **Areas needing help:**
 - UI/UX improvements
-- Performance optimizations
-- Accessibility enhancements
+- Firebase security optimizations
+- Real-time feature enhancements
+- Accessibility improvements
 - Mobile responsiveness
-- Firebase security rules
-- Automation improvements
+- Performance optimizations
 
 ---
 
@@ -110,11 +121,33 @@ Contributing code? Awesome!
 
 ### Prerequisites
 ```bash
-# Install Python 3.7+
+# Install Python 3.7+ (for MaiMai API scripts)
 python --version
 
 # Install Git
 git --version
+
+# Modern web browser with developer tools
+```
+
+### Firebase Integration
+
+Our project uses Firebase Realtime Database for all data storage and real-time features.
+
+**Database Structure:**
+```
+bamaco-queue-default-rtdb/
+├── players/{friendCode}/          # Player profiles
+├── guilds/{guildId}/              # Guild information
+├── articles/{articleId}/          # Articles and guides
+└── queue/                         # Real-time queue system
+```
+
+**Key Firebase Modules:**
+- `assets/players-db.js` - Player CRUD operations
+- `assets/guilds-db.js` - Guild CRUD operations
+- `assets/articles-db.js` - Article CRUD operations
+- `config/firebase-config.js` - Database configuration
 ```
 
 ### Setup Steps
@@ -131,9 +164,13 @@ git remote add upstream https://github.com/redskie/BAMACO-Website.git
 # 4. Create a branch
 git checkout -b feature/your-feature-name
 
-# 5. Start local server (optional but recommended)
-python -m http.server 8000
-# Visit http://localhost:8000
+# 5. Start local server (recommended for testing)
+python -m http.server 8080
+# Visit http://localhost:8080
+
+# 6. Test Firebase connectivity
+# Open browser dev tools > Network tab
+# Verify Firebase requests succeed
 ```
 
 ---
@@ -145,6 +182,47 @@ python -m http.server 8000
 git checkout main
 git fetch upstream
 git merge upstream/main
+```
+
+### Step 2: Make Your Changes
+
+**For Design Changes:**
+- Edit ONLY `/assets/tailwind-config.js`
+- Changes apply instantly to all pages
+- Test on multiple screen sizes
+
+**For Content Changes:**
+```javascript
+// Example: Adding a new player
+import { playersDB } from './assets/players-db.js';
+
+await playersDB.createPlayer({
+  friendCode: "123456789",
+  ign: "PlayerName",
+  guild: "guild-id",
+  // ... other data
+});
+```
+
+**For Code Changes:**
+- Use ES6 modules with `import/export`
+- Add `type="module"` to script tags
+- Follow existing Firebase patterns
+- Test real-time functionality
+
+### Step 3: Test Thoroughly
+```bash
+# Start local server
+python -m http.server 8080
+
+# Test checklist:
+# ✅ All pages load without errors
+# ✅ Firebase connectivity works
+# ✅ Real-time updates function
+# ✅ Mobile responsive design
+# ✅ Cross-browser compatibility
+# ✅ No console errors
+```
 ```
 
 ### Step 2: Create a Feature Branch
@@ -286,10 +364,10 @@ async function fetchData() {
 def process_player_data(player_info):
     """
     Process player information and generate HTML.
-    
+
     Args:
         player_info (dict): Player data dictionary
-    
+
     Returns:
         str: Generated HTML content
     """
@@ -306,7 +384,7 @@ def sanitize_filename(name: str) -> str:
 
 ### Player Profiles
 - **IGN**: Use exact in-game name with correct formatting
-- **Friend Code**: Format as ###-###-###
+- **Friend Code**: 15 digits, no dashes/spaces
 - **Bio**: Keep it friendly, appropriate, and under 500 chars
 - **Rating**: Update when it changes significantly
 - **Achievements**: Notable accomplishments only

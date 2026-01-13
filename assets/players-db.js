@@ -3,7 +3,7 @@
  * BAMACO PLAYERS DATABASE MODULE
  * ============================================================================
  * 
- * Firebase Realtime Database operations for player profiles
+ * Firebase Firestore operations for player profiles
  * Replaces the old static HTML file system
  * 
  * Database Structure:
@@ -21,57 +21,37 @@
  *   - joined: string (year)
  *   - bio: string
  *   - guildId: string
- *   - achievements: array
- *   - articles: array
+ *   - achievementIds: array<string> (unique achievement IDs assigned to this player)
+ *   - articleIds: array<string> (unique article IDs assigned to this player)
  *   - passwordHash: string
  *   - editKey: string
  *   - fingerprint: string
+ *   - isAdmin: boolean (admin privileges)
+ *   - adminRole: string (admin, moderator, owner)
  *   - createdAt: timestamp
  *   - updatedAt: timestamp
  *   - isPublic: boolean
  */
 
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { 
-  getDatabase, 
-  ref, 
-  set, 
-  get, 
-  push,
-  remove,
-  update,
-  onValue,
+import { playersCollection } from '../config/firebase-config.js';
+import {
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
   query,
-  orderByChild,
-  equalTo,
-  limitToFirst,
-  limitToLast,
-  startAt,
-  endAt
-} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+  limit
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyCQ5eunqdZcHJx1Leaw7IYZdH3PkPjbctg",
-  authDomain: "bamaco-queue.firebaseapp.com",
-  databaseURL: "https://bamaco-queue-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "bamaco-queue",
-  storageBucket: "bamaco-queue.firebasestorage.app",
-  messagingSenderId: "683913605188",
-  appId: "1:683913605188:web:2842c6031ea68dc5da8c11"
-};
+// Import ID-based systems
+import { achievementsDB } from './achievements-db.js';
+import { articlesIdDB } from './articles-id-db.js';
 
-// Initialize Firebase (may already be initialized)
-let app;
-try {
-  app = initializeApp(firebaseConfig);
-} catch (e) {
-  // Already initialized
-  app = initializeApp(firebaseConfig, 'players-db');
-}
-
-const database = getDatabase(app);
-const playersRef = ref(database, 'players');
+// Firestore players collection acts as canonical store
+const playersRef = playersCollection;
 
 /**
  * PlayersDB - Complete CRUD operations for player profiles
@@ -120,6 +100,10 @@ class PlayersDB {
       joined: playerData.joined || playerData.yearStarted || new Date().getFullYear().toString(),
       bio: playerData.bio || '',
       guildId: playerData.guildId || '',
+      // ID-based arrays (replaces old achievements/articles arrays)
+      achievementIds: playerData.achievementIds || [],
+      articleIds: playerData.articleIds || [],
+      // Legacy support (will be migrated to IDs)
       achievements: playerData.achievements || [],
       articles: playerData.articles || [],
       // Security fields
@@ -132,8 +116,8 @@ class PlayersDB {
       isPublic: playerData.isPublic !== false // Default to true
     };
 
-    const playerRef = ref(database, `players/${friendCode}`);
-    await set(playerRef, player);
+    const playerDoc = doc(playersRef, friendCode);
+    await setDoc(playerDoc, player);
     
     // Clear cache
     this.cache.delete(friendCode);
@@ -160,16 +144,13 @@ class PlayersDB {
       return this.cache.get(sanitized);
     }
 
-    const playerRef = ref(database, `players/${sanitized}`);
-    const snapshot = await get(playerRef);
-    
-    if (snapshot.exists()) {
-      const player = snapshot.val();
-      this.cache.set(sanitized, player);
-      return player;
-    }
-    
-    return null;
+    const playerDoc = doc(playersRef, sanitized);
+    const snapshot = await getDoc(playerDoc);
+    if (!snapshot.exists()) return null;
+
+    const player = snapshot.data();
+    this.cache.set(sanitized, player);
+    return player;
   }
 
   /**
@@ -177,20 +158,13 @@ class PlayersDB {
    * @param {number} limit - Maximum number of players to return
    * @returns {Promise<Array>}
    */
-  async getAllPlayers(limit = 100) {
-    const playersQuery = query(playersRef, limitToFirst(limit));
-    const snapshot = await get(playersQuery);
-    
-    const players = [];
-    if (snapshot.exists()) {
-      snapshot.forEach((child) => {
-        const player = child.val();
-        if (player.isPublic !== false) {
-          players.push(player);
-        }
-      });
-    }
-    
+  async getAllPlayers(limitCount = 100) {
+    const playersQuery = query(playersRef, limit(limitCount));
+    const snapshot = await getDocs(playersQuery);
+    const players = snapshot.docs
+      .map((docSnap) => docSnap.data())
+      .filter((player) => player.isPublic !== false);
+
     return players;
   }
 
@@ -230,16 +204,10 @@ class PlayersDB {
    * @returns {Function} - Unsubscribe function
    */
   subscribeToPlayers(callback) {
-    const unsubscribe = onValue(playersRef, (snapshot) => {
-      const players = [];
-      if (snapshot.exists()) {
-        snapshot.forEach((child) => {
-          const player = child.val();
-          if (player.isPublic !== false) {
-            players.push(player);
-          }
-        });
-      }
+    const unsubscribe = onSnapshot(playersRef, (snapshot) => {
+      const players = snapshot.docs
+        .map((docSnap) => docSnap.data())
+        .filter((player) => player.isPublic !== false);
       callback(players);
     });
 
@@ -254,14 +222,9 @@ class PlayersDB {
    */
   subscribeToPlayer(friendCode, callback) {
     const sanitized = this.sanitizeFriendCode(friendCode);
-    const playerRef = ref(database, `players/${sanitized}`);
-    
-    const unsubscribe = onValue(playerRef, (snapshot) => {
-      if (snapshot.exists()) {
-        callback(snapshot.val());
-      } else {
-        callback(null);
-      }
+    const playerDoc = doc(playersRef, sanitized);
+    const unsubscribe = onSnapshot(playerDoc, (snapshot) => {
+      callback(snapshot.exists() ? snapshot.data() : null);
     });
 
     this.listeners.set(sanitized, unsubscribe);
@@ -299,8 +262,8 @@ class PlayersDB {
     // Add update timestamp
     updates.updatedAt = Date.now();
 
-    const playerRef = ref(database, `players/${sanitized}`);
-    await update(playerRef, updates);
+    const playerDoc = doc(playersRef, sanitized);
+    await updateDoc(playerDoc, updates);
     
     // Clear cache
     this.cache.delete(sanitized);
@@ -348,8 +311,8 @@ class PlayersDB {
       throw new Error('Invalid edit key');
     }
 
-    const playerRef = ref(database, `players/${sanitized}`);
-    await remove(playerRef);
+    const playerDoc = doc(playersRef, sanitized);
+    await deleteDoc(playerDoc);
     
     // Clear cache and listeners
     this.cache.delete(sanitized);
@@ -458,6 +421,263 @@ class PlayersDB {
    */
   clearCache() {
     this.cache.clear();
+  }
+
+  // ============================================================================
+  // ID-BASED ACHIEVEMENT AND ARTICLE MANAGEMENT
+  // ============================================================================
+
+  /**
+   * Assign an achievement to a player
+   * @param {string} friendCode - Player's friend code
+   * @param {string} achievementId - Unique achievement ID
+   * @returns {Promise<boolean>} - Success status
+   */
+  async assignAchievement(friendCode, achievementId) {
+    try {
+      // Check if player exists
+      const player = await this.getPlayer(friendCode);
+      if (!player) {
+        throw new Error('Player not found');
+      }
+
+      // Assign the achievement in achievements DB
+      await achievementsDB.assignAchievement(achievementId, friendCode);
+
+      // Add to player's achievement IDs
+      const currentIds = player.achievementIds || [];
+      if (!currentIds.includes(achievementId)) {
+        currentIds.push(achievementId);
+        await this.updatePlayer(friendCode, { achievementIds: currentIds });
+        console.log(`✅ Assigned achievement ${achievementId} to player ${friendCode}`);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to assign achievement:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Remove an achievement from a player
+   * @param {string} friendCode - Player's friend code
+   * @param {string} achievementId - Achievement ID to remove
+   * @returns {Promise<boolean>} - Success status
+   */
+  async removeAchievement(friendCode, achievementId) {
+    try {
+      const player = await this.getPlayer(friendCode);
+      if (!player) {
+        throw new Error('Player not found');
+      }
+
+      // Release the achievement in achievements DB
+      await achievementsDB.releaseAchievement(achievementId);
+
+      // Remove from player's achievement IDs
+      const currentIds = player.achievementIds || [];
+      const updatedIds = currentIds.filter(id => id !== achievementId);
+      await this.updatePlayer(friendCode, { achievementIds: updatedIds });
+
+      console.log(`✅ Removed achievement ${achievementId} from player ${friendCode}`);
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to remove achievement:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Assign an article to a player
+   * @param {string} friendCode - Player's friend code
+   * @param {string} articleId - Unique article ID
+   * @returns {Promise<boolean>} - Success status
+   */
+  async assignArticle(friendCode, articleId) {
+    try {
+      // Check if player exists
+      const player = await this.getPlayer(friendCode);
+      if (!player) {
+        throw new Error('Player not found');
+      }
+
+      // Assign the article in articles DB
+      await articlesIdDB.assignArticle(articleId, friendCode);
+
+      // Add to player's article IDs
+      const currentIds = player.articleIds || [];
+      if (!currentIds.includes(articleId)) {
+        currentIds.push(articleId);
+        await this.updatePlayer(friendCode, { articleIds: currentIds });
+        console.log(`✅ Assigned article ${articleId} to player ${friendCode}`);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to assign article:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Remove an article from a player
+   * @param {string} friendCode - Player's friend code
+   * @param {string} articleId - Article ID to remove
+   * @returns {Promise<boolean>} - Success status
+   */
+  async removeArticle(friendCode, articleId) {
+    try {
+      const player = await this.getPlayer(friendCode);
+      if (!player) {
+        throw new Error('Player not found');
+      }
+
+      // Release the article in articles DB
+      await articlesIdDB.releaseArticle(articleId);
+
+      // Remove from player's article IDs
+      const currentIds = player.articleIds || [];
+      const updatedIds = currentIds.filter(id => id !== articleId);
+      await this.updatePlayer(friendCode, { articleIds: updatedIds });
+
+      console.log(`✅ Removed article ${articleId} from player ${friendCode}`);
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to remove article:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get full achievement objects for a player
+   * @param {string} friendCode - Player's friend code
+   * @returns {Promise<Array>} - Array of achievement objects
+   */
+  async getPlayerAchievements(friendCode) {
+    try {
+      const player = await this.getPlayer(friendCode);
+      if (!player || !player.achievementIds) {
+        return [];
+      }
+
+      const achievements = [];
+      for (const achievementId of player.achievementIds) {
+        const achievement = await achievementsDB.getAchievement(achievementId);
+        if (achievement) {
+          achievements.push(achievement);
+        }
+      }
+
+      return achievements;
+    } catch (error) {
+      console.error('❌ Failed to get player achievements:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get full article objects for a player
+   * @param {string} friendCode - Player's friend code
+   * @returns {Promise<Array>} - Array of article objects
+   */
+  async getPlayerArticles(friendCode) {
+    try {
+      const player = await this.getPlayer(friendCode);
+      if (!player || !player.articleIds) {
+        return [];
+      }
+
+      const articles = [];
+      for (const articleId of player.articleIds) {
+        const article = await articlesIdDB.getArticle(articleId);
+        if (article) {
+          articles.push(article);
+        }
+      }
+
+      return articles;
+    } catch (error) {
+      console.error('❌ Failed to get player articles:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get available achievements that can be assigned
+   * @returns {Promise<Array>} - Array of available achievements
+   */
+  async getAvailableAchievements() {
+    return await achievementsDB.getAvailableAchievements();
+  }
+
+  /**
+   * Get available articles that can be assigned
+   * @returns {Promise<Array>} - Array of available articles
+   */
+  async getAvailableArticles() {
+    return await articlesIdDB.getAvailableArticles();
+  }
+
+  /**
+   * Migrate old achievement/article arrays to ID-based system
+   * @param {string} friendCode - Player's friend code
+   * @returns {Promise<boolean>} - Success status
+   */
+  async migrateToIdSystem(friendCode) {
+    try {
+      const player = await this.getPlayer(friendCode);
+      if (!player) {
+        throw new Error('Player not found');
+      }
+
+      // Skip if already migrated
+      if (player.achievementIds || player.articleIds) {
+        console.log(`Player ${friendCode} already migrated to ID system`);
+        return true;
+      }
+
+      const achievementIds = [];
+      const articleIds = [];
+
+      // Migrate achievements
+      if (player.achievements && Array.isArray(player.achievements)) {
+        for (const achievement of player.achievements) {
+          try {
+            const achievementId = await achievementsDB.createAchievementTemplate(achievement);
+            await achievementsDB.assignAchievement(achievementId, friendCode);
+            achievementIds.push(achievementId);
+          } catch (error) {
+            console.warn(`Failed to migrate achievement for ${friendCode}:`, error);
+          }
+        }
+      }
+
+      // Migrate articles
+      if (player.articles && Array.isArray(player.articles)) {
+        for (const article of player.articles) {
+          try {
+            const articleId = await articlesIdDB.createArticleTemplate(article);
+            await articlesIdDB.assignArticle(articleId, friendCode);
+            articleIds.push(articleId);
+          } catch (error) {
+            console.warn(`Failed to migrate article for ${friendCode}:`, error);
+          }
+        }
+      }
+
+      // Update player with new ID arrays
+      await this.updatePlayer(friendCode, {
+        achievementIds,
+        articleIds
+      });
+
+      console.log(`✅ Migrated player ${friendCode} to ID system: ${achievementIds.length} achievements, ${articleIds.length} articles`);
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to migrate player to ID system:', error);
+      throw error;
+    }
   }
 }
 

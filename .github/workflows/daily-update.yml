@@ -1,26 +1,20 @@
-name: Daily Player Data Update
+name: Daily MaiMai Stats Update (Firebase)
 
 on:
   schedule:
     # Run every day at 10:00 AM Philippine Time (2:00 AM UTC)
-    # Cron format: minute hour day month day-of-week
     - cron: '0 2 * * *'
   
   # Allow manual trigger
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  update-players:
+  update-firebase:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -28,32 +22,7 @@ jobs:
           python-version: '3.11'
       
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests
+        run: pip install requests
       
-      - name: Run daily update script
-        id: update
-        run: |
-          cd $GITHUB_WORKSPACE
-          python scripts/daily_update.py
-        continue-on-error: false
-      
-      - name: Check for changes
-        id: check_changes
-        run: |
-          git diff --quiet players/ data.json || echo "changes=true" >> $GITHUB_OUTPUT
-      
-      - name: Commit and push if changes
-        if: steps.check_changes.outputs.changes == 'true'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add players/ data.json
-          git commit -m "Auto-update: Daily player data refresh $(date +'%Y-%m-%d %H:%M')"
-          git push
-      
-      - name: No changes notification
-        if: steps.check_changes.outputs.changes != 'true'
-        run: |
-          echo "No changes detected. All player data is up to date."
+      - name: Run Firebase update script
+        run: python scripts/daily_update_firebase.py

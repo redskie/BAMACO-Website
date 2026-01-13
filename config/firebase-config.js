@@ -1,6 +1,7 @@
 // Firebase Configuration and Initialization
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, onValue, set, push, remove, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getFirestore, collection } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCQ5eunqdZcHJx1Leaw7IYZdH3PkPjbctg",
@@ -15,6 +16,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const firestore = getFirestore(app);
 
 // Database references
 const queueRef = ref(database, 'queue');
@@ -27,7 +29,14 @@ const playersRef = ref(database, 'players');
 const guildsRef = ref(database, 'guilds');
 const articlesRef = ref(database, 'articles');
 
+// Firestore collections (canonical stores for players, guilds, articles)
+const playersCollection = collection(firestore, 'players');
+const guildsCollection = collection(firestore, 'guilds');
+const articlesCollection = collection(firestore, 'articles');
+const achievementsCollection = collection(firestore, 'achievements');
+
 export { 
+  app,
   database, 
   queueRef, 
   currentlyPlayingRef, 
@@ -36,6 +45,11 @@ export {
   playersRef,
   guildsRef,
   articlesRef,
+  firestore,
+  playersCollection,
+  guildsCollection,
+  articlesCollection,
+  achievementsCollection,
   ref, 
   onValue, 
   set, 

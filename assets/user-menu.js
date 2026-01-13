@@ -2,7 +2,7 @@
  * ============================================================================
  * BAMACO USER MENU & MEMBER FEATURES
  * ============================================================================
- * 
+ *
  * Provides: User menu, queue requests, profile editing, reports
  * Only visible when logged in
  */
@@ -13,7 +13,7 @@ class UserMenu {
     this.user = null;
     this.isAdmin = false;
     this.notifications = [];
-    
+
     this.init();
   }
 
@@ -21,7 +21,7 @@ class UserMenu {
     this.checkSession();
     this.injectUserMenu();
     this.setupEventListeners();
-    
+
     if (this.isAdmin) {
       this.setupAdminNotifications();
     }
@@ -75,13 +75,13 @@ class UserMenu {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
           </svg>
         </button>
-        
+
         <div id="userMenuDropdown" class="absolute right-0 top-full mt-2 w-64 bg-bg-card border border-border-primary rounded-xl shadow-xl hidden z-50">
           <div class="p-4 border-b border-border-primary">
             <p class="font-bold text-text-primary">${this.user.ign || 'Player'}</p>
             <p class="text-xs text-text-muted">FC: ${this.formatFriendCode(this.user.friendCode)}</p>
           </div>
-          
+
           <div class="p-2">
             <button onclick="userMenu.openEditProfile()" class="w-full px-4 py-2 text-left rounded-lg hover:bg-bg-tertiary transition-colors flex items-center gap-3">
               <span>✏️</span> Edit My Profile
@@ -92,7 +92,7 @@ class UserMenu {
             <button onclick="userMenu.openReportForm()" class="w-full px-4 py-2 text-left rounded-lg hover:bg-bg-tertiary transition-colors flex items-center gap-3">
               <span>📝</span> Submit Report/Request
             </button>
-            <a href="players/${this.sanitizeFilename(this.user.ign)}.html" class="w-full px-4 py-2 text-left rounded-lg hover:bg-bg-tertiary transition-colors flex items-center gap-3 block">
+            <a href="player-profile.html?id=${this.user.friendCode}" class="w-full px-4 py-2 text-left rounded-lg hover:bg-bg-tertiary transition-colors flex items-center gap-3 block">
               <span>👤</span> View My Profile
             </a>
             ${this.isAdmin ? `
@@ -103,7 +103,7 @@ class UserMenu {
               </button>
             ` : ''}
           </div>
-          
+
           <div class="p-2 border-t border-border-primary">
             <button onclick="userMenu.logout()" class="w-full px-4 py-2 text-left rounded-lg hover:bg-red-100 text-red-600 transition-colors flex items-center gap-3">
               <span>🚪</span> Logout
@@ -164,7 +164,7 @@ class UserMenu {
         <button onclick="userMenu.toggleMemberActions()" class="w-14 h-14 bg-accent-purple text-white rounded-full shadow-lg flex items-center justify-center text-xl hover:scale-110 transition-transform">
           ⚡
         </button>
-        
+
         <div id="memberActionsMenu" class="absolute bottom-full right-0 mb-3 hidden">
           <div class="bg-bg-card border border-border-primary rounded-xl shadow-xl p-2 min-w-[200px]">
             <button onclick="userMenu.openQueueRequest()" class="w-full px-4 py-3 text-left rounded-lg hover:bg-bg-tertiary transition-colors flex items-center gap-3">
@@ -241,14 +241,14 @@ class UserMenu {
         <h2 class="text-2xl font-bold">Request Queue Slot</h2>
         <p class="text-text-muted mt-2">Request to join the queue. An admin will approve your request.</p>
       </div>
-      
+
       <div class="bg-bg-tertiary rounded-lg p-4 mb-6">
         <p class="text-sm"><strong>Player:</strong> ${this.user.ign}</p>
         <p class="text-sm text-text-muted">Your request will be sent to active admins</p>
       </div>
-      
+
       <div id="queueRequestResult" class="hidden mb-4 p-3 rounded-lg text-sm"></div>
-      
+
       <div class="flex gap-3">
         <button onclick="userMenu.submitQueueRequest()" class="flex-1 px-6 py-3 bg-accent-pink text-white font-semibold rounded-lg hover-btn-primary">
           Send Request
@@ -262,7 +262,7 @@ class UserMenu {
 
   async submitQueueRequest() {
     const resultDiv = document.getElementById('queueRequestResult');
-    
+
     try {
       // Store request in localStorage (in production, use Firebase)
       const requests = JSON.parse(localStorage.getItem('bamaco_queue_requests') || '[]');
@@ -294,7 +294,7 @@ class UserMenu {
       resultDiv.classList.remove('hidden');
 
       setTimeout(() => this.closeModal(), 2000);
-      
+
     } catch (error) {
       resultDiv.className = 'mb-4 p-3 rounded-lg text-sm bg-red-100 text-red-700 border border-red-300';
       resultDiv.textContent = '❌ Failed to send request. Please try again.';
@@ -309,34 +309,34 @@ class UserMenu {
         <h2 class="text-2xl font-bold">Edit My Profile</h2>
         <p class="text-text-muted mt-2">Update your profile information</p>
       </div>
-      
+
       <form id="editProfileForm" class="space-y-4">
         <div>
           <label class="block text-sm font-semibold mb-2">Real Name (Optional)</label>
-          <input type="text" id="editFullName" placeholder="Leave blank for REDACTED" 
+          <input type="text" id="editFullName" placeholder="Leave blank for REDACTED"
             class="w-full px-4 py-3 border border-border-primary rounded-lg bg-bg-secondary focus:outline-none focus:ring-2 focus:ring-accent-pink">
         </div>
-        
+
         <div>
           <label class="block text-sm font-semibold mb-2">Personal Motto</label>
           <input type="text" id="editMotto" placeholder="Your personal motto" maxlength="100"
             class="w-full px-4 py-3 border border-border-primary rounded-lg bg-bg-secondary focus:outline-none focus:ring-2 focus:ring-accent-pink">
         </div>
-        
+
         <div>
           <label class="block text-sm font-semibold mb-2">Bio</label>
           <textarea id="editBio" rows="4" placeholder="Tell us about yourself..." maxlength="500"
             class="w-full px-4 py-3 border border-border-primary rounded-lg bg-bg-secondary focus:outline-none focus:ring-2 focus:ring-accent-pink resize-none"></textarea>
         </div>
-        
+
         <div>
           <label class="block text-sm font-semibold mb-2">Year Started Playing</label>
           <input type="number" id="editYearStarted" min="2012" max="2026" placeholder="e.g., 2020"
             class="w-full px-4 py-3 border border-border-primary rounded-lg bg-bg-secondary focus:outline-none focus:ring-2 focus:ring-accent-pink">
         </div>
-        
+
         <div id="editProfileResult" class="hidden p-3 rounded-lg text-sm"></div>
-        
+
         <div class="flex gap-3 pt-2">
           <button type="submit" class="flex-1 px-6 py-3 bg-accent-pink text-white font-semibold rounded-lg hover-btn-primary">
             Save Changes
@@ -381,7 +381,7 @@ class UserMenu {
       resultDiv.classList.remove('hidden');
 
       setTimeout(() => this.closeModal(), 2000);
-      
+
     } catch (error) {
       resultDiv.className = 'p-3 rounded-lg text-sm bg-red-100 text-red-700 border border-red-300';
       resultDiv.textContent = '❌ Failed to update profile. Please try again.';
@@ -396,7 +396,7 @@ class UserMenu {
         <h2 class="text-2xl font-bold">Submit Report/Request</h2>
         <p class="text-text-muted mt-2">Send feedback, report bugs, or make suggestions</p>
       </div>
-      
+
       <form id="reportForm" class="space-y-4">
         <div>
           <label class="block text-sm font-semibold mb-2">Type</label>
@@ -408,21 +408,21 @@ class UserMenu {
             <option value="other">📋 Other</option>
           </select>
         </div>
-        
+
         <div>
           <label class="block text-sm font-semibold mb-2">Title</label>
           <input type="text" id="reportTitle" placeholder="Brief description" required
             class="w-full px-4 py-3 border border-border-primary rounded-lg bg-bg-secondary focus:outline-none focus:ring-2 focus:ring-accent-pink">
         </div>
-        
+
         <div>
           <label class="block text-sm font-semibold mb-2">Description</label>
           <textarea id="reportDescription" rows="5" placeholder="Detailed description of your report/request..." required
             class="w-full px-4 py-3 border border-border-primary rounded-lg bg-bg-secondary focus:outline-none focus:ring-2 focus:ring-accent-pink resize-none"></textarea>
         </div>
-        
+
         <div id="reportResult" class="hidden p-3 rounded-lg text-sm"></div>
-        
+
         <div class="flex gap-3 pt-2">
           <button type="submit" class="flex-1 px-6 py-3 bg-accent-pink text-white font-semibold rounded-lg hover-btn-primary">
             Submit Report
@@ -473,7 +473,7 @@ class UserMenu {
       resultDiv.classList.remove('hidden');
 
       setTimeout(() => this.closeModal(), 2000);
-      
+
     } catch (error) {
       resultDiv.className = 'p-3 rounded-lg text-sm bg-red-100 text-red-700 border border-red-300';
       resultDiv.textContent = '❌ Failed to submit report. Please try again.';
@@ -530,7 +530,8 @@ class UserMenu {
 
   formatFriendCode(code) {
     if (!code) return '---';
-    return code.match(/.{1,3}/g)?.join('-') || code;
+    const digits = String(code).replace(/\D/g, '');
+    return digits.substring(0, 15);
   }
 
   sanitizeFilename(name) {
