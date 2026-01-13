@@ -56,9 +56,7 @@ class UserMenu {
       }
 
       // Inject floating action buttons for members
-      if (this.isLoggedIn) {
-        this.injectMemberActions();
-      }
+      // FAB removed per user request
     }, 500);
   }
 
@@ -66,8 +64,11 @@ class UserMenu {
     const menuHTML = `
       <div class="user-menu-container relative">
         <button id="userMenuBtn" class="flex items-center gap-2 px-3 py-2 bg-bg-card border border-border-primary rounded-lg hover-btn-secondary transition-all">
-          <div class="w-8 h-8 bg-accent-pink rounded-full flex items-center justify-center text-white font-bold text-sm">
-            ${this.user.ign?.charAt(0).toUpperCase() || '?'}
+          <div class="w-8 h-8 flex items-center justify-center">
+            ${this.user.avatarImage && this.user.avatarImage.trim()
+              ? `<img src="${this.user.avatarImage}" alt="${this.user.ign}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextSibling.style.display='flex';" /><div class="w-full h-full flex items-center justify-center text-white font-bold text-sm" style="display:none;">${(this.user.ign?.charAt(0) || '?').toUpperCase()}</div>`
+              : `<div class="w-full h-full flex items-center justify-center text-white font-bold text-sm">${(this.user.ign?.charAt(0) || '?').toUpperCase()}</div>`
+            }
           </div>
           <span class="hidden sm:inline text-sm font-semibold">${this.user.ign || 'Player'}</span>
           ${this.isAdmin ? '<span class="text-xs px-1.5 py-0.5 bg-accent-purple text-white rounded">ADMIN</span>' : ''}
@@ -113,10 +114,10 @@ class UserMenu {
       </div>
     `;
 
-    // Find nav actions area and inject
-    const navActions = document.querySelector('.nav-actions') || document.querySelector('nav .flex.gap');
+    // Find nav actions area and inject before burger/Home
+    const navActions = document.querySelector('.nav-actions');
     if (navActions) {
-      navActions.insertAdjacentHTML('beforeend', menuHTML);
+      navActions.innerHTML = menuHTML;
     } else {
       // Fallback: add to end of navbar
       const navbar = document.querySelector('nav');
@@ -148,45 +149,18 @@ class UserMenu {
       </button>
     `;
 
-    const navActions = document.querySelector('.nav-actions') || document.querySelector('nav');
+    const navActions = document.querySelector('.nav-actions');
     if (navActions) {
       const wrapper = document.createElement('div');
       wrapper.className = 'ml-auto';
       wrapper.innerHTML = menuHTML;
-      navActions.appendChild(wrapper);
+      navActions.innerHTML = menuHTML;
     }
   }
 
-  injectMemberActions() {
-    // Add floating member action button
-    const fabHTML = `
-      <div id="memberFab" class="fixed bottom-24 right-4 sm:right-6 z-40">
-        <button onclick="userMenu.toggleMemberActions()" class="w-14 h-14 bg-accent-purple text-white rounded-full shadow-lg flex items-center justify-center text-xl hover:scale-110 transition-transform">
-          ⚡
-        </button>
 
-        <div id="memberActionsMenu" class="absolute bottom-full right-0 mb-3 hidden">
-          <div class="bg-bg-card border border-border-primary rounded-xl shadow-xl p-2 min-w-[200px]">
-            <button onclick="userMenu.openQueueRequest()" class="w-full px-4 py-3 text-left rounded-lg hover:bg-bg-tertiary transition-colors flex items-center gap-3">
-              <span>🎮</span> Request Queue
-            </button>
-            <button onclick="userMenu.openEditProfile()" class="w-full px-4 py-3 text-left rounded-lg hover:bg-bg-tertiary transition-colors flex items-center gap-3">
-              <span>✏️</span> Edit Profile
-            </button>
-            <button onclick="userMenu.openReportForm()" class="w-full px-4 py-3 text-left rounded-lg hover:bg-bg-tertiary transition-colors flex items-center gap-3">
-              <span>📝</span> Submit Report
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
 
-    document.body.insertAdjacentHTML('beforeend', fabHTML);
-  }
 
-  toggleMemberActions() {
-    document.getElementById('memberActionsMenu')?.classList.toggle('hidden');
-  }
 
   setupEventListeners() {
     window.addEventListener('bamaco-auth-change', (e) => {
@@ -196,12 +170,7 @@ class UserMenu {
       this.injectUserMenu();
     });
 
-    // Close member actions on outside click
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('#memberFab')) {
-        document.getElementById('memberActionsMenu')?.classList.add('hidden');
-      }
-    });
+
   }
 
   setupAdminNotifications() {
@@ -525,11 +494,8 @@ class UserMenu {
     localStorage.removeItem('bamaco_session');
     localStorage.removeItem('bamaco_remember_me');
     sessionStorage.removeItem('bamaco_guest_mode');
-    window.location.reload();
-  }
 
-  formatFriendCode(code) {
-    if (!code) return '---';
+
     return String(code).replace(/\D/g, '');
   }
 

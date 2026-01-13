@@ -490,10 +490,10 @@ function createPlayerCard(player) {
   // Check if enhanced styles are available (players page)
   const cardClass = document.querySelector('.players-grid-enhanced') ? 'player-card-enhanced' : 'player-card';
 
-  // Create avatar HTML with consistent framing and image source
+// Create avatar HTML with square framing and image source
   const avatarContent = player.avatarImage && player.avatarImage.trim()
-    ? `<img src="${player.avatarImage}" alt="${displayName}" class="w-full h-full object-cover rounded-full" onerror="this.style.display='none'; this.nextSibling.style.display='flex';" /><div class="w-full h-full rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-white font-bold" style="display:none;">${displayName.substring(0, 2).toUpperCase()}</div>`
-    : `<div class="w-full h-full rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-white font-bold">${displayName.substring(0, 2).toUpperCase()}</div>`;
+    ? `<img src="${player.avatarImage}" alt="${displayName}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextSibling.style.display='flex';" /><div class="w-full h-full flex items-center justify-center text-white font-bold">${displayName.substring(0, 2).toUpperCase()}</div>`
+    : `<div class="w-full h-full flex items-center justify-center text-white font-bold">${displayName.substring(0, 2).toUpperCase()}</div>`;
 
   // Handle marquee for long titles using centralized function
   const playerRole = player.role || player.title || player.special_title || 'Player';
@@ -524,10 +524,10 @@ function createPlayerCard(player) {
     `;
   }
 
-  // Fallback to original card style for other pages with consistent avatar framing
+  // Fallback to original card style for other pages with square avatar framing
   const fallbackAvatarContent = player.avatarImage && player.avatarImage.trim()
-    ? `<img src="${player.avatarImage}" alt="${displayName}" class="w-full h-full object-cover rounded-full" onerror="this.style.display='none'; this.nextSibling.style.display='flex';" /><div class="w-full h-full rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-white font-bold" style="display:none;">${displayName.charAt(0).toUpperCase()}</div>`
-    : `<div class="w-full h-full rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-white font-bold">${displayName.charAt(0).toUpperCase()}</div>`;
+    ? `<img src="${player.avatarImage}" alt="${displayName}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextSibling.style.display='flex';" /><div class="w-full h-full flex items-center justify-center text-white font-bold" style="display:none;">${displayName.charAt(0).toUpperCase()}</div>`
+    : `<div class="w-full h-full flex items-center justify-center text-white font-bold">${displayName.charAt(0).toUpperCase()}</div>`;
 
   return `
     <div class="player-card" onclick="window.location.href='player-profile.html?id=${profileId}'">

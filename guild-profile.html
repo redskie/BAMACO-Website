@@ -152,14 +152,13 @@
         const profileId = member.friendCode || member.id;
         const displayName = member.ign || member.name;
         const avatarContent = member.avatarImage && member.avatarImage.trim()
-          ? `<img src="${member.avatarImage}" alt="${displayName}" class="w-full h-full object-cover rounded-full" onerror="this.style.display='none'; this.nextSibling.style.display='flex';" /><div class="w-full h-full rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-white font-bold" style="display:none;">${displayName.substring(0, 2).toUpperCase()}</div>`
-          : `<div class="w-full h-full rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-white font-bold">${displayName.substring(0, 2).toUpperCase()}</div>`;
-
+          ? `<img src="${member.avatarImage}" alt="${displayName}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextSibling.style.display='flex';" /><div class="w-full h-full flex items-center justify-center text-white font-bold" style="display:none;">${displayName.substring(0, 2).toUpperCase()}</div>`
+          : `<div class="w-full h-full flex items-center justify-center text-white font-bold">${displayName.substring(0, 2).toUpperCase()}</div>`;
         return `
           <a href="player-profile.html?id=${profileId}"
              class="block bg-bg-secondary border border-border-primary rounded-lg p-4 hover-card hover:shadow-lg transition-all duration-300">
             <div class="flex items-center gap-3 mb-2">
-              <div class="w-12 h-12 bg-bg-tertiary rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 overflow-hidden border-2 border-accent-pink/20">
+              <div class="w-12 h-12 flex items-center justify-center font-bold text-sm flex-shrink-0 overflow-hidden">
                 ${avatarContent}
               </div>
               <div class="flex-1 min-w-0">

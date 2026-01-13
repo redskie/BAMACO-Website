@@ -108,8 +108,8 @@
         grid.innerHTML = players.map((player, index) => {
           const displayName = player.ign || player.name || 'Unknown';
           const avatarContent = player.avatarImage && player.avatarImage.trim()
-            ? `<img src="${player.avatarImage}" alt="${displayName}" class="w-full h-full object-cover rounded-full" onerror="this.style.display='none'; this.nextSibling.style.display='flex';" /><div class="w-full h-full rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-white font-bold" style="display:none;">${displayName.substring(0, 2).toUpperCase()}</div>`
-            : `<div class="w-full h-full rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-white font-bold">${displayName.substring(0, 2).toUpperCase()}</div>`;
+            ? `<img src="${player.avatarImage}" alt="${displayName}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextSibling.style.display='flex';" /><div class="w-full h-full flex items-center justify-center text-white font-bold" style="display:none;">${displayName.substring(0, 2).toUpperCase()}</div>`
+            : `<div class="w-full h-full flex items-center justify-center text-white font-bold">${displayName.substring(0, 2).toUpperCase()}</div>`;
 
           // Link to dynamic profile page with friendCode
           const profileUrl = `player-profile.html?id=${player.friendCode}`;
@@ -120,7 +120,7 @@
                style="animation-delay: ${Math.min(index * 0.05, 0.35)}s; opacity: 0;">
               <div class="absolute inset-0 h-1 top-0 bg-gradient-to-r from-accent-pink to-accent-purple scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300"></div>
 
-              <div class=\"w-20 h-20 mx-auto mb-4 bg-bg-tertiary rounded-full flex items-center justify-center text-3xl font-black border-4 border-accent-pink/20 transition-all duration-300 group-hover:border-text-secondary group-hover:scale-110 group-hover:rotate-6 overflow-hidden\">
+              <div class="w-20 h-20 mx-auto mb-4 flex items-center justify-center text-3xl font-black transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 overflow-hidden">
                 ${avatarContent}
               </div>
 

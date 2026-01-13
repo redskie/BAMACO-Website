@@ -44,7 +44,7 @@
     <main id="main-content" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Profile Header Card -->
       <div class="bg-bg-card p-6 rounded-lg border border-border-primary mb-8">
-        <div class="w-32 h-32 rounded-full bg-bg-tertiary flex items-center justify-center text-4xl font-bold mx-auto mb-4 overflow-hidden border-4 border-accent-pink/20" id="player-avatar">
+        <div class="w-32 h-32 flex items-center justify-center text-4xl font-bold mx-auto mb-4 overflow-hidden" id="player-avatar">
           <span id="avatar-letter"></span>
         </div>
         <div class="text-center">
@@ -244,11 +244,11 @@
           const img = document.createElement('img');
           img.src = player.avatarImage;
           img.alt = player.ign || 'Player Avatar';
-          img.className = 'w-full h-full object-cover rounded-full';
+          img.className = 'w-full h-full object-cover';
           img.onerror = function() {
             // Fallback to initials on image error
             avatarEl.style.backgroundImage = '';
-            avatarEl.className = 'w-32 h-32 rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-4xl font-bold text-white mx-auto mb-4';
+            avatarEl.className = 'w-32 h-32 flex items-center justify-center text-4xl font-bold text-white mx-auto mb-4';
             avatarLetter.textContent = (player.ign || 'P').substring(0, 2).toUpperCase();
             avatarLetter.style.display = 'block';
           };
@@ -256,9 +256,9 @@
             avatarLetter.style.display = 'none';
           };
           avatarEl.appendChild(img);
-          avatarEl.className = 'w-32 h-32 rounded-full overflow-hidden mx-auto mb-4 border-4 border-accent-pink/20';
+          avatarEl.className = 'w-32 h-32 overflow-hidden mx-auto mb-4';
         } else {
-          avatarEl.className = 'w-32 h-32 rounded-full bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center text-4xl font-bold text-white mx-auto mb-4';
+          avatarEl.className = 'w-32 h-32 flex items-center justify-center text-4xl font-bold text-white mx-auto mb-4';
           avatarLetter.textContent = (player.ign || 'P').substring(0, 2).toUpperCase();
           avatarLetter.style.display = 'block';
         }
