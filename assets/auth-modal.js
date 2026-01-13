@@ -70,7 +70,7 @@ class AuthModal {
           <div id="authMainView" class="p-6 sm:p-8">
             <!-- Header -->
             <div class="text-center mb-8">
-              <img src="https://maimai.sega.jp/storage/root/logo.png" alt="MaiMai Logo" class="w-20 h-20 mx-auto mb-4 drop-shadow-lg">
+              <img src="https://maimai.sega.jp/storage/root/logo.png" alt="MaiMai Logo" class="w-auto h-auto mx-auto mb-4 drop-shadow-lg">
               <h2 class="text-2xl sm:text-3xl font-black text-text-primary mb-2">Welcome to BAMACO</h2>
               <p class="text-text-muted text-sm">Bataan MaiMai Community</p>
             </div>
