@@ -357,6 +357,24 @@
   <script type="module">
     import { playersDB } from './assets/players-db.js';
 
+    // Global error handlers to prevent unhandled rejections
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('Unhandled promise rejection:', event.reason);
+      // Prevent the error from crashing the app
+      event.preventDefault();
+    });
+
+    // Fallback for crypto API unavailability
+    function generateSimpleHash(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      return Math.abs(hash).toString(16).padStart(8, '0').substring(0, 16);
+    }
+
     class ProfileCreator {
       constructor() {
         this.isValidatingCode = false;
@@ -755,14 +773,29 @@
         const salt = crypto.getRandomValues(new Uint8Array(16));
         const saltHex = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
 
-        // Hash password with salt
-        const encoder = new TextEncoder();
-        const data = encoder.encode(saltHex + password);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        try {
+          // Hash password with salt - with fallback
+          if (!crypto || !crypto.subtle || !crypto.subtle.digest) {
+            // Fallback if crypto API unavailable
+            const fingerprint = saltHex + password;
+            const hash = generateSimpleHash(fingerprint);
+            return `${saltHex}:${hash}`;
+          }
 
-        return `${saltHex}:${hashHex}`;
+          const encoder = new TextEncoder();
+          const data = encoder.encode(saltHex + password);
+          const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+          return `${saltHex}:${hashHex}`;
+        } catch (error) {
+          console.error('Crypto error in hashPassword:', error);
+          // Fallback to simple hash
+          const fingerprint = saltHex + password;
+          const hash = generateSimpleHash(fingerprint);
+          return `${saltHex}:${hash}`;
+        }
       }
 
       async generateFingerprint() {
