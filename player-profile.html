@@ -86,6 +86,10 @@
                 <p class="text-text-primary" id="player-nickname"></p>
               </div>
               <div>
+                <strong class="text-text-secondary block mb-2">Title:</strong>
+                <p class="text-text-primary" id="player-title-info"></p>
+              </div>
+              <div>
                 <strong class="text-text-secondary block mb-2">Motto:</strong>
                 <p class="text-text-primary" id="player-motto"></p>
               </div>
@@ -264,6 +268,7 @@
         document.getElementById('player-full-name').textContent = player.name || player.ign || 'Unknown';
         document.getElementById('player-friend-code').textContent = formatFriendCode(player.friendCode);
         document.getElementById('player-nickname').textContent = player.nickname || 'N/A';
+        document.getElementById('player-title-info').textContent = player.title || player.trophy || 'N/A';
         document.getElementById('player-motto').textContent = player.motto || 'N/A';
         document.getElementById('player-age').textContent = player.age || 'N/A';
 
@@ -271,6 +276,8 @@
         if (player.trophy) {
           document.getElementById('trophy-container').classList.remove('hidden');
           document.getElementById('player-trophy').textContent = player.trophy;
+        } else {
+          document.getElementById('trophy-container').classList.add('hidden');
         }
 
         // Bio

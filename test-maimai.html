@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaiMai API Integration Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a1a; color: #fff; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #444; border-radius: 8px; }
+        .success { border-color: #4CAF50; background: #1e2f1e; }
+        .error { border-color: #f44336; background: #2f1e1e; }
+        .loading { border-color: #ff9800; background: #2f2a1e; }
+        button { padding: 10px 20px; margin: 10px 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #2196F3; color: white; }
+        .btn-test { background: #4CAF50; color: white; }
+        pre { background: #2a2a2a; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .form-group { margin: 10px 0; }
+        input, textarea { padding: 8px; border-radius: 4px; border: 1px solid #444; background: #333; color: white; width: 300px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 MaiMai API Integration Test</h1>
+
+        <div class="test-section">
+            <h3>1. Test Direct API Call</h3>
+            <div class="form-group">
+                <label>Friend Code:</label>
+                <input type="text" id="friendCode" value="101680566000997" placeholder="Enter friend code">
+                <button class="btn-test" onclick="testDirectAPI()">Test API</button>
+            </div>
+            <div id="apiResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Test Profile Creation</h3>
+            <button class="btn-test" onclick="testProfileCreation()">Create Test Profile</button>
+            <div id="profileResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Test Profile Update from API</h3>
+            <div class="form-group">
+                <label>Update Friend Code:</label>
+                <input type="text" id="updateCode" value="" placeholder="Friend code to update">
+                <button class="btn-test" onclick="testAPIUpdate()">Update from API</button>
+            </div>
+            <div id="updateResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Console Output</h3>
+            <pre id="console"></pre>
+        </div>
+    </div>
+
+    <script type="module">
+        import { playersDB } from './assets/players-db.js';
+
+        // Make playersDB globally available for testing
+        window.playersDB = playersDB;
+
+        window.log = function(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const consoleEl = document.getElementById('console');
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            consoleEl.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        };
+
+        window.testDirectAPI = async function() {
+            const friendCode = document.getElementById('friendCode').value.trim();
+            const resultEl = document.getElementById('apiResult');
+
+            resultEl.innerHTML = '<div class="loading">🔄 Testing API call...</div>';
+            log(`Testing API for friend code: ${friendCode}`);
+
+            try {
+                const response = await fetch(`https://maimai-data-get.onrender.com/api/player/${friendCode}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    resultEl.innerHTML = `
+                        <div class="success">
+                            <h4>✅ API Success</h4>
+                            <p><strong>IGN:</strong> ${data.ign}</p>
+                            <p><strong>Rating:</strong> ${data.rating}</p>
+                            <p><strong>Trophy:</strong> ${data.trophy || 'None'}</p>
+                            <p><strong>Title:</strong> ${data.title || data.trophy || 'None'}</p>
+                            <p><strong>Icon:</strong> ${data.avatar_url || data.icon_url ? 'Available' : 'None'}</p>
+                            ${(data.avatar_url || data.icon_url) ? `<img src="${data.avatar_url || data.icon_url}" alt="Avatar" style="width:64px;height:64px;border-radius:50%;">` : ''}
+                        </div>
+                    `;
+                    log('API call successful', 'success');
+
+                    // Store for profile creation
+                    window.lastApiData = data;
+                    window.lastApiData.friendCode = friendCode;
+                } else {
+                    resultEl.innerHTML = `<div class="error"><h4>❌ API Error</h4><p>${data.error}</p></div>`;
+                    log(`API error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                resultEl.innerHTML = `<div class="error"><h4>❌ Request Failed</h4><p>${error.message}</p></div>`;
+                log(`Request failed: ${error.message}`, 'error');
+            }
+        };
+
+        window.testProfileCreation = async function() {
+            const resultEl = document.getElementById('profileResult');
+
+            if (!window.lastApiData) {
+                resultEl.innerHTML = '<div class="error">❌ Run API test first to get player data</div>';
+                return;
+            }
+
+            resultEl.innerHTML = '<div class="loading">🔄 Creating test profile...</div>';
+            log('Creating test profile with API data');
+
+            try {
+                const testCode = '999' + window.lastApiData.friendCode.slice(3);
+                const playerData = {
+                    friendCode: testCode,
+                    ign: window.lastApiData.ign,
+                    name: 'Test Player',
+                    nickname: window.lastApiData.ign,
+                    title: window.lastApiData.title || window.lastApiData.trophy || '',
+                    avatarImage: window.lastApiData.avatar_url || window.lastApiData.icon_url || '',
+                    rating: window.lastApiData.rating || '0',
+                    trophy: window.lastApiData.trophy || '',
+                    age: '25',
+                    motto: 'Testing API integration',
+                    joined: '2026',
+                    bio: 'This is a test profile created to verify MaiMai API integration.',
+                    passwordHash: 'test:hash',
+                    isPublic: true
+                };
+
+                const createdPlayer = await playersDB.createPlayer(playerData);
+
+                resultEl.innerHTML = `
+                    <div class="success">
+                        <h4>✅ Profile Created</h4>
+                        <p><strong>Friend Code:</strong> ${createdPlayer.friendCode}</p>
+                        <p><strong>IGN:</strong> ${createdPlayer.ign}</p>
+                        <p><strong>Title:</strong> ${createdPlayer.title}</p>
+                        <p><strong>Avatar:</strong> ${createdPlayer.avatarImage ? 'Set' : 'None'}</p>
+                        <a href="player-profile.html?id=${createdPlayer.friendCode}" target="_blank">View Profile</a>
+                    </div>
+                `;
+
+                log('Test profile created successfully', 'success');
+                document.getElementById('updateCode').value = createdPlayer.friendCode;
+
+            } catch (error) {
+                resultEl.innerHTML = `<div class="error"><h4>❌ Creation Failed</h4><p>${error.message}</p></div>`;
+                log(`Profile creation failed: ${error.message}`, 'error');
+            }
+        };
+
+        window.testAPIUpdate = async function() {
+            const friendCode = document.getElementById('updateCode').value.trim();
+            const resultEl = document.getElementById('updateResult');
+
+            if (!friendCode) {
+                resultEl.innerHTML = '<div class="error">❌ Enter a friend code to update</div>';
+                return;
+            }
+
+            resultEl.innerHTML = '<div class="loading">🔄 Updating from API...</div>';
+            log(`Updating player ${friendCode} from API`);
+
+            try {
+                // First get API data
+                const response = await fetch(`https://maimai-data-get.onrender.com/api/player/${friendCode}`);
+                const apiData = await response.json();
+
+                if (!apiData.success) {
+                    throw new Error(apiData.error);
+                }
+
+                // Update player with API data
+                const updatedPlayer = await playersDB.updateFromAPI(friendCode, apiData);
+
+                resultEl.innerHTML = `
+                    <div class="success">
+                        <h4>✅ Update Successful</h4>
+                        <p><strong>IGN:</strong> ${updatedPlayer.ign}</p>
+                        <p><strong>Rating:</strong> ${updatedPlayer.rating}</p>
+                        <p><strong>Title:</strong> ${updatedPlayer.title}</p>
+                        <p><strong>Trophy:</strong> ${updatedPlayer.trophy}</p>
+                        <p><strong>Avatar:</strong> ${updatedPlayer.avatarImage ? 'Updated' : 'None'}</p>
+                        <a href="player-profile.html?id=${friendCode}" target="_blank">View Updated Profile</a>
+                    </div>
+                `;
+
+                log('Player updated from API successfully', 'success');
+
+            } catch (error) {
+                resultEl.innerHTML = `<div class="error"><h4>❌ Update Failed</h4><p>${error.message}</p></div>`;
+                log(`Update failed: ${error.message}`, 'error');
+            }
+        };
+
+        // Auto-run API test on load
+        window.addEventListener('load', () => {
+            log('MaiMai API Integration Test loaded');
+            setTimeout(testDirectAPI, 1000);
+        });
+    </script>
+</body>
+</html>

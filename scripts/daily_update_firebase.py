@@ -38,19 +38,22 @@ def fetch_maimai_data(friend_code: str) -> Optional[dict]:
     try:
         response = requests.get(f"{MAIMAI_API_URL}/{friend_code}", timeout=30)
         data = response.json()
-        
+
         if data.get("success"):
+            # Normalize fields from MaiMai API
             return {
                 "ign": data.get("ign"),
                 "rating": data.get("rating"),
-                "title": data.get("title"),
+                # Use trophy as title fallback when title is missing
+                "title": data.get("title") or data.get("trophy"),
                 "trophy": data.get("trophy"),
-                "avatarImage": data.get("icon_url") or data.get("iconUrl")
+                # Prefer avatar_url first, then icon_url; keep icon/iconUrl as fallbacks
+                "avatarImage": data.get("avatar_url") or data.get("icon_url") or data.get("iconUrl") or data.get("icon")
             }
         else:
             log(f"API returned unsuccessful for {friend_code}", "WARN")
             return None
-            
+
     except requests.RequestException as e:
         log(f"API request failed for {friend_code}: {e}", "ERROR")
         return None
@@ -60,7 +63,7 @@ def update_player_in_firebase(friend_code: str, updates: dict) -> bool:
     try:
         # Add timestamp
         updates["lastApiUpdate"] = datetime.now().isoformat()
-        
+
         response = requests.patch(
             f"{FIREBASE_URL}/players/{friend_code}.json",
             json=updates,
@@ -77,17 +80,17 @@ def main():
     log("=" * 60)
     log("BAMACO Daily Update - Firebase Version")
     log("=" * 60)
-    
+
     # Fetch all players
     log("Fetching players from Firebase...")
     players = fetch_all_players()
-    
+
     if not players:
         log("No players found in Firebase. Exiting.", "WARN")
         return
-    
+
     log(f"Found {len(players)} players to update")
-    
+
     # Track stats
     stats = {
         "updated": 0,
@@ -95,34 +98,34 @@ def main():
         "failed": 0,
         "api_error": 0
     }
-    
+
     # Process each player
     for friend_code, player_data in players.items():
         ign = player_data.get("ign", "Unknown")
         log(f"Processing: {ign} ({friend_code})")
-        
+
         # Fetch latest data from MaiMai API
         api_data = fetch_maimai_data(friend_code)
-        
+
         if not api_data:
             stats["api_error"] += 1
             continue
-        
+
         # Check what changed
         changes = {}
         fields_to_check = ["ign", "rating", "title", "trophy", "avatarImage"]
-        
+
         for field in fields_to_check:
             api_value = api_data.get(field)
             current_value = player_data.get(field)
-            
+
             # Only update if API returned a value and it's different
             if api_value and api_value != current_value:
                 changes[field] = api_value
-        
+
         if changes:
             log(f"  Changes detected: {list(changes.keys())}")
-            
+
             if update_player_in_firebase(friend_code, changes):
                 stats["updated"] += 1
                 log(f"  ✅ Updated successfully")
@@ -132,7 +135,7 @@ def main():
         else:
             stats["unchanged"] += 1
             log(f"  No changes needed")
-    
+
     # Summary
     log("")
     log("=" * 60)
@@ -143,7 +146,7 @@ def main():
     log(f"⚠️  API Error: {stats['api_error']} players")
     log(f"❌ Failed:    {stats['failed']} players")
     log("=" * 60)
-    
+
     # Exit with error if any failures
     if stats["failed"] > 0:
         log("Some updates failed. Check logs above.", "WARN")

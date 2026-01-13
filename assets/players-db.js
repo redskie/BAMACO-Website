@@ -177,8 +177,8 @@ class PlayersDB {
       ign: playerData.ign || 'Unknown',
       name: playerData.name || playerData.fullName || '',
       nickname: playerData.nickname || '',
-      title: playerData.title || playerData.motto || '',
-      avatarImage: playerData.avatarImage || playerData.iconUrl || '',
+      title: playerData.title || playerData.trophy || playerData.motto || '',
+      avatarImage: playerData.avatarImage || playerData.avatar_url || playerData.icon_url || playerData.iconUrl || '',
       rating: playerData.rating || '0',
       rank: playerData.rank || 'Unranked',
       trophy: playerData.trophy || '',
@@ -369,9 +369,17 @@ class PlayersDB {
       ign: apiData.ign || apiData.name,
       rating: apiData.rating,
       trophy: apiData.trophy,
-      avatarImage: apiData.icon_url || apiData.iconUrl,
+      title: apiData.title || apiData.trophy,
+      avatarImage: apiData.avatar_url || apiData.icon_url || apiData.iconUrl || apiData.avatarImage || apiData.icon,
       updatedAt: Date.now()
     };
+
+    // Drop undefined/null to avoid overwriting existing data with empties
+    Object.keys(updates).forEach((key) => {
+      if (updates[key] === undefined || updates[key] === null) {
+        delete updates[key];
+      }
+    });
 
     return this.updatePlayer(friendCode, updates, null);
   }
