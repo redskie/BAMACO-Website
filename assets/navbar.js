@@ -10,11 +10,6 @@ const NAVBAR_CONFIG = {
     subtitle: 'Bataan MaiMai Community'
   },
   links: [
-    { href: 'index.html', text: 'Home', id: 'home' },
-    { href: 'players.html', text: 'Players', id: 'players' },
-    { href: 'guilds.html', text: 'Guilds', id: 'guilds' },
-    { href: 'articles.html', text: 'Tips & Guides', id: 'articles' },
-    { href: 'calculator.html', text: 'Calculator', id: 'calculator' },
     { href: 'queue.html', text: 'Queue', id: 'queue' }
   ]
 };
